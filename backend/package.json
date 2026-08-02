@@ -1,0 +1,12 @@
+{
+  "name": "impact-arlington-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "init-db": "node init-db.js"
+  },
+  "engines": { "node": ">=22.5" }
+}

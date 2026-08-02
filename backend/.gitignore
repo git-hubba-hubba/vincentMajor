@@ -1,0 +1,5 @@
+.env
+cms.sqlite
+cms.sqlite-*
+backups/
+node_modules

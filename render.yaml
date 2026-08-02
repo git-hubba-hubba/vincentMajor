@@ -1,0 +1,52 @@
+services:
+  - type: web
+    name: impact-arlington-api
+    runtime: node
+    rootDir: backend
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: DB_PATH
+        value: /var/data/cms.sqlite
+      - key: BACKUP_DIR
+        value: /var/data/backups
+      - key: BACKUP_INTERVAL_HOURS
+        value: 24
+      - key: BACKUP_RETENTION_DAYS
+        value: 7
+      - key: SEED_DEMO_DATA
+        value: false
+      - key: SEED_DIRECTORY_DATA
+        value: true
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_UPLOAD_PRESET
+        sync: false
+    disk:
+      name: impact-arlington-data
+      mountPath: /var/data
+      sizeGB: 1
+
+  - type: web
+    name: impact-arlington-web
+    runtime: static
+    rootDir: frontend/cms-arlington/cms-admin-arl
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_URL
+        sync: false

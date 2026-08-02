@@ -1,8 +1,11 @@
 import http from 'node:http';
 import { randomBytes, scryptSync, timingSafeEqual, createHash } from 'node:crypto';
 import { db, hashPassword } from './db.js';
+import { persistImage } from './storage.js';
+import { scheduleBackups } from './backup.js';
 
 const PORT = Number(process.env.PORT || 4000);
+const allowedOrigins = new Set((process.env.CLIENT_ORIGIN || 'http://localhost:5173').split(',').map((origin)=>origin.trim()).filter(Boolean));
 const allowedTables = new Set(['events','posts','rewards','companies','users','employees']);
 const editable = {
   events: ['creator_id','title','description','category','image_url','location','starts_at','ends_at','capacity','attendance_code','points_awarded','status','featured','admin_feedback'],
@@ -33,9 +36,14 @@ async function body(req) {
 function fields(table, payload) { return Object.fromEntries(Object.entries(payload).filter(([key,value]) => editable[table].includes(key) && value !== undefined)); }
 
 const server = http.createServer(async (req,res) => {
-  res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_ORIGIN || 'http://localhost:5173');
+  const origin=req.headers.origin;
+  if(origin && allowedOrigins.has(origin)) { res.setHeader('Access-Control-Allow-Origin',origin); res.setHeader('Vary','Origin'); }
   res.setHeader('Access-Control-Allow-Headers','Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods','GET,POST,PATCH,DELETE,OPTIONS');
+  res.setHeader('X-Content-Type-Options','nosniff');
+  res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');
+  res.setHeader('Content-Security-Policy',"default-src 'none'; frame-ancestors 'none'");
   if (req.method === 'OPTIONS') return send(res,204,{});
   const url = new URL(req.url, `http://${req.headers.host}`); const path = url.pathname; const user = auth(req);
   try {
@@ -55,17 +63,18 @@ const server = http.createServer(async (req,res) => {
     if (path === '/api/auth/logout' && req.method === 'POST') { const token=(req.headers.authorization||'').replace(/^Bearer /,''); if(token) db.prepare('DELETE FROM sessions WHERE token_hash=?').run(tokenHash(token)); return send(res,200,{ok:true}); }
     if (path === '/api/profile' && req.method === 'PATCH') {
       if (!user) return send(res,401,{error:'Sign in first.'});
-      const data=await body(req); const firstName=String(data.first_name||'').trim(); const lastName=String(data.last_name||'').trim(); const email=String(data.email||'').trim().toLowerCase(); const bio=String(data.bio||'').trim(); const avatar=data.avatar_url || null;
+      const data=await body(req); const firstName=String(data.first_name||'').trim(); const lastName=String(data.last_name||'').trim(); const email=String(data.email||'').trim().toLowerCase(); const bio=String(data.bio||'').trim(); let avatar=data.avatar_url || null;
       if (!firstName || !lastName || !email) return send(res,400,{error:'First name, last name, and email are required.'});
       if (bio.length > 500) return send(res,400,{error:'Bio must be 500 characters or fewer.'});
       if (avatar && (!String(avatar).startsWith('data:image/') || String(avatar).length > 3e6)) return send(res,400,{error:'Profile image must be a supported image under 2 MB.'});
+      avatar=await persistImage(avatar,'impact-arlington/profiles');
       db.prepare('UPDATE users SET first_name=?,last_name=?,email=?,bio=?,avatar_url=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(firstName,lastName,email,bio,avatar,user.id);
       log(user.id,'updated','profile',user.id); const updated=db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id); return send(res,200,{user:updated});
     }
     if (path === '/api/profile/business-application' && req.method === 'POST') {
       if (!user) return send(res,401,{error:'Sign in first.'}); const data=await body(req);
       if (!data.name || !data.category) return send(res,400,{error:'Business name and category are required.'});
-      const image=data.image_url||'/images/impDirectory.png'; if(image.startsWith('data:') && (!image.startsWith('data:image/') || image.length>3e6)) return send(res,400,{error:'Business image must be a supported image under 2 MB.'});
+      let image=data.image_url||'/images/impDirectory.png'; if(image.startsWith('data:') && (!image.startsWith('data:image/') || image.length>3e6)) return send(res,400,{error:'Business image must be a supported image under 2 MB.'}); image=await persistImage(image,'impact-arlington/businesses');
       const result=db.prepare(`INSERT INTO companies(owner_id,name,category,description,image_url,website,phone,address) VALUES(?,?,?,?,?,?,?,?)`).run(user.id,data.name,data.category,data.description||'',image,data.website||'',data.phone||'',data.address||'');
       db.prepare("UPDATE users SET business_tier='pending',updated_at=CURRENT_TIMESTAMP WHERE id=?").run(user.id); log(user.id,'applied','company',result.lastInsertRowid); return send(res,201,{ok:true,id:Number(result.lastInsertRowid)});
     }
@@ -148,12 +157,13 @@ const server = http.createServer(async (req,res) => {
         const result=id?db.prepare(query).get(Number(id)):db.prepare(query).all(); return result ? send(res,200,result) : send(res,404,{error:'Not found.'});
       }
       if (!user || !['admin','board'].includes(user.role)) return send(res,403,{error:'Admin access required.'});
-      if (req.method === 'POST') { const data=fields(table,await body(req)); if(table==='users') data.password_hash=hashPassword('Welcome123!'); const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
+      if (req.method === 'POST') { const payload=await body(req); const data=fields(table,payload); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
       if (req.method === 'PATCH' && id) {
         const data=fields(table,await body(req));
         if(table==='companies') {
           const current=db.prepare('SELECT * FROM companies WHERE id=?').get(Number(id)); if(!current) return send(res,404,{error:'Business not found.'});
           if(data.image_url && data.image_url.startsWith('data:') && (!data.image_url.startsWith('data:image/') || data.image_url.length>3e6)) return send(res,400,{error:'Business image must be a supported image under 2 MB.'});
+          if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses');
           if(data.status && data.status!=='approved') { data.spotlight_position=null; data.featured=0; }
           if(data.spotlight_position!==undefined && data.spotlight_position!==null && data.spotlight_position!=='') {
             const position=Number(data.spotlight_position); if(!Number.isInteger(position) || position<1 || position>5) return send(res,400,{error:'Spotlight position must be between 1 and 5.'});
@@ -173,4 +183,5 @@ const server = http.createServer(async (req,res) => {
 });
 
 function createSession(res,userId) { const token=randomBytes(32).toString('hex'); db.prepare("INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(?,?,datetime('now','+7 days'))").run(tokenHash(token),userId); const user=db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(userId); return send(res,200,{token,user}); }
-server.listen(PORT,()=>console.log(`Impact Arlington API listening on http://localhost:${PORT}`));
+scheduleBackups();
+server.listen(PORT,'0.0.0.0',()=>console.log(`Impact Arlington API listening on 0.0.0.0:${PORT}`));

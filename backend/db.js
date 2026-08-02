@@ -1,11 +1,14 @@
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { randomBytes, scryptSync } from 'node:crypto';
 
 const here = dirname(fileURLToPath(import.meta.url));
-export const db = new DatabaseSync(join(here, 'cms.sqlite'));
+export const databasePath = process.env.DB_PATH || join(here, 'cms.sqlite');
+mkdirSync(dirname(databasePath), { recursive: true });
+export const db = new DatabaseSync(databasePath);
+db.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');
 db.exec(readFileSync(join(here, 'schema.sql'), 'utf8'));
 
 const eventColumns = new Set(db.prepare('PRAGMA table_info(events)').all().map((column) => column.name));
@@ -24,13 +27,21 @@ export function hashPassword(password) {
   return `${salt}:${scryptSync(password, salt, 64).toString('hex')}`;
 }
 
-if (!db.prepare('SELECT id FROM users WHERE email = ?').get('admin@impactarlington.org')) {
+const isProduction = process.env.NODE_ENV === 'production';
+const adminEmail = process.env.ADMIN_EMAIL || (isProduction ? '' : 'admin@impactarlington.org');
+const adminPassword = process.env.ADMIN_PASSWORD || (isProduction ? '' : 'ImpactAdmin123!');
+if (isProduction && (!adminEmail || adminPassword.length < 12)) {
+  throw new Error('Production requires ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters.');
+}
+if (!db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail)) {
   db.prepare(`INSERT INTO users (first_name,last_name,email,password_hash,role,status,business_tier)
-    VALUES (?,?,?,?, 'admin','active','premium')`).run('Impact', 'Administrator', 'admin@impactarlington.org', hashPassword('ImpactAdmin123!'));
+    VALUES (?,?,?,?, 'admin','active','premium')`).run(process.env.ADMIN_FIRST_NAME || 'Impact', process.env.ADMIN_LAST_NAME || 'Administrator', adminEmail, hashPassword(adminPassword));
 }
 
-const admin = db.prepare('SELECT id FROM users WHERE email = ?').get('admin@impactarlington.org');
-if (db.prepare('SELECT COUNT(*) count FROM events').get().count === 0) {
+const admin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+const shouldSeedDemo = process.env.SEED_DEMO_DATA === 'true' || (!isProduction && process.env.SEED_DEMO_DATA !== 'false');
+const shouldSeedDirectory = process.env.SEED_DIRECTORY_DATA === 'true' || !isProduction;
+if (shouldSeedDemo && db.prepare('SELECT COUNT(*) count FROM events').get().count === 0) {
   const addEvent = db.prepare(`INSERT INTO events (creator_id,title,description,category,image_url,location,starts_at,ends_at,capacity,attendance_code,points_awarded,status,featured) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`);
   const demoEvents = [
     ['Sunset Sounds at the Levitt','Bring a blanket, meet your neighbors, and enjoy an upbeat evening of live music, food trucks, and community fun.','Entertainment','https://images.unsplash.com/photo-1506157786151-b8491531f063?w=1200&auto=format&fit=crop','Levitt Pavilion Arlington','2026-08-15T18:30:00','2026-08-15T21:30:00',500,'SOUNDS26',125,'approved',1],
@@ -71,7 +82,7 @@ const demoCompanies = [
   ['Table & Town Kitchen','Restaurants','Comfort food, warm hospitality, and community tables.','https://example.com','(817) 555-0125','Downtown Arlington',1]
 ];
 const addCompany=db.prepare(`INSERT INTO companies(owner_id,name,category,description,website,phone,address,status,featured,spotlight_position) VALUES(?,?,?,?,?,?,?,'approved',1,?)`);
-for (const company of demoCompanies) {
+for (const company of shouldSeedDemo ? demoCompanies : []) {
   if (!db.prepare('SELECT id FROM companies WHERE name=?').get(company[0])) addCompany.run(admin.id,...company);
 }
 
@@ -96,6 +107,6 @@ const verifiedOrganizations = [
   ['River Legacy Foundation','Nonprofits','Environmental education, nature programs, camps, exhibits, events, and stewardship at River Legacy Nature Center.','https://riverlegacy.org','817-860-6752','703 NW Green Oaks Blvd., Arlington, TX 76006']
 ];
 const addVerified=db.prepare(`INSERT INTO companies(owner_id,name,category,description,website,phone,address,status,verified) VALUES(?,?,?,?,?,?,?,'approved',1)`);
-for (const organization of verifiedOrganizations) {
+for (const organization of shouldSeedDirectory ? verifiedOrganizations : []) {
   if (!db.prepare('SELECT id FROM companies WHERE name=?').get(organization[0])) addVerified.run(admin.id,...organization);
 }

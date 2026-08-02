@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --watch server.js",
-    "start": "node server.js",
-    "init-db": "node init-db.js"
+    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "start": "node --env-file-if-exists=.env server.js",
+    "init-db": "node --env-file-if-exists=.env init-db.js",
+    "backup": "node --env-file-if-exists=.env backup-db.js"
   },
   "engines": { "node": ">=22.5" }
 }

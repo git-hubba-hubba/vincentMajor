@@ -146,7 +146,7 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
           <>
             <p className="eyebrow">Impact Arlington</p><h2 id="profile-title">{mode === "signin" ? "Welcome back" : "Join the community"}</h2>
             <p className="modalIntro">{mode === "signin" ? "Sign in to manage events, bookmarks, and reward points." : "Create your free member profile."}</p>
-            <img src="../../public/images/signupimp.png" alt="" className="signer" />
+            <img src="/images/signupimp.png" alt="" className="signer" />
             <div className="authTabs"><button className={mode === "signin" ? "active" : ""} type="button" onClick={() => {setMode("signin");setMessage("");}}>Sign in</button><button className={mode === "register" ? "active" : ""} type="button" onClick={() => {setMode("register");setMessage("");}}>Register</button></div>
             <form className="profileForm" onSubmit={submitAuth}>
               {mode === "register" && <div className="formRow"><label>First name<input required autoComplete="given-name" value={form.firstName} onChange={(e) => setForm({...form,firstName:e.target.value})} /></label><label>Last name<input required autoComplete="family-name" value={form.lastName} onChange={(e) => setForm({...form,lastName:e.target.value})} /></label></div>}

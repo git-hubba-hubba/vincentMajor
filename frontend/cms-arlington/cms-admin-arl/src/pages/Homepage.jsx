@@ -9,7 +9,6 @@ function Homepage() {
       <div className="homepageContainer">
         
       </div>
-      <BusinessQuad />
       
     </>
   );

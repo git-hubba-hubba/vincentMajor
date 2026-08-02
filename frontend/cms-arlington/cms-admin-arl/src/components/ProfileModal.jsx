@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
+import businessCategories from "../data/businessCategories";
 
 const emptyAuth = { firstName: "", lastName: "", email: "", password: "" };
-const emptyBusiness = { name: "", category: "", description: "", website: "", phone: "", address: "" };
+const emptyBusiness = { name: "", category: "", description: "", image_url: "", website: "", phone: "", address: "" };
 
 function ProfileModal({ open, onClose, user, onAuthChange }) {
   const [mode, setMode] = useState("signin");
@@ -13,6 +14,7 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
   const [profile, setProfile] = useState({ first_name: "", last_name: "", email: "", bio: "", avatar_url: "" });
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [profileEvents, setProfileEvents] = useState({ saved: [], attended: [] });
 
   useEffect(() => {
     if (!open) return;
@@ -20,6 +22,11 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    api("/profile/events").then(setProfileEvents).catch(() => setProfileEvents({ saved:[], attended:[] }));
+  }, [open, user]);
 
   if (!open) return null;
 
@@ -62,6 +69,16 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
     reader.readAsDataURL(file);
   };
 
+  const selectBusinessImage = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { setMessage("Please select an image file."); return; }
+    if (file.size > 2 * 1024 * 1024) { setMessage("Please select a business image smaller than 2 MB."); return; }
+    const reader = new FileReader();
+    reader.onload = () => setBusiness((current) => ({ ...current, image_url: reader.result }));
+    reader.readAsDataURL(file);
+  };
+
   const saveProfile = async (event) => {
     event.preventDefault(); setBusy(true); setMessage("");
     try { const result = await api("/profile", { method:"PATCH", body:JSON.stringify(profile) }); onAuthChange(result.user); setEditing(false); setMessage("Profile updated successfully."); }
@@ -97,14 +114,26 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
               <div><strong>{user.role}</strong><span>Account role</span></div>
               <div><strong>{user.business_tier}</strong><span>Business tier</span></div>
             </div>
-            <div className="profileLinks"><span>My events</span><span>Bookmarked posts</span><span>Rewards</span></div>
+            <div className="profileLinks"><span>{profileEvents.saved.length} saved events</span><span>Bookmarked posts</span><span>Rewards</span></div>
+            <section className="profileEventSection">
+              <div className="profileSectionHeading"><div><p className="eyebrow">My event queue</p><h3>Saved events</h3></div><span>{profileEvents.saved.length}</span></div>
+              {profileEvents.saved.length ? <div className="savedEventList">{profileEvents.saved.slice(0,4).map(event=><div key={event.id}><span>◇</span><p><strong>{event.title}</strong><small>{new Date(event.starts_at).toLocaleDateString("en-US",{month:"short",day:"numeric"})} · {event.location}</small></p></div>)}</div> : <p className="profileEmptyState">Save an event and it will appear in your queue.</p>}
+            </section>
+            <section className="profileEventSection attendedEvents">
+              <div className="profileSectionHeading"><div><p className="eyebrow">Events attended</p><h3>My ticket collection</h3></div><span>{profileEvents.attended.length}</span></div>
+              {profileEvents.attended.length ? <div className="ticketCollection">{profileEvents.attended.map(event=><div className="profileTicket" key={event.id}><span aria-hidden="true">🎟</span><p><strong>{event.title}</strong><small>+{event.points_awarded} points earned</small></p></div>)}</div> : <p className="profileEmptyState">Enter an attendance code after an event to earn your first ticket.</p>}
+            </section>
             {message && !editing && <p className="formMessage" role="status">{message}</p>}
             {user.business_tier === "standard" && !showBusiness && <button className="primaryButton" type="button" onClick={() => setShowBusiness(true)}>Apply for a Business Account</button>}
             {user.business_tier === "pending" && <p className="pendingNote">Your Business Account application is awaiting board approval.</p>}
             {showBusiness && (
               <form className="profileForm businessForm" onSubmit={applyForBusiness}>
                 <h3>Business Account application</h3>
-                <div className="formRow"><label>Business name<input required value={business.name} onChange={(e) => setBusiness({...business,name:e.target.value})} /></label><label>Category<input required value={business.category} onChange={(e) => setBusiness({...business,category:e.target.value})} /></label></div>
+                <div className="businessImageUpload">
+                  <div className="businessImagePreview" style={business.image_url ? { backgroundImage:`url(${business.image_url})` } : undefined}><span>{business.image_url ? "Image selected" : "Business image"}</span></div>
+                  <label className="uploadButton">Upload business picture<input type="file" accept="image/png,image/jpeg,image/webp" onChange={selectBusinessImage} /></label>
+                </div>
+                <div className="formRow"><label>Business name<input required value={business.name} onChange={(e) => setBusiness({...business,name:e.target.value})} /></label><label>Category<select required value={business.category} onChange={(e) => setBusiness({...business,category:e.target.value})}><option value="">Select a category</option>{businessCategories.map(category=><option key={category}>{category}</option>)}</select></label></div>
                 <label>Description<textarea value={business.description} onChange={(e) => setBusiness({...business,description:e.target.value})} /></label>
                 <div className="formRow"><label>Website<input type="url" value={business.website} onChange={(e) => setBusiness({...business,website:e.target.value})} /></label><label>Phone<input value={business.phone} onChange={(e) => setBusiness({...business,phone:e.target.value})} /></label></div>
                 <label>Address<input value={business.address} onChange={(e) => setBusiness({...business,address:e.target.value})} /></label>

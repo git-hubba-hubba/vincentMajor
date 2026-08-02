@@ -1,13 +1,32 @@
-import React from 'react'
-import Namespace from '../components/Namespace'
-function Directory() {
-  return (
-    <>
-    <img src="../../public/images/impDirectory.png" alt="" className="dirImp" />
-    <Namespace title={"Dirctory"}/>
-    
-    </>
-  )
-}
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Namespace from "../components/Namespace";
+import businessCategories from "../data/businessCategories";
+import { api } from "../lib/api";
 
-export default Directory
+function Directory() {
+  const [businesses,setBusinesses]=useState([]); const [category,setCategory]=useState("All"); const [search,setSearch]=useState(""); const [loading,setLoading]=useState(true); const [error,setError]=useState("");
+  const loadDirectory=useCallback(async()=>{try{setBusinesses(await api("/directory"));setError("");}catch(err){setError(err.message);}finally{setLoading(false);}},[]);
+  useEffect(()=>{const request=window.setTimeout(loadDirectory,0);return()=>window.clearTimeout(request);},[loadDirectory]);
+  const visible=useMemo(()=>businesses.filter(business=>{
+    const matchesCategory=category==="All"||business.category===category; const term=search.trim().toLowerCase();
+    return matchesCategory&&(!term||[business.name,business.category,business.description,business.address].some(value=>String(value||"").toLowerCase().includes(term)));
+  }),[businesses,category,search]);
+  const spotlight=useMemo(()=>{
+    if(category==="All") return businesses.filter(item=>item.spotlight_position).sort((a,b)=>a.spotlight_position-b.spotlight_position).slice(0,5);
+    return Array.from({length:5},(_,index)=>businesses.find(item=>item.category===category&&item.spotlight_position===index+1)||null);
+  },[businesses,category]);
+  const initials=(name)=>name.split(" ").slice(0,2).map(word=>word[0]).join("");
+
+  return <main className="directoryPage">
+    <section className="directoryHero">
+      <div><p className="directoryKicker">Shop local • Grow together</p><h1>Meet the businesses behind <span>our community.</span></h1><p>Discover trusted services, neighborhood favorites, and community partners approved by Impact Arlington.</p><div className="directoryStats"><div><strong>{businesses.length}</strong><span>Approved businesses</span></div><div><strong>{new Set(businesses.map(item=>item.category)).size}</strong><span>Categories represented</span></div><div><strong>5</strong><span>Spotlight slots per category</span></div></div></div>
+      <div className="directoryHeroArt"><img src="/images/impDirectory.png" alt="Impact Arlington business community"/></div>
+    </section>
+    <Namespace title="Business Directory"/>
+    <section className="directoryTools" aria-label="Directory filters"><label className="directorySearch"><span>⌕</span><input type="search" placeholder="Search businesses, services, or neighborhoods" value={search} onChange={event=>setSearch(event.target.value)}/></label><label className="categorySelect"><span>Browse category</span><select value={category} onChange={event=>setCategory(event.target.value)}><option>All</option>{businessCategories.map(item=><option key={item}>{item}</option>)}</select></label></section>
+    <section className="spotlightSection"><div className="directorySectionTitle"><div><p className="directoryKicker">Editor’s row</p><h2>{category==="All"?"Community spotlight":`${category} spotlight`}</h2></div><p>{category==="All"?"A rotating selection of standout community businesses.":"Five premium positions curated and managed by the Impact Arlington admin team."}</p></div><div className="spotlightRail">{spotlight.map((business,index)=>business?<article className="spotlightBusiness" key={business.id}><div className="spotlightImage" style={{backgroundImage:`linear-gradient(180deg,rgba(15,48,62,.05),rgba(15,48,62,.72)),url(${business.image_url||'/images/impDirectory.png'})`}}><span className="spotlightNumber">0{business.spotlight_position||index+1}</span><div className="businessMonogram">{initials(business.name)}</div></div><p>{business.category}{business.verified&&<span className="verifiedBadge">✓ Verified</span>}</p><h3>{business.name}</h3><small>{business.description}</small><a href={business.website} target="_blank" rel="noreferrer">Visit business <span>↗</span></a></article>:<article className="spotlightBusiness emptySpotlight" key={`empty-${index}`}><span className="spotlightNumber">0{index+1}</span><div className="businessMonogram">＋</div><p>Available position</p><h3>Spotlight slot</h3><small>An approved business can be featured here by an administrator.</small></article>)}</div></section>
+    <section className="allBusinesses"><div className="directorySectionTitle"><div><p className="directoryKicker">Explore Arlington</p><h2>{category==="All"?"All community businesses":category}</h2></div><p>{visible.length} {visible.length===1?"business":"businesses"} found</p></div>{error&&<p className="directoryMessage">{error}</p>}{loading?<p className="directoryMessage">Opening the directory…</p>:visible.length===0?<div className="directoryEmpty"><span>⌕</span><h3>No businesses found</h3><p>Try another category or a broader search.</p></div>:<div className="businessGrid">{visible.map(business=><article className="businessCard" key={business.id}><div className="businessCardHeader" style={{backgroundImage:`linear-gradient(180deg,rgba(14,45,58,.08),rgba(14,45,58,.76)),url(${business.image_url||'/images/impDirectory.png'})`}}><div className="businessCardTop"><div className="businessMonogram">{initials(business.name)}</div><span>{business.category}</span></div></div><div className="businessCardContent">{business.verified&&<span className="verifiedResource">✓ Verified community resource</span>}<h3>{business.name}</h3><p>{business.description}</p><div className="businessContact"><p><span>Location</span>{business.address||"Arlington, Texas"}</p><p><span>Contact</span>{business.phone||"Contact through website"}</p></div><div className="businessCardActions">{business.phone&&<a href={`tel:${business.phone.replace(/[^+\d]/g,"")}`}>Call</a>}<a className="businessSiteButton" href={business.website} target="_blank" rel="noreferrer">View official site ↗</a></div></div></article>)}</div>}</section>
+    <footer className="directoryFooter"><span>◆</span><div><p>Own a business in our community?</p><strong>Apply for a premium Business Account to join the directory.</strong></div></footer>
+  </main>;
+}
+export default Directory;

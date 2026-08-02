@@ -50,7 +50,7 @@ function App() {
       { currentComponent === "Homepage" ? <Homepage /> :null}
       { currentComponent === "Admin" ? <AdminDash user={user} /> :null}
       { currentComponent === "Directory" ? <Directory /> :null}
-      { currentComponent === "Events" ? <EventMain /> :null}
+      { currentComponent === "Events" ? <EventMain user={user} onAuthChange={setUser} onProfileClick={() => setProfileOpen(true)} /> :null}
       { currentComponent === "Members" ? <Members /> :null}
       <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} user={user} onAuthChange={setUser} />
     </>

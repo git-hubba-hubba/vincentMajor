@@ -1,20 +1,48 @@
-import React from 'react'
-import Namespace from '../components/Namespace'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Namespace from "../components/Namespace";
+import { api } from "../lib/api";
 
-function EventMain() {
-  return (
-    <>
-    <img
-        src="../public/images/arlCartoon.png
-    "
-        alt=""
-        className="splashImage"
-      />
-    <Namespace title={"Community Events"}/>
-    
-    Make An Event then run through a map.
-    </>
-  )
+const emptyEvent = { title:"", description:"", category:"Community", image_url:"", location:"", starts_at:"", ends_at:"", capacity:"", attendance_code:"", points_awarded:100 };
+
+function EventMain({ user, onAuthChange, onProfileClick }) {
+  const [events,setEvents]=useState([]); const [category,setCategory]=useState("All"); const [loading,setLoading]=useState(true);
+  const [openEvent,setOpenEvent]=useState(null); const [comments,setComments]=useState({}); const [codes,setCodes]=useState({}); const [messages,setMessages]=useState({});
+  const [showCreate,setShowCreate]=useState(false); const [eventForm,setEventForm]=useState(emptyEvent); const [pageError,setPageError]=useState("");
+  const canCreate=user && (["admin","board"].includes(user.role) || user.business_tier==="premium");
+  const loadEvents=useCallback(async()=>{ setLoading(true); try{setEvents(await api("/community-events"));setPageError("");}catch(error){setPageError(error.message);}finally{setLoading(false);}},[]);
+  useEffect(()=>{const request=window.setTimeout(loadEvents,0);return()=>window.clearTimeout(request);},[loadEvents,user]);
+  const categories=useMemo(()=>["All",...new Set(events.map(event=>event.category))],[events]);
+  const visibleEvents=category==="All"?events:events.filter(event=>event.category===category);
+  const askToSignIn=()=>{onProfileClick();return false;};
+  const act=async(eventId,action,payload={})=>{
+    if(!user)return askToSignIn(); setMessages({...messages,[eventId]:""});
+    try{const result=await api(`/events/${eventId}/${action}`,{method:"POST",body:JSON.stringify(payload)});if(action==="attendance"){onAuthChange(result.user);setCodes({...codes,[eventId]:""});setMessages({...messages,[eventId]:result.message});}else{await loadEvents();}}
+    catch(error){setMessages({...messages,[eventId]:error.message});}
+  };
+  const submitComment=async(event,eventId)=>{event.preventDefault();const text=comments[eventId]?.trim();if(!text)return;await act(eventId,"comment",{body:text});setComments({...comments,[eventId]:""});};
+  const createEvent=async(event)=>{event.preventDefault();try{const result=await api("/community-events",{method:"POST",body:JSON.stringify(eventForm)});setEventForm(emptyEvent);setShowCreate(false);setPageError(result.status==="pending"?"Your event was submitted for administrator approval.":"Event published successfully.");await loadEvents();}catch(error){setPageError(error.message);}};
+  const formatDate=(value)=>new Intl.DateTimeFormat("en-US",{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(value));
+
+  return <main className="eventsPage">
+    <section className="eventsHero">
+      <div className="eventsHeroCopy"><p className="eventsEyebrow">Meet • Move • Make an impact</p><h1>Good things happen when <span>Arlington shows up.</span></h1><p>Find your next favorite memory, meet a neighbor, and earn reward points just for being part of it.</p><div className="eventsHeroStats"><div><strong>{events.length}</strong><span>Upcoming events</span></div><div><strong>{events.reduce((sum,event)=>sum+event.attendee_count,0)}</strong><span>Neighbors attending</span></div><div><strong>{events.reduce((sum,event)=>sum+event.points_awarded,0)}</strong><span>Points available</span></div></div></div>
+      <div className="eventsHeroArt"><img src="/images/arlCartoon.png" alt="Arlington community illustration"/></div>
+    </section>
+    <Namespace title="Community Events" />
+    <div className="eventsToolbar"><div className="eventFilters">{categories.map(item=><button type="button" className={category===item?"active":""} key={item} onClick={()=>setCategory(item)}>{item}</button>)}</div>{canCreate&&<button className="eventCreateButton" type="button" onClick={()=>setShowCreate(!showCreate)}>＋ Add an event</button>}</div>
+    {showCreate&&<form className="eventCreatePanel" onSubmit={createEvent}><div><p className="eventsEyebrow">For admins &amp; Business Accounts</p><h2>Create an experience</h2></div><div className="eventCreateGrid"><label>Event title<input required value={eventForm.title} onChange={e=>setEventForm({...eventForm,title:e.target.value})}/></label><label>Category<select value={eventForm.category} onChange={e=>setEventForm({...eventForm,category:e.target.value})}>{["Community","Health","Finances","Entertainment","Volunteer","Family"].map(value=><option key={value}>{value}</option>)}</select></label><label className="wideField">Description<textarea required value={eventForm.description} onChange={e=>setEventForm({...eventForm,description:e.target.value})}/></label><label>Location<input required value={eventForm.location} onChange={e=>setEventForm({...eventForm,location:e.target.value})}/></label><label>Image URL<input type="url" value={eventForm.image_url} onChange={e=>setEventForm({...eventForm,image_url:e.target.value})}/></label><label>Starts<input required type="datetime-local" value={eventForm.starts_at} onChange={e=>setEventForm({...eventForm,starts_at:e.target.value})}/></label><label>Ends<input type="datetime-local" value={eventForm.ends_at} onChange={e=>setEventForm({...eventForm,ends_at:e.target.value})}/></label><label>Capacity<input type="number" min="1" value={eventForm.capacity} onChange={e=>setEventForm({...eventForm,capacity:e.target.value})}/></label><label>Points awarded<input type="number" min="1" value={eventForm.points_awarded} onChange={e=>setEventForm({...eventForm,points_awarded:e.target.value})}/></label><label>Attendance code<input required value={eventForm.attendance_code} onChange={e=>setEventForm({...eventForm,attendance_code:e.target.value.toUpperCase()})}/></label></div><div className="formActions"><button className="secondaryButton" type="button" onClick={()=>setShowCreate(false)}>Cancel</button><button className="primaryButton">{["admin","board"].includes(user.role)?"Publish event":"Submit for approval"}</button></div></form>}
+    {pageError&&<p className="eventPageMessage">{pageError}</p>}
+    {loading?<p className="eventsLoading">Gathering the fun…</p>:<section className="eventGrid">{visibleEvents.map((event)=>{
+      const date=new Date(event.starts_at); const expanded=openEvent===event.id;
+      return <article className={`eventCard${event.featured?" featured":""}`} key={event.id}>
+        <div className="eventImage"><img src={event.image_url||"/images/banner.png"} alt=""/><span className="eventCategory">{event.category}</span>{event.featured?<span className="featuredTag">Featured</span>:null}<div className="eventDateBadge"><strong>{date.getDate()}</strong><span>{date.toLocaleString("en-US",{month:"short"})}</span></div></div>
+        <div className="eventCardBody"><p className="eventMeta">{formatDate(event.starts_at)} · {event.location}</p><h2>{event.title}</h2><p className="eventDescription">{event.description}</p><div className="eventSocialProof"><span>{event.attendee_count} going</span><span>{event.like_count} likes</span><span>+{event.points_awarded} points</span></div>
+          <div className="eventActions"><button className={event.registered?"active":""} onClick={()=>act(event.id,"register")}>{event.registered?"✓ Attending":"Attend"}</button><button className={event.saved?"active":""} onClick={()=>act(event.id,"save")}>{event.saved?"◆ Saved":"◇ Save"}</button><button className={event.liked?"active":""} onClick={()=>act(event.id,"like")}>{event.liked?"♥":"♡"} Like</button><button onClick={()=>setOpenEvent(expanded?null:event.id)}>💬 {event.comments.length}</button></div>
+          {expanded&&<div className="eventConversation"><h3>Community conversation</h3>{event.comments.length===0?<p className="emptyComments">Be the first to cheer this event on.</p>:event.comments.map(comment=><div className="eventComment" key={comment.id}><span>{comment.first_name[0]}{comment.last_name[0]}</span><p><strong>{comment.first_name} {comment.last_name}</strong>{comment.body}</p></div>)}<form onSubmit={e=>submitComment(e,event.id)}><input aria-label="Add a comment" placeholder={user?"Add a friendly comment…":"Sign in to comment"} value={comments[event.id]||""} onChange={e=>setComments({...comments,[event.id]:e.target.value})}/><button>Post</button></form></div>}
+          <div className={`attendancePanel${event.attended?" confirmed":""}`}><div><span className="ticketIcon">🎟</span><p><strong>{event.attended?"Attendance confirmed":"Were you there?"}</strong><small>{event.attended?`Ticket earned · ${event.points_awarded} points added`:`Enter the code shared at the event to earn ${event.points_awarded} points.`}</small></p></div>{!event.attended&&<form onSubmit={e=>{e.preventDefault();act(event.id,"attendance",{code:codes[event.id]||""});}}><input required aria-label={`Attendance code for ${event.title}`} placeholder="Attendance code" value={codes[event.id]||""} onChange={e=>setCodes({...codes,[event.id]:e.target.value.toUpperCase()})}/><button>Claim points</button></form>}{messages[event.id]&&<p className="attendanceMessage">{messages[event.id]}</p>}</div>
+        </div>
+      </article>;})}</section>}
+    <section className="eventsClosing"><span>🎟</span><div><p>Your next ticket could be your next great memory.</p><strong>Attend events. Build community. Earn rewards.</strong></div>{user?<button onClick={onProfileClick}>View my event queue</button>:<button onClick={onProfileClick}>Sign in to get started</button>}</section>
+  </main>;
 }
-
-export default EventMain
+export default EventMain;

@@ -22,11 +22,14 @@ CREATE TABLE IF NOT EXISTS companies (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   description TEXT DEFAULT '',
+  image_url TEXT,
   website TEXT,
   phone TEXT,
   address TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','denied')),
   featured INTEGER NOT NULL DEFAULT 0,
+  verified INTEGER NOT NULL DEFAULT 0,
+  spotlight_position INTEGER CHECK(spotlight_position BETWEEN 1 AND 5),
   admin_feedback TEXT DEFAULT '',
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -62,11 +65,14 @@ CREATE TABLE IF NOT EXISTS events (
   creator_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'Community',
+  image_url TEXT,
   location TEXT NOT NULL,
   starts_at TEXT NOT NULL,
   ends_at TEXT,
   capacity INTEGER,
   attendance_code TEXT UNIQUE,
+  points_awarded INTEGER NOT NULL DEFAULT 100,
   status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('draft','pending','approved','denied','cancelled')),
   featured INTEGER NOT NULL DEFAULT 0,
   admin_feedback TEXT DEFAULT '',
@@ -87,6 +93,9 @@ CREATE TABLE IF NOT EXISTS rewards (
 );
 
 CREATE TABLE IF NOT EXISTS event_registrations (user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, event_id INTEGER REFERENCES events(id) ON DELETE CASCADE, attended INTEGER NOT NULL DEFAULT 0, registered_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id,event_id));
+CREATE TABLE IF NOT EXISTS saved_events (user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, event_id INTEGER REFERENCES events(id) ON DELETE CASCADE, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id,event_id));
+CREATE TABLE IF NOT EXISTS event_likes (user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, event_id INTEGER REFERENCES events(id) ON DELETE CASCADE, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id,event_id));
+CREATE TABLE IF NOT EXISTS event_comments (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id INTEGER REFERENCES events(id) ON DELETE CASCADE, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, body TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS post_comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, body TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS post_likes (post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(post_id,user_id));
 CREATE TABLE IF NOT EXISTS bookmarks (post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(post_id,user_id));

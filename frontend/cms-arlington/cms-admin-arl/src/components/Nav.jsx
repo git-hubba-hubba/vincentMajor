@@ -58,7 +58,7 @@ function Nav({ currentComponent, setCurrentComponent, user, onProfileClick }) {
               <span>{user ? user.first_name : "Profile"}</span>
             </button>
             <img
-              src="https://static.vecteezy.com/system/resources/thumbnails/037/468/797/small/user-icon-illustration-for-graphic-design-logo-web-site-social-media-mobile-app-ui-png.png"
+              src="https://cdn-icons-png.flaticon.com/512/2972/2972087.png"
               alt=""
               className="nIcons"
               onClick={() => {

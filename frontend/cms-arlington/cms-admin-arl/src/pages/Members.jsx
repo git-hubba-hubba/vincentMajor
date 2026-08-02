@@ -6,7 +6,7 @@ function Members() {
   return (
     <>
       <img
-        src="../../public/images/memberimpact.png"
+        src="/images/memberimpact.png"
         alt=""
         className="memImp"
       />

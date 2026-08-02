@@ -5,7 +5,7 @@ import AdminCMS from '../components/AdminCMS'
 function AdminDash({ user }) {
   return (
     <>
-    <img src="../../public/images/adminDash.png" alt="" className="adImg" />
+    <img src="/images/adminDash.png" alt="" className="adImg" />
     <Namespace title={"Admin Dashboard"}/>
     <AdminCMS user={user} />
     

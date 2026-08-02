@@ -54,7 +54,7 @@ function Nav({ currentComponent, setCurrentComponent, user, onProfileClick }) {
         <div className="tierTwo">
           <div className="nav-icons">
             <button className="profileButton" type="button" onClick={onProfileClick} aria-label={user ? "Open user profile" : "Sign in or register"}>
-              <span className="profileButtonAvatar">{user ? `${user.first_name[0]}${user.last_name[0]}` : "○"}</span>
+              <span className="profileButtonAvatar">{user?.avatar_url ? <img src={user.avatar_url} alt="" /> : user ? `${user.first_name[0]}${user.last_name[0]}` : "○"}</span>
               <span>{user ? user.first_name : "Profile"}</span>
             </button>
             <img

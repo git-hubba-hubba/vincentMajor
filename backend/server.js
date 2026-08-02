@@ -27,7 +27,7 @@ function verify(password, encoded) {
   return timingSafeEqual(actual, Buffer.from(saved, 'hex'));
 }
 async function body(req) {
-  let raw=''; for await (const chunk of req) { raw += chunk; if (raw.length > 1e6) throw new Error('Request too large'); }
+  let raw=''; for await (const chunk of req) { raw += chunk; if (raw.length > 4e6) throw new Error('Request too large'); }
   return raw ? JSON.parse(raw) : {};
 }
 function fields(table, payload) { return Object.fromEntries(Object.entries(payload).filter(([key,value]) => editable[table].includes(key) && value !== undefined)); }
@@ -53,6 +53,15 @@ const server = http.createServer(async (req,res) => {
     }
     if (path === '/api/auth/me' && req.method === 'GET') return user ? send(res,200,{user}) : send(res,401,{error:'Not signed in.'});
     if (path === '/api/auth/logout' && req.method === 'POST') { const token=(req.headers.authorization||'').replace(/^Bearer /,''); if(token) db.prepare('DELETE FROM sessions WHERE token_hash=?').run(tokenHash(token)); return send(res,200,{ok:true}); }
+    if (path === '/api/profile' && req.method === 'PATCH') {
+      if (!user) return send(res,401,{error:'Sign in first.'});
+      const data=await body(req); const firstName=String(data.first_name||'').trim(); const lastName=String(data.last_name||'').trim(); const email=String(data.email||'').trim().toLowerCase(); const bio=String(data.bio||'').trim(); const avatar=data.avatar_url || null;
+      if (!firstName || !lastName || !email) return send(res,400,{error:'First name, last name, and email are required.'});
+      if (bio.length > 500) return send(res,400,{error:'Bio must be 500 characters or fewer.'});
+      if (avatar && (!String(avatar).startsWith('data:image/') || String(avatar).length > 3e6)) return send(res,400,{error:'Profile image must be a supported image under 2 MB.'});
+      db.prepare('UPDATE users SET first_name=?,last_name=?,email=?,bio=?,avatar_url=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(firstName,lastName,email,bio,avatar,user.id);
+      log(user.id,'updated','profile',user.id); const updated=db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id); return send(res,200,{user:updated});
+    }
     if (path === '/api/profile/business-application' && req.method === 'POST') {
       if (!user) return send(res,401,{error:'Sign in first.'}); const data=await body(req);
       if (!data.name || !data.category) return send(res,400,{error:'Business name and category are required.'});

@@ -1,7 +1,7 @@
 import { React, useState } from "react";
 import JoinUs from "./JoinUs";
 
-function Nav({ currentComponent, setCurrentComponent, user, onProfileClick }) {
+function Nav({ currentComponent, setCurrentComponent, user, onProfileClick, onRewardsClick }) {
   const allContent = [
     {
       contentImg:
@@ -53,6 +53,7 @@ function Nav({ currentComponent, setCurrentComponent, user, onProfileClick }) {
         </div>
         <div className="tierTwo">
           <div className="nav-icons">
+            <button className="rewardsNavButton" type="button" onClick={onRewardsClick} aria-label="Open rewards dashboard"><span aria-hidden="true">🎁</span><small>Rewards</small>{user&&<b>{user.points.toLocaleString()}</b>}</button>
             <button className="profileButton" type="button" onClick={onProfileClick} aria-label={user ? "Open user profile" : "Sign in or register"}>
               <span className="profileButtonAvatar">{user?.avatar_url ? <img src={user.avatar_url} alt="" /> : user ? `${user.first_name[0]}${user.last_name[0]}` : "○"}</span>
               <span>{user ? user.first_name : "Profile"}</span>

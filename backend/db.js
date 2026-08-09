@@ -21,6 +21,19 @@ if (!companyColumns.has('verified')) db.exec('ALTER TABLE companies ADD COLUMN v
 if (!companyColumns.has('image_url')) db.exec('ALTER TABLE companies ADD COLUMN image_url TEXT');
 db.prepare("UPDATE companies SET image_url='/images/impDirectory.png' WHERE image_url IS NULL OR image_url=''").run();
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_company_spotlight ON companies(category,spotlight_position) WHERE spotlight_position IS NOT NULL');
+const userColumns = new Set(db.prepare('PRAGMA table_info(users)').all().map((column) => column.name));
+if (!userColumns.has('sponsor_badge')) db.exec('ALTER TABLE users ADD COLUMN sponsor_badge INTEGER NOT NULL DEFAULT 0');
+const rewardColumns = new Set(db.prepare('PRAGMA table_info(rewards)').all().map((column) => column.name));
+if (!rewardColumns.has('image_url')) db.exec('ALTER TABLE rewards ADD COLUMN image_url TEXT');
+if (!rewardColumns.has('sponsor_name')) db.exec("ALTER TABLE rewards ADD COLUMN sponsor_name TEXT NOT NULL DEFAULT 'Impact Arlington'");
+if (!rewardColumns.has('sponsor_id')) db.exec('ALTER TABLE rewards ADD COLUMN sponsor_id INTEGER REFERENCES users(id) ON DELETE SET NULL');
+if (!rewardColumns.has('status')) db.exec("ALTER TABLE rewards ADD COLUMN status TEXT NOT NULL DEFAULT 'approved' CHECK(status IN ('pending','approved','denied'))");
+if (!rewardColumns.has('admin_feedback')) db.exec("ALTER TABLE rewards ADD COLUMN admin_feedback TEXT DEFAULT ''");
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_reward_redemption_once ON reward_redemptions(reward_id,user_id)');
+const invitationColumns = new Set(db.prepare('PRAGMA table_info(event_invitations)').all().map((column) => column.name));
+if (!invitationColumns.has('recipient_id')) db.exec('ALTER TABLE event_invitations ADD COLUMN recipient_id INTEGER REFERENCES users(id) ON DELETE CASCADE');
+const messageColumns = new Set(db.prepare('PRAGMA table_info(direct_messages)').all().map((column) => column.name));
+if (!messageColumns.has('recipient_id')) db.exec('ALTER TABLE direct_messages ADD COLUMN recipient_id INTEGER REFERENCES users(id) ON DELETE CASCADE');
 
 export function hashPassword(password) {
   const salt = randomBytes(16).toString('hex');
@@ -109,4 +122,19 @@ const verifiedOrganizations = [
 const addVerified=db.prepare(`INSERT INTO companies(owner_id,name,category,description,website,phone,address,status,verified) VALUES(?,?,?,?,?,?,?,'approved',1)`);
 for (const organization of shouldSeedDirectory ? verifiedOrganizations : []) {
   if (!db.prepare('SELECT id FROM companies WHERE name=?').get(organization[0])) addVerified.run(admin.id,...organization);
+}
+
+const placeholderRewards = [
+  ['Local Coffee Pair','Two handcrafted drinks from a participating Arlington café.',250,8,'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1000&q=80','Impact Arlington'],
+  ['Family Movie Night','Two movie passes for an easy community night out.',600,5,'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1000&q=80','Impact Arlington'],
+  ['Community Market Tote','A durable Impact-inspired tote for markets, events, and everyday errands.',350,12,'https://images.unsplash.com/photo-1597484662317-9bd7bdda2907?auto=format&fit=crop&w=1000&q=80','Impact Arlington'],
+  ['$20 Local Dining Credit','Enjoy a meal at a participating neighborhood restaurant.',900,4,'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=80','Community Dining Partners'],
+  ['Wellness Starter Pack','A water bottle, resistance band, and guest wellness class.',750,6,'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=1000&q=80','Move Arlington'],
+  ['Impact Arlington T-Shirt','A limited community tee made for members who show up and make an impact.',1000,10,'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=80','Impact Arlington'],
+  ['Family Recreation Pass','One-day admission for a family at a participating recreation experience.',1200,3,'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=80','Community Recreation Partners'],
+  ['VIP Community Event Bundle','Priority entry, reserved seating, and an Impact welcome gift.',1800,2,'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1000&q=80','Impact Arlington']
+];
+if (db.prepare('SELECT COUNT(*) count FROM rewards').get().count === 0) {
+  const addReward = db.prepare(`INSERT INTO rewards(name,description,points_cost,inventory,image_url,sponsor_name,sponsor_id,status) VALUES(?,?,?,?,?,?,?,'approved')`);
+  for (const reward of placeholderRewards) addReward.run(...reward,admin.id);
 }

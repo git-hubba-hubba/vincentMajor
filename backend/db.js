@@ -138,3 +138,17 @@ if (db.prepare('SELECT COUNT(*) count FROM rewards').get().count === 0) {
   const addReward = db.prepare(`INSERT INTO rewards(name,description,points_cost,inventory,image_url,sponsor_name,sponsor_id,status) VALUES(?,?,?,?,?,?,?,'approved')`);
   for (const reward of placeholderRewards) addReward.run(...reward,admin.id);
 }
+
+const placeholderPosts = [
+  ['Neighbors Helping Neighbors','This month, volunteers are assembling welcome kits for families settling into Arlington. Small contributions of time, supplies, and encouragement add up to a stronger community.','Community','https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1200&q=80',1],
+  ['A Healthier Start to Saturday','Try a simple community wellness routine: a morning walk, ten minutes of stretching, plenty of water, and a check-in with someone you care about.','Health','https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=1200&q=80',0],
+  ['Three Ways to Make Your Money Go Further','Plan meals before shopping, review recurring subscriptions, and automatically move a small amount into savings each payday. Consistency matters more than perfection.','Finances','https://images.unsplash.com/photo-1579621970795-87facc2f976d?auto=format&fit=crop&w=1200&q=80',0],
+  ['Local Music, Food, and Good Energy','Arlington creators and performers are bringing more live experiences into our neighborhoods. Support a local artist and invite someone new to join you.','Entertainment','https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=80',1],
+  ['Spotlight: Community-Owned Businesses','Every purchase from an independent business helps sustain local jobs, ideas, and families. Explore the directory and discover your next neighborhood favorite.','Business','https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',0],
+  ['Creating More Places for Young People to Lead','Youth voices belong in conversations about the future. Mentoring, volunteering, sports, and creative programs give young people room to build confidence.','Youth','https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=1200&q=80',0],
+  ['This Week Around Arlington','Community events, public resources, workshops, and family activities are happening across the city. Save what interests you and add it to your calendar.','Local News','https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80',0]
+];
+if (db.prepare('SELECT COUNT(*) count FROM posts').get().count === 0) {
+  const addPost=db.prepare(`INSERT INTO posts(author_id,title,body,category,image_url,status,featured) VALUES(?,?,?,?,?,'approved',?)`);
+  for(const post of placeholderPosts)addPost.run(admin.id,...post);
+}

@@ -153,6 +153,21 @@ const server = http.createServer(async (req,res) => {
         FROM rewards WHERE status='approved' AND active=1 AND (expires_at IS NULL OR expires_at='' OR expires_at>datetime('now')) ORDER BY inventory>0 DESC,points_cost,rewards.id DESC`).all(viewer);
       return send(res,200,rewards);
     }
+    if(path==='/api/community-posts'&&req.method==='GET'){
+      const viewer=user?.id||0;const posts=db.prepare(`SELECT posts.id,posts.title,posts.body,posts.category,posts.image_url,posts.featured,posts.created_at,users.first_name,users.last_name,users.avatar_url,
+        (SELECT COUNT(*) FROM post_likes WHERE post_id=posts.id) like_count,(SELECT COUNT(*) FROM post_shares WHERE post_id=posts.id) share_count,
+        EXISTS(SELECT 1 FROM post_likes WHERE post_id=posts.id AND user_id=?) liked
+        FROM posts JOIN users ON users.id=posts.author_id WHERE posts.status='approved' ORDER BY posts.featured DESC,posts.id DESC`).all(viewer);
+      const comments=db.prepare(`SELECT post_comments.id,post_comments.body,post_comments.created_at,users.first_name,users.last_name,users.avatar_url FROM post_comments JOIN users ON users.id=post_comments.user_id WHERE post_comments.post_id=? ORDER BY post_comments.id DESC LIMIT 8`);
+      return send(res,200,posts.map(post=>({...post,comments:comments.all(post.id)})));
+    }
+    const postAction=path.match(/^\/api\/posts\/(\d+)\/(like|comment|share)$/);
+    if(postAction&&req.method==='POST'){
+      if(!user)return send(res,401,{error:'Sign in to interact with community posts.'});const postId=Number(postAction[1]);const action=postAction[2];const post=db.prepare("SELECT id,title FROM posts WHERE id=? AND status='approved'").get(postId);if(!post)return send(res,404,{error:'Post not found.'});
+      if(action==='like'){const exists=db.prepare('SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?').get(postId,user.id);if(exists)db.prepare('DELETE FROM post_likes WHERE post_id=? AND user_id=?').run(postId,user.id);else db.prepare('INSERT INTO post_likes(post_id,user_id) VALUES(?,?)').run(postId,user.id);return send(res,200,{liked:!exists});}
+      if(action==='share'){db.prepare('INSERT OR IGNORE INTO post_shares(post_id,user_id) VALUES(?,?)').run(postId,user.id);log(user.id,'shared','post',postId);return send(res,200,{message:'Post marked as shared.'});}
+      const data=await body(req);const comment=String(data.body||'').trim();if(!comment||comment.length>500)return send(res,400,{error:'Comment must be between 1 and 500 characters.'});const result=db.prepare('INSERT INTO post_comments(post_id,user_id,body) VALUES(?,?,?)').run(postId,user.id,comment);log(user.id,'commented','post',postId);return send(res,201,{id:Number(result.lastInsertRowid)});
+    }
     if (path === '/api/profile/rewards' && req.method === 'GET') {
       if (!user) return send(res,401,{error:'Sign in to view your rewards.'});
       const redeemed=db.prepare(`SELECT reward_redemptions.id,reward_redemptions.points_spent,reward_redemptions.created_at,rewards.name,rewards.image_url,rewards.sponsor_name
@@ -238,7 +253,7 @@ const server = http.createServer(async (req,res) => {
         const result=id?db.prepare(query).get(Number(id)):db.prepare(query).all(); return result ? send(res,200,result) : send(res,404,{error:'Not found.'});
       }
       if (!user || !['admin','board'].includes(user.role)) return send(res,403,{error:'Admin access required.'});
-      if (req.method === 'POST') { const payload=await body(req); const data=fields(table,payload); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
+      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
       if (req.method === 'PATCH' && id) {
         const data=fields(table,await body(req));
         if(table==='companies') {

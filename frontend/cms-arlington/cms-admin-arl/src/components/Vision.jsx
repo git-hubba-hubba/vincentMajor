@@ -1,3 +1,4 @@
+import BusinessQuad from '../components/BusinessQuad'
 function Vision() {
   const focusAreas = [
     { icon: "+", title: "Health", note: "Stronger bodies and minds" },
@@ -74,7 +75,7 @@ function Vision() {
           </article>
         ))}
       </div>
-
+<BusinessQuad />
       <footer className="visionFooter">
         <div aria-hidden="true"><span></span><span></span><span></span></div>
         <p>It’s time to</p>

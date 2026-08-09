@@ -1,7 +1,7 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import JoinUs from "./JoinUs";
 
-function Nav({ currentComponent, setCurrentComponent, user, onProfileClick, onRewardsClick }) {
+function Nav({ setCurrentComponent, user, onProfileClick, onRewardsClick }) {
   const allContent = [
     {
       contentImg:
@@ -30,7 +30,6 @@ function Nav({ currentComponent, setCurrentComponent, user, onProfileClick, onRe
     },
   ];
   const [contentObj, setContentObj] = useState(allContent[2]);
-  const [currentPage, setCurrentPage] = useState("Homepage");
   const setHome = () => {
     setContentObj(allContent[2]);
     setCurrentComponent("Homepage");
@@ -95,7 +94,7 @@ function Nav({ currentComponent, setCurrentComponent, user, onProfileClick, onRe
       </div>
 
         
-        <JoinUs currentObj={contentObj} />
+        <JoinUs currentObj={contentObj} user={user} onProfileClick={onProfileClick} />
         
       </div>
     </>

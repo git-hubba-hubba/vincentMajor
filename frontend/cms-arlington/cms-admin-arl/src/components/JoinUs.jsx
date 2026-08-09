@@ -1,9 +1,9 @@
-import { React, useState } from "react";
 import Rules from "./Rules";
 import Vision from "./Vision";
 import CarouselHP from "./CarouselHP";
+import CommunityFeed from "./CommunityFeed";
 
-function JoinUs({ currentObj }) {
+function JoinUs({ currentObj, user, onProfileClick }) {
   return (
     <>
       <div className="joinContainer">
@@ -18,11 +18,11 @@ function JoinUs({ currentObj }) {
           <div className="staggerDesc">{currentObj.contentDesc}</div>
         </div>
 
-        <div className={`joinMajor${["Community Rules", "Vision", "Make An Impact"].includes(currentObj.contentTitle) ? " contentActive" : ""}`}>
+        <div className={`joinMajor${["Community Rules", "Vision", "Make An Impact", "Community Hub"].includes(currentObj.contentTitle) ? " contentActive" : ""}${currentObj.contentTitle === "Community Hub" ? " communityHubActive" : ""}`}>
           {currentObj.contentTitle === "Vision" ? <Vision /> : null}
           {currentObj.contentTitle === "Community Rules" ? <Rules /> : null}
           {currentObj.contentTitle === "Make An Impact" ? <CarouselHP /> : null}
-          {currentObj.contentTitle === "Community Hub" ? <></> : null}
+          {currentObj.contentTitle === "Community Hub" ? <CommunityFeed user={user} onProfileClick={onProfileClick}/> : null}
         </div>
       </div>
     </>

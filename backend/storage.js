@@ -1,4 +1,13 @@
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+function resolveCloudName(value) {
+  const configured = String(value || '').trim();
+  if (!configured) return '';
+  if (configured.startsWith('cloudinary://')) {
+    try { return new URL(configured).hostname; } catch { return ''; }
+  }
+  return configured;
+}
+
+const cloudName = resolveCloudName(process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_URL);
 const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
 
 export async function persistImage(value, folder) {

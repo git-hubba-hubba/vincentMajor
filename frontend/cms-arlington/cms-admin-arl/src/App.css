@@ -125,6 +125,7 @@ body{
 }
 .homepageContainer{
   border: .2px solid lightblue;
+  /* background-color: lightblue; */
   min-height:64vh;
   margin:1em;
 }
@@ -273,6 +274,42 @@ body{
   display:flex;
   justify-content: space-evenly;
   flex-wrap:wrap;
+}
+.cinemaHp{
+  /* border:solid black; */
+  /* height:44vh; */
+
+}
+.cinemaScreen{
+  /* border:solid black; */
+  /* background-color: skyblue; */
+  /* height:22vh; */
+
+}
+.cinemaBtns{
+  /* border: .2px solid black; */
+  display:flex;
+  justify-content: space-around;
+}
+.chpDescription{
+  /* border:solid grey; */
+  margin:1em;
+  padding:.5em;
+}
+.chpTitle{
+  color:lightblue;
+  text-align:left;
+  margin:1em;
+}
+.chpImg{
+  width:90%;
+  margin:1em;
+  border:  9px double lightblue;
+}
+.cinBtn{
+  border: .2px solid black;
+  width:23%;
+  border-radius:22px;
 }
 @media (max-width: 760px) {
   .quadGrid {

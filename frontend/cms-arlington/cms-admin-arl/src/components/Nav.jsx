@@ -18,7 +18,7 @@ function Nav({ setCurrentComponent, user, onProfileClick, onRewardsClick }) {
         "No hate, division, or drama. Bring kindness, respect, and a willingness to help",
     },
     {
-      contentImg: "https://arlimp.pages.dev/impactteam.png",
+      contentImg: "/images/impactteam.png",
       contentTitle: "Make An Impact",
       contentDesc: "Earn Rewards and Business Incentives",
     },

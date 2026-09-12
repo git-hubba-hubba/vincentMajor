@@ -3,9 +3,10 @@ import { randomBytes, scryptSync, timingSafeEqual, createHash } from 'node:crypt
 import { db, hashPassword } from './db.js';
 import { persistImage } from './storage.js';
 import { scheduleBackups } from './backup.js';
+import { parseAllowedOrigins } from './cors.js';
 
 const PORT = Number(process.env.PORT || 4000);
-const allowedOrigins = new Set((process.env.CLIENT_ORIGIN || 'http://localhost:5173').split(',').map((origin)=>origin.trim()).filter(Boolean));
+const allowedOrigins = parseAllowedOrigins(process.env.CLIENT_ORIGIN || 'http://localhost:5173');
 const allowedTables = new Set(['events','posts','rewards','companies','users','employees']);
 const editable = {
   events: ['creator_id','title','description','category','image_url','location','starts_at','ends_at','capacity','attendance_code','points_awarded','status','featured','admin_feedback'],
@@ -37,7 +38,8 @@ function fields(table, payload) { return Object.fromEntries(Object.entries(paylo
 
 const server = http.createServer(async (req,res) => {
   const origin=req.headers.origin;
-  if(origin && allowedOrigins.has(origin)) { res.setHeader('Access-Control-Allow-Origin',origin); res.setHeader('Vary','Origin'); }
+  res.setHeader('Vary','Origin');
+  if(origin && allowedOrigins.has(origin)) { res.setHeader('Access-Control-Allow-Origin',origin); }
   res.setHeader('Access-Control-Allow-Headers','Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods','GET,POST,PATCH,DELETE,OPTIONS');
   res.setHeader('X-Content-Type-Options','nosniff');
@@ -270,7 +272,19 @@ const server = http.createServer(async (req,res) => {
       if (!user || !['admin','board'].includes(user.role)) return send(res,403,{error:'Admin access required.'});
       if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
       if (req.method === 'PATCH' && id) {
+        if (table === 'posts' && !db.prepare('SELECT id FROM posts WHERE id=?').get(Number(id))) return send(res,404,{error:'Post not found.'});
         const data=fields(table,await body(req));
+        if (table === 'posts') {
+          for (const field of ['title', 'body', 'category']) {
+            if (data[field] !== undefined && (typeof data[field] !== 'string' || !data[field].trim())) return send(res,400,{error:'Post title, message, and category cannot be empty.'});
+          }
+          if (data.body?.length > 3000) return send(res,400,{error:'Post message must be 3000 characters or fewer.'});
+          if (data.image_url !== undefined && typeof data.image_url !== 'string') return send(res,400,{error:'Post image URL must be text.'});
+          if (data.image_url?.startsWith('data:')) {
+            if (!data.image_url.startsWith('data:image/') || data.image_url.length > 3e6) return send(res,400,{error:'Post image must be a supported image under 2 MB.'});
+            data.image_url = await persistImage(data.image_url,'impact-arlington/posts');
+          }
+        }
         if(table==='companies') {
           const current=db.prepare('SELECT * FROM companies WHERE id=?').get(Number(id)); if(!current) return send(res,404,{error:'Business not found.'});
           if(data.image_url && data.image_url.startsWith('data:') && (!data.image_url.startsWith('data:image/') || data.image_url.length>3e6)) return send(res,400,{error:'Business image must be a supported image under 2 MB.'});

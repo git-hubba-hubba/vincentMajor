@@ -5,6 +5,7 @@ const emptyDonation = { name:"", description:"", points_cost:500, inventory:1, s
 
 function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick }) {
   const [rewards,setRewards]=useState([]); const [loading,setLoading]=useState(false); const [message,setMessage]=useState("");
+  const [showHowItWorks,setShowHowItWorks]=useState(false);
   const [donating,setDonating]=useState(false); const [donation,setDonation]=useState(emptyDonation); const [busyId,setBusyId]=useState(null);
   const load=useCallback(async()=>{setLoading(true);try{setRewards(await api("/community-rewards"));setMessage("");}catch(error){setMessage(error.message);}finally{setLoading(false);}},[]);
   useEffect(()=>{if(!open)return;const request=window.setTimeout(load,0);const escape=(event)=>event.key==="Escape"&&onClose();document.addEventListener("keydown",escape);return()=>{window.clearTimeout(request);document.removeEventListener("keydown",escape);};},[open,load,onClose]);
@@ -27,7 +28,17 @@ function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick }) {
         <div><p className="rewardsKicker">Impact Rewards</p><h2 id="rewards-title">Your points can make today <em>better.</em></h2><p>Show up, support the community, and exchange the points you earn for local experiences and member perks.</p></div>
         <div className="pointsWallet"><span>My balance</span><strong>{user?user.points.toLocaleString():"—"}</strong><small>{user?"available points":"Sign in to view"}</small></div>
       </header>
-      <div className="rewardsToolbar"><div><strong>{rewards.filter(item=>item.inventory>0).length}</strong><span>rewards ready to claim</span></div><button className="donateRewardButton" onClick={()=>{if(!user){onClose();onProfileClick();}else setDonating(!donating);}}>♡ Donate a reward</button></div>
+      <div className="rewardsToolbar"><div><strong>{rewards.filter(item=>item.inventory>0).length}</strong><span>rewards ready to claim</span></div><div className="rewardsToolbarActions"><button type="button" className="donateRewardButton" aria-expanded={showHowItWorks} aria-controls="rewards-how-it-works" onClick={()=>setShowHowItWorks(!showHowItWorks)}>How it works</button><button className="donateRewardButton" onClick={()=>{if(!user){onClose();onProfileClick();}else setDonating(!donating);}}>♡ Donate a reward</button></div></div>
+      <section id="rewards-how-it-works" className="rewardsGuide" aria-labelledby="rewards-guide-title" hidden={!showHowItWorks}>
+        <h3 id="rewards-guide-title">Turn participation into rewards</h3>
+        <ol>
+          <li><strong>Earn points at events.</strong> Sign in, attend a community event, and confirm your attendance with its attendance code. Each event lists how many points you can earn. Points are awarded once per event.</li>
+          <li><strong>Choose your reward.</strong> Check My balance, then browse the available rewards. Each card shows the point cost and how many are left.</li>
+          <li><strong>Redeem your points.</strong> Select Redeem reward and confirm. You need enough points and available stock. The point cost is deducted from your balance, and each reward can be redeemed once per member.</li>
+          <li><strong>Find your claimed rewards.</strong> Open your profile to see your redeemed rewards. Claimed items are also marked In my rewards in this dashboard.</li>
+        </ol>
+        <p><strong>Give back, too.</strong> Use Donate a reward to offer a perk to the community. Donations are reviewed before appearing here; approved donors receive a Sponsor badge.</p>
+      </section>
       {donating&&<form className="donationForm" onSubmit={submitDonation}>
         <div className="donationIntro"><div><p className="rewardsKicker">Member sponsorship</p><h3>Offer something memorable</h3><p>Approved donors receive a Sponsor badge on their member profile.</p></div><span>SPONSOR</span></div>
         <div className="donationGrid"><label>Reward name<input required value={donation.name} onChange={event=>setDonation({...donation,name:event.target.value})}/></label><label>Sponsor name<input placeholder={`${user.first_name} ${user.last_name}`} value={donation.sponsor_name} onChange={event=>setDonation({...donation,sponsor_name:event.target.value})}/></label><label className="donationWide">Description<textarea required maxLength="500" value={donation.description} onChange={event=>setDonation({...donation,description:event.target.value})}/></label><label>Suggested point value<input required min="1" type="number" value={donation.points_cost} onChange={event=>setDonation({...donation,points_cost:Number(event.target.value)})}/></label><label>Available count<input required min="1" type="number" value={donation.inventory} onChange={event=>setDonation({...donation,inventory:Number(event.target.value)})}/></label></div>

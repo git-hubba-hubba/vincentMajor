@@ -1568,3 +1568,15 @@ body{
 .homeHero h1 {
   overflow-wrap:normal}
 }
+
+.feedCopy { white-space: pre-wrap; overflow-wrap: anywhere; }
+.feedCopy a { text-decoration: underline; text-underline-offset: .15em; }
+.feedCopy a:hover { text-decoration-thickness: 2px; }
+
+.rewardsToolbar .rewardsToolbarActions { display:flex; flex-wrap:wrap; gap:.65rem; align-items:center; }
+.rewardsGuide { margin:1.25rem clamp(1rem,3vw,2rem); padding:1.25rem; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font-size:.85rem; line-height:1.7; }
+.rewardsGuide h3 { color:var(--text-h); font-family:Georgia,serif; font-size:1.4rem; margin:0 0 .75rem; }
+.rewardsGuide ol { margin:0; padding-left:1.4rem; }
+.rewardsGuide li + li { margin-top:.75rem; }
+.rewardsGuide strong { color:var(--text-h); }
+.rewardsGuide > p { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); }

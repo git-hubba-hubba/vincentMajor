@@ -1,4 +1,3 @@
-import React from 'react'
 import Namespace from '../components/Namespace'
 import AdminCMS from '../components/AdminCMS'
 

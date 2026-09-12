@@ -47,6 +47,21 @@ const server = http.createServer(async (req,res) => {
   if (req.method === 'OPTIONS') return send(res,204,{});
   const url = new URL(req.url, `http://${req.headers.host}`); const path = url.pathname; const user = auth(req);
   try {
+    if (path === '/' && (req.method === 'GET' || req.method === 'HEAD')) {
+      const frontend = [...allowedOrigins].find((value) => {
+        try {
+          const target = new URL(value);
+          return ['http:', 'https:'].includes(target.protocol)
+            && target.host !== url.host
+            && (process.env.NODE_ENV !== 'production' || !['localhost', '127.0.0.1', '[::1]'].includes(target.hostname));
+        } catch { return false; }
+      });
+      if (frontend) {
+        res.writeHead(302, { Location: frontend, 'Cache-Control': 'no-store' });
+        return res.end();
+      }
+      return send(res,200,{service:'Impact Arlington API',health:'/api/health',message:'Open the frontend static site to use the application. Set CLIENT_ORIGIN to its URL to enable the homepage redirect.'});
+    }
     if (path === '/api/health') return send(res,200,{status:'ok'});
     if (path === '/api/auth/register' && req.method === 'POST') {
       const data=await body(req); if (!data.firstName || !data.lastName || !data.email || String(data.password||'').length < 8) return send(res,400,{error:'Name, email, and an 8-character password are required.'});

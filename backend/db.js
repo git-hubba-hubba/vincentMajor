@@ -22,6 +22,7 @@ if (!companyColumns.has('image_url')) db.exec('ALTER TABLE companies ADD COLUMN 
 db.prepare("UPDATE companies SET image_url='/images/impDirectory.png' WHERE image_url IS NULL OR image_url=''").run();
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_company_spotlight ON companies(category,spotlight_position) WHERE spotlight_position IS NOT NULL');
 const userColumns = new Set(db.prepare('PRAGMA table_info(users)').all().map((column) => column.name));
+if (!userColumns.has('occupation')) db.exec("ALTER TABLE users ADD COLUMN occupation TEXT NOT NULL DEFAULT ''");
 if (!userColumns.has('sponsor_badge')) db.exec('ALTER TABLE users ADD COLUMN sponsor_badge INTEGER NOT NULL DEFAULT 0');
 const rewardColumns = new Set(db.prepare('PRAGMA table_info(rewards)').all().map((column) => column.name));
 if (!rewardColumns.has('image_url')) db.exec('ALTER TABLE rewards ADD COLUMN image_url TEXT');

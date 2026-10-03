@@ -1,3 +1,4 @@
+import SiteText from "./SiteText";
 import { useEffect, useState } from "react";
 
 const slides = [
@@ -49,8 +50,8 @@ function CarouselHP() {
         ))}
         <div className="carouselShade" aria-hidden="true"></div>
         <div className="carouselLabel">
-          <span>Impact Arlington</span>
-          <strong>Community in motion</strong>
+          <span><SiteText contentKey="CarouselHP.db78fb3cad2e">{"Impact Arlington"}</SiteText></span>
+          <strong><SiteText contentKey="CarouselHP.00610dec0a43">{"Community in motion"}</SiteText></strong>
         </div>
       </div>
 
@@ -71,7 +72,7 @@ function CarouselHP() {
           ))}
         </div>
         <button className="carouselPause" type="button" onClick={() => setPaused((current) => !current)} aria-label={paused ? "Resume carousel" : "Pause carousel"}>
-          {paused ? "Play" : "Pause"}
+          <SiteText section="CarouselHP">{paused ? "Play" : "Pause"}</SiteText>
         </button>
       </div>
     </section>

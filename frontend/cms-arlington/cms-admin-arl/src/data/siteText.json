@@ -1,0 +1,2362 @@
+[
+  {
+    "key": "ActiveUser.1a2303ede074",
+    "section": "ActiveUser",
+    "text": "Connect"
+  },
+  {
+    "key": "ActiveUser.1fd9ae1607aa",
+    "section": "ActiveUser",
+    "text": "Invite"
+  },
+  {
+    "key": "ActiveUser.22965568d22a",
+    "section": "ActiveUser",
+    "text": "Connected"
+  },
+  {
+    "key": "ActiveUser.2f77668a9dfb",
+    "section": "ActiveUser",
+    "text": "Message"
+  },
+  {
+    "key": "AdminCMS.05f8bb36f881",
+    "section": "AdminCMS",
+    "text": "No "
+  },
+  {
+    "key": "AdminCMS.1044a4c056d0",
+    "section": "AdminCMS",
+    "text": "Members"
+  },
+  {
+    "key": "AdminCMS.1509f561f241",
+    "section": "AdminCMS",
+    "text": "Save"
+  },
+  {
+    "key": "AdminCMS.19766ed6ccb2",
+    "section": "AdminCMS",
+    "text": "Cancel"
+  },
+  {
+    "key": "AdminCMS.2289c1529912",
+    "section": "AdminCMS",
+    "text": "Point cost (0 = free)"
+  },
+  {
+    "key": "AdminCMS.23e39291d613",
+    "section": "AdminCMS",
+    "text": "Saving…"
+  },
+  {
+    "key": "AdminCMS.26198f0fac9e",
+    "section": "AdminCMS",
+    "text": "Sign in with an authorized board or administrator account to manage community content, approvals, and activity."
+  },
+  {
+    "key": "AdminCMS.3037552ce1f4",
+    "section": "AdminCMS",
+    "text": "+ Add "
+  },
+  {
+    "key": "AdminCMS.3137370298d2",
+    "section": "AdminCMS",
+    "text": " yet."
+  },
+  {
+    "key": "AdminCMS.464c4ffd019e",
+    "section": "AdminCMS",
+    "text": "Edit"
+  },
+  {
+    "key": "AdminCMS.4923413b40d7",
+    "section": "AdminCMS",
+    "text": "Companies"
+  },
+  {
+    "key": "AdminCMS.59afe47d9d37",
+    "section": "AdminCMS",
+    "text": "Rewards"
+  },
+  {
+    "key": "AdminCMS.6725e7bbcd28",
+    "section": "AdminCMS",
+    "text": "System"
+  },
+  {
+    "key": "AdminCMS.6b0cc904d081",
+    "section": "AdminCMS",
+    "text": "Users"
+  },
+  {
+    "key": "AdminCMS.6bd29e444c2f",
+    "section": "AdminCMS",
+    "text": "Community operations"
+  },
+  {
+    "key": "AdminCMS.6cb44b56336a",
+    "section": "AdminCMS",
+    "text": "Recent activity"
+  },
+  {
+    "key": "AdminCMS.777b96095f3b",
+    "section": "AdminCMS",
+    "text": "Image selected"
+  },
+  {
+    "key": "AdminCMS.78056f135b20",
+    "section": "AdminCMS",
+    "text": "Add details"
+  },
+  {
+    "key": "AdminCMS.7d049a2651c5",
+    "section": "AdminCMS",
+    "text": "Rewards redeemed"
+  },
+  {
+    "key": "AdminCMS.7ea94b5435c5",
+    "section": "AdminCMS",
+    "text": "Not spotlighted"
+  },
+  {
+    "key": "AdminCMS.807870103aec",
+    "section": "AdminCMS",
+    "text": "Slot "
+  },
+  {
+    "key": "AdminCMS.8d14f6e72de8",
+    "section": "AdminCMS",
+    "text": "Events"
+  },
+  {
+    "key": "AdminCMS.91ea7f2353f6",
+    "section": "AdminCMS",
+    "text": "Update details"
+  },
+  {
+    "key": "AdminCMS.94f13f58b991",
+    "section": "AdminCMS",
+    "text": "Content management"
+  },
+  {
+    "key": "AdminCMS.a80811cf6889",
+    "section": "AdminCMS",
+    "text": "Posts"
+  },
+  {
+    "key": "AdminCMS.ae25c9b1d366",
+    "section": "AdminCMS",
+    "text": "Awaiting approval"
+  },
+  {
+    "key": "AdminCMS.ba3bbbe10d8b",
+    "section": "AdminCMS",
+    "text": "Loading…"
+  },
+  {
+    "key": "AdminCMS.c98270317b51",
+    "section": "AdminCMS",
+    "text": "Employees"
+  },
+  {
+    "key": "AdminCMS.dd0ae7a5cbcf",
+    "section": "AdminCMS",
+    "text": "Save changes"
+  },
+  {
+    "key": "AdminCMS.e2d0a54968ea",
+    "section": "AdminCMS",
+    "text": "Delete"
+  },
+  {
+    "key": "AdminCMS.e703a2005585",
+    "section": "AdminCMS",
+    "text": "Board & Admin workspace"
+  },
+  {
+    "key": "AdminCMS.ff8059dc6752",
+    "section": "AdminCMS",
+    "text": "Actions"
+  },
+  {
+    "key": "App.1b43c15f410d",
+    "section": "App",
+    "text": "Community rules"
+  },
+  {
+    "key": "App.2642f93dd297",
+    "section": "App",
+    "text": "Our vision"
+  },
+  {
+    "key": "App.471e88cea8b6",
+    "section": "App",
+    "text": "A community within the community."
+  },
+  {
+    "key": "App.6584e3b201f3",
+    "section": "App",
+    "text": "Better together. Right here."
+  },
+  {
+    "key": "App.6e517828c3d8",
+    "section": "App",
+    "text": "Highlights"
+  },
+  {
+    "key": "App.86dc93dee38c",
+    "section": "App",
+    "text": "impact / Arlington"
+  },
+  {
+    "key": "App.c1c224b03cd9",
+    "section": "App",
+    "text": "Admin"
+  },
+  {
+    "key": "BusinessQuad.1044a4c056d0",
+    "section": "BusinessQuad",
+    "text": "Members"
+  },
+  {
+    "key": "BusinessQuad.49cf03993c0a",
+    "section": "BusinessQuad",
+    "text": "Nonprofits"
+  },
+  {
+    "key": "BusinessQuad.7414f54a0f4a",
+    "section": "BusinessQuad",
+    "text": "Do your part and we’ll do ours. Give a $25 product or service to one of our members each month and we’ll do all we can to get them in your doors. Reward QR codes, community events, special offers. Our directory listings spots are limited so don’t wait to join us. If you want you may receive a category full message. This is only the beginning, don’t get stuck on the sideline watching your competition grow."
+  },
+  {
+    "key": "BusinessQuad.7ff87616f9a5",
+    "section": "BusinessQuad",
+    "text": "Business Owners"
+  },
+  {
+    "key": "BusinessQuad.8e60f1948aa1",
+    "section": "BusinessQuad",
+    "text": "Want to do more for the community? Let us do the heavy lifting. Give a little and see how you can change lives. Give us a call and see how we make it happen."
+  },
+  {
+    "key": "BusinessQuad.9ecb8e535e4f",
+    "section": "BusinessQuad",
+    "text": "Church Leaders"
+  },
+  {
+    "key": "BusinessQuad.a295b3f8423d",
+    "section": "BusinessQuad",
+    "text": "We provide the system and platform to bring it all together. When everyone does their part we all win and live better!"
+  },
+  {
+    "key": "BusinessQuad.b8589129f5e7",
+    "section": "BusinessQuad",
+    "text": "Share our vision with your congregations and encourage them to let their light shine on the world. Join our Be First Campaign and let your congregation be first to minister to the community through action. Learn more."
+  },
+  {
+    "key": "BusinessQuad.cbb2d2f9bfb1",
+    "section": "BusinessQuad",
+    "text": "Keep up the good work. Join us and our community will support your cause anyway we can. Cash donations, volunteers if you need it will try to get it. We’re in this together."
+  },
+  {
+    "key": "BusinessQuad.d1f23f0d1361",
+    "section": "BusinessQuad",
+    "text": "Impact"
+  },
+  {
+    "key": "BusinessQuad.d75dfca91b23",
+    "section": "BusinessQuad",
+    "text": "You are the heart and soul of our community. Live life different. Earn prizes and discounts while learning new things. Work on improving your finances and health while engaging our community. Support local businesses to strengthen the community. The list goes on. Join us and bring your smile and kindness to our community. No hate, division or drama here. WALK WITH US!"
+  },
+  {
+    "key": "BusinessQuad.f05ec8bead4a",
+    "section": "BusinessQuad",
+    "text": "Corporations"
+  },
+  {
+    "key": "CarouselHP.00610dec0a43",
+    "section": "CarouselHP",
+    "text": "Community in motion"
+  },
+  {
+    "key": "CarouselHP.436e61016e26",
+    "section": "CarouselHP",
+    "text": "Play"
+  },
+  {
+    "key": "CarouselHP.858e4ba7a29f",
+    "section": "CarouselHP",
+    "text": "Pause"
+  },
+  {
+    "key": "CarouselHP.db78fb3cad2e",
+    "section": "CarouselHP",
+    "text": "Impact Arlington"
+  },
+  {
+    "key": "CommunityFeed.11a807f1f8b0",
+    "section": "CommunityFeed",
+    "text": " shares"
+  },
+  {
+    "key": "CommunityFeed.19766ed6ccb2",
+    "section": "CommunityFeed",
+    "text": "Cancel"
+  },
+  {
+    "key": "CommunityFeed.23e39291d613",
+    "section": "CommunityFeed",
+    "text": "Saving…"
+  },
+  {
+    "key": "CommunityFeed.25e3d2254208",
+    "section": "CommunityFeed",
+    "text": "together."
+  },
+  {
+    "key": "CommunityFeed.28037aeb4e2c",
+    "section": "CommunityFeed",
+    "text": " comments"
+  },
+  {
+    "key": "CommunityFeed.292c06f0045a",
+    "section": "CommunityFeed",
+    "text": "Category"
+  },
+  {
+    "key": "CommunityFeed.2b451bb9df42",
+    "section": "CommunityFeed",
+    "text": "Choose a JPG, PNG, or WebP image"
+  },
+  {
+    "key": "CommunityFeed.2bbc9de21caa",
+    "section": "CommunityFeed",
+    "text": "Publish post"
+  },
+  {
+    "key": "CommunityFeed.31951e8ba27c",
+    "section": "CommunityFeed",
+    "text": "Admin publishing desk"
+  },
+  {
+    "key": "CommunityFeed.3788b119e4ff",
+    "section": "CommunityFeed",
+    "text": "Stories, resources, and local moments curated by the Impact Arlington team."
+  },
+  {
+    "key": "CommunityFeed.3a8a26379ba3",
+    "section": "CommunityFeed",
+    "text": "Impact Arlington Community Hub"
+  },
+  {
+    "key": "CommunityFeed.4946c8a078f2",
+    "section": "CommunityFeed",
+    "text": "Now viewing"
+  },
+  {
+    "key": "CommunityFeed.4f8affc2bbc9",
+    "section": "CommunityFeed",
+    "text": "Good news travels "
+  },
+  {
+    "key": "CommunityFeed.582e0f1abad4",
+    "section": "CommunityFeed",
+    "text": "Publishing…"
+  },
+  {
+    "key": "CommunityFeed.5dcced8e5ccd",
+    "section": "CommunityFeed",
+    "text": "Gathering community stories…"
+  },
+  {
+    "key": "CommunityFeed.64545279e9eb",
+    "section": "CommunityFeed",
+    "text": "◯ Comment"
+  },
+  {
+    "key": "CommunityFeed.6aeec91b65e7",
+    "section": "CommunityFeed",
+    "text": "Cover image URL"
+  },
+  {
+    "key": "CommunityFeed.777b96095f3b",
+    "section": "CommunityFeed",
+    "text": "Image selected"
+  },
+  {
+    "key": "CommunityFeed.77dc3829a773",
+    "section": "CommunityFeed",
+    "text": "Paste website links into your message; they become clickable when published."
+  },
+  {
+    "key": "CommunityFeed.7b743cdfe897",
+    "section": "CommunityFeed",
+    "text": "＋ Create post"
+  },
+  {
+    "key": "CommunityFeed.7d2369e6897c",
+    "section": "CommunityFeed",
+    "text": "community stories"
+  },
+  {
+    "key": "CommunityFeed.7ed7ef1e63ee",
+    "section": "CommunityFeed",
+    "text": " likes"
+  },
+  {
+    "key": "CommunityFeed.8eb87f0e7cad",
+    "section": "CommunityFeed",
+    "text": "The Impact Arlington team will publish something here soon."
+  },
+  {
+    "key": "CommunityFeed.9ff1a37f0f1d",
+    "section": "CommunityFeed",
+    "text": "No posts in this category yet"
+  },
+  {
+    "key": "CommunityFeed.a1933147e7c8",
+    "section": "CommunityFeed",
+    "text": "Edit post"
+  },
+  {
+    "key": "CommunityFeed.a2cca005a9d5",
+    "section": "CommunityFeed",
+    "text": "the entire feed"
+  },
+  {
+    "key": "CommunityFeed.a5554622c655",
+    "section": "CommunityFeed",
+    "text": "Post"
+  },
+  {
+    "key": "CommunityFeed.ba32d41938f5",
+    "section": "CommunityFeed",
+    "text": "♥ Liked"
+  },
+  {
+    "key": "CommunityFeed.bd3f4946eded",
+    "section": "CommunityFeed",
+    "text": "Editor’s pick"
+  },
+  {
+    "key": "CommunityFeed.c2940aeb3f1f",
+    "section": "CommunityFeed",
+    "text": "↗ Share"
+  },
+  {
+    "key": "CommunityFeed.c43ba5cda282",
+    "section": "CommunityFeed",
+    "text": "Impact Arlington editorial team"
+  },
+  {
+    "key": "CommunityFeed.c45dcb7f09b3",
+    "section": "CommunityFeed",
+    "text": "Post title"
+  },
+  {
+    "key": "CommunityFeed.c478361e6869",
+    "section": "CommunityFeed",
+    "text": "story"
+  },
+  {
+    "key": "CommunityFeed.ccc5ed3d0215",
+    "section": "CommunityFeed",
+    "text": "stories"
+  },
+  {
+    "key": "CommunityFeed.ccd3e4d5630f",
+    "section": "CommunityFeed",
+    "text": "Enlarge image ↗"
+  },
+  {
+    "key": "CommunityFeed.d160571e995f",
+    "section": "CommunityFeed",
+    "text": "Or upload a cover image"
+  },
+  {
+    "key": "CommunityFeed.da2529cd5240",
+    "section": "CommunityFeed",
+    "text": "Share something meaningful"
+  },
+  {
+    "key": "CommunityFeed.da8c3b708185",
+    "section": "CommunityFeed",
+    "text": "Edit community post"
+  },
+  {
+    "key": "CommunityFeed.dd0ae7a5cbcf",
+    "section": "CommunityFeed",
+    "text": "Save changes"
+  },
+  {
+    "key": "CommunityFeed.e2f677f6c540",
+    "section": "CommunityFeed",
+    "text": "♡ Like"
+  },
+  {
+    "key": "CommunityFeed.f5290c633c5c",
+    "section": "CommunityFeed",
+    "text": "Post message"
+  },
+  {
+    "key": "CommunityFeed.f5acb1705efc",
+    "section": "CommunityFeed",
+    "text": "Start a positive conversation."
+  },
+  {
+    "key": "CommunityFeed.fc0c791c8278",
+    "section": "CommunityFeed",
+    "text": "Scroll to explore"
+  },
+  {
+    "key": "Directory.073a7d013672",
+    "section": "Directory",
+    "text": "Contact through website"
+  },
+  {
+    "key": "Directory.0f5851aabde1",
+    "section": "Directory",
+    "text": "Own a business in our community?"
+  },
+  {
+    "key": "Directory.11d404179596",
+    "section": "Directory",
+    "text": "business"
+  },
+  {
+    "key": "Directory.15b61974b270",
+    "section": "Directory",
+    "text": "Location"
+  },
+  {
+    "key": "Directory.1b7626af604f",
+    "section": "Directory",
+    "text": "An approved business can be featured here by an administrator."
+  },
+  {
+    "key": "Directory.27a9b740ba1d",
+    "section": "Directory",
+    "text": "Five premium positions curated and managed by the Impact Arlington admin team."
+  },
+  {
+    "key": "Directory.2b5c3d26721a",
+    "section": "Directory",
+    "text": "Contact"
+  },
+  {
+    "key": "Directory.2f8e94f6955f",
+    "section": "Directory",
+    "text": "businesses"
+  },
+  {
+    "key": "Directory.33add7857b9b",
+    "section": "Directory",
+    "text": "View official site ↗"
+  },
+  {
+    "key": "Directory.3648201ea147",
+    "section": "Directory",
+    "text": "Approved businesses"
+  },
+  {
+    "key": "Directory.40117e0aaa9f",
+    "section": "Directory",
+    "text": "Browse category"
+  },
+  {
+    "key": "Directory.45602fc027e8",
+    "section": "Directory",
+    "text": "Try another category or a broader search."
+  },
+  {
+    "key": "Directory.4941331477bf",
+    "section": "Directory",
+    "text": "Opening the directory…"
+  },
+  {
+    "key": "Directory.495a438a4e9d",
+    "section": "Directory",
+    "text": "Apply for a premium Business Account to join the directory."
+  },
+  {
+    "key": "Directory.53d756337cba",
+    "section": "Directory",
+    "text": "Arlington, Texas"
+  },
+  {
+    "key": "Directory.5623258ded74",
+    "section": "Directory",
+    "text": "All community businesses"
+  },
+  {
+    "key": "Directory.6f7f2581fc7d",
+    "section": "Directory",
+    "text": "Categories represented"
+  },
+  {
+    "key": "Directory.710b0411e0e4",
+    "section": "Directory",
+    "text": " found"
+  },
+  {
+    "key": "Directory.72847df7b942",
+    "section": "Directory",
+    "text": "Available position"
+  },
+  {
+    "key": "Directory.730d40f862a8",
+    "section": "Directory",
+    "text": "our community."
+  },
+  {
+    "key": "Directory.745a3b19d663",
+    "section": "Directory",
+    "text": "Shop local • Grow together"
+  },
+  {
+    "key": "Directory.7935aef2b662",
+    "section": "Directory",
+    "text": "Visit business "
+  },
+  {
+    "key": "Directory.79b46a980fb0",
+    "section": "Directory",
+    "text": "✓ Verified"
+  },
+  {
+    "key": "Directory.80fc98ea65e7",
+    "section": "Directory",
+    "text": "A rotating selection of standout community businesses."
+  },
+  {
+    "key": "Directory.8574ac75f672",
+    "section": "Directory",
+    "text": "Discover trusted services, neighborhood favorites, and community partners approved by Impact Arlington."
+  },
+  {
+    "key": "Directory.8a4e63788801",
+    "section": "Directory",
+    "text": "Community spotlight"
+  },
+  {
+    "key": "Directory.a52ace420f21",
+    "section": "Directory",
+    "text": "All"
+  },
+  {
+    "key": "Directory.a9e22d3995b9",
+    "section": "Directory",
+    "text": "No businesses found"
+  },
+  {
+    "key": "Directory.aafdb49c60a6",
+    "section": "Directory",
+    "text": "Editor’s row"
+  },
+  {
+    "key": "Directory.b4c95aa662f2",
+    "section": "Directory",
+    "text": "Spotlight slots per category"
+  },
+  {
+    "key": "Directory.ba7c0632cbbf",
+    "section": "Directory",
+    "text": "✓ Verified community resource"
+  },
+  {
+    "key": "Directory.c2b7915e5982",
+    "section": "Directory",
+    "text": "Spotlight slot"
+  },
+  {
+    "key": "Directory.ca59391647a2",
+    "section": "Directory",
+    "text": "Meet the businesses behind "
+  },
+  {
+    "key": "Directory.d33ad9f068b4",
+    "section": "Directory",
+    "text": "Explore Arlington"
+  },
+  {
+    "key": "Directory.d6e645b7d2b2",
+    "section": "Directory",
+    "text": "Call"
+  },
+  {
+    "key": "EarnPoints.098363b3142c",
+    "section": "EarnPoints",
+    "text": "Find Vincent"
+  },
+  {
+    "key": "EarnPoints.15bf74726c6b",
+    "section": "EarnPoints",
+    "text": "Visit website"
+  },
+  {
+    "key": "EarnPoints.26bfeec6aabc",
+    "section": "EarnPoints",
+    "text": "Visit business"
+  },
+  {
+    "key": "EarnPoints.42f2cbfa0001",
+    "section": "EarnPoints",
+    "text": "Scan an incentive QR link with your phone camera or enter the code provided by the business, video organizer, or Vincent. Each new-user bonus can be earned once. Event points are earned once per event using its attendance code."
+  },
+  {
+    "key": "EarnPoints.79bc8de47776",
+    "section": "EarnPoints",
+    "text": "Automatically awarded to new accounts"
+  },
+  {
+    "key": "EarnPoints.82c5b51d49bd",
+    "section": "EarnPoints",
+    "text": "Make purchase from business"
+  },
+  {
+    "key": "EarnPoints.8330c82e2f7a",
+    "section": "EarnPoints",
+    "text": "Attend event"
+  },
+  {
+    "key": "EarnPoints.98c5c7f94b79",
+    "section": "EarnPoints",
+    "text": "Automatically awarded on your first signed-in visit"
+  },
+  {
+    "key": "EarnPoints.b1ba36615206",
+    "section": "EarnPoints",
+    "text": "Register on site"
+  },
+  {
+    "key": "EarnPoints.b63f0d52c58f",
+    "section": "EarnPoints",
+    "text": "Claim with a verified code"
+  },
+  {
+    "key": "EarnPoints.bbbc02efdd44",
+    "section": "EarnPoints",
+    "text": " points"
+  },
+  {
+    "key": "EarnPoints.c018d4b85c11",
+    "section": "EarnPoints",
+    "text": "View events"
+  },
+  {
+    "key": "EarnPoints.da3255d0abb3",
+    "section": "EarnPoints",
+    "text": "Earn Points"
+  },
+  {
+    "key": "EarnPoints.dbae3e9ba44b",
+    "section": "EarnPoints",
+    "text": "Watch video"
+  },
+  {
+    "key": "EarnPoints.e654e6661075",
+    "section": "EarnPoints",
+    "text": "Incentive code"
+  },
+  {
+    "key": "EarnPoints.e89f25d3debb",
+    "section": "EarnPoints",
+    "text": "Impact Reward points scan here."
+  },
+  {
+    "key": "EventCalendar.226ba18bbcdb",
+    "section": "EventCalendar",
+    "text": " more"
+  },
+  {
+    "key": "EventCalendar.4ab4e219ed38",
+    "section": "EventCalendar",
+    "text": "Community calendar"
+  },
+  {
+    "key": "EventCalendar.bedc23e5c890",
+    "section": "EventCalendar",
+    "text": "Select an event inside the calendar to download it to your personal calendar."
+  },
+  {
+    "key": "EventCalendar.c66320813042",
+    "section": "EventCalendar",
+    "text": "Plan your month"
+  },
+  {
+    "key": "EventMain.1019486b00ec",
+    "section": "EventMain",
+    "text": "Were you there?"
+  },
+  {
+    "key": "EventMain.1323f07c3d2e",
+    "section": "EventMain",
+    "text": "Be the first to cheer this event on."
+  },
+  {
+    "key": "EventMain.15b61974b270",
+    "section": "EventMain",
+    "text": "Location"
+  },
+  {
+    "key": "EventMain.175ef3753919",
+    "section": "EventMain",
+    "text": "Publish event"
+  },
+  {
+    "key": "EventMain.19766ed6ccb2",
+    "section": "EventMain",
+    "text": "Cancel"
+  },
+  {
+    "key": "EventMain.1ad345d68ed2",
+    "section": "EventMain",
+    "text": "Attend"
+  },
+  {
+    "key": "EventMain.23e39291d613",
+    "section": "EventMain",
+    "text": "Saving…"
+  },
+  {
+    "key": "EventMain.25d422ef13cf",
+    "section": "EventMain",
+    "text": "Your next ticket could be your next great memory."
+  },
+  {
+    "key": "EventMain.292c06f0045a",
+    "section": "EventMain",
+    "text": "Category"
+  },
+  {
+    "key": "EventMain.3042e7b69baf",
+    "section": "EventMain",
+    "text": "Gathering the fun…"
+  },
+  {
+    "key": "EventMain.3441b140614a",
+    "section": "EventMain",
+    "text": "Update event details"
+  },
+  {
+    "key": "EventMain.3b95badee3ad",
+    "section": "EventMain",
+    "text": "Good things happen when "
+  },
+  {
+    "key": "EventMain.3fd2a036dd9d",
+    "section": "EventMain",
+    "text": "Claim points"
+  },
+  {
+    "key": "EventMain.526e0087cc3f",
+    "section": "EventMain",
+    "text": "Description"
+  },
+  {
+    "key": "EventMain.531a99d834b7",
+    "section": "EventMain",
+    "text": "▣ Calendar"
+  },
+  {
+    "key": "EventMain.5caaea2cd9c5",
+    "section": "EventMain",
+    "text": "＋ Add an event"
+  },
+  {
+    "key": "EventMain.60cf90649bf8",
+    "section": "EventMain",
+    "text": "Attendance code"
+  },
+  {
+    "key": "EventMain.6a554d63159b",
+    "section": "EventMain",
+    "text": "For admins & Business Accounts"
+  },
+  {
+    "key": "EventMain.6e8e2de0f6c2",
+    "section": "EventMain",
+    "text": "Create an experience"
+  },
+  {
+    "key": "EventMain.777b96095f3b",
+    "section": "EventMain",
+    "text": "Image selected"
+  },
+  {
+    "key": "EventMain.7a3c51cf5102",
+    "section": "EventMain",
+    "text": " going"
+  },
+  {
+    "key": "EventMain.7ed7ef1e63ee",
+    "section": "EventMain",
+    "text": " likes"
+  },
+  {
+    "key": "EventMain.83a884caf68f",
+    "section": "EventMain",
+    "text": "◇ Save"
+  },
+  {
+    "key": "EventMain.8772fd627d55",
+    "section": "EventMain",
+    "text": "Arlington shows up."
+  },
+  {
+    "key": "EventMain.8ec4602ce4a2",
+    "section": "EventMain",
+    "text": "Event title"
+  },
+  {
+    "key": "EventMain.96dbedeca7df",
+    "section": "EventMain",
+    "text": "Starts"
+  },
+  {
+    "key": "EventMain.a5554622c655",
+    "section": "EventMain",
+    "text": "Post"
+  },
+  {
+    "key": "EventMain.a5c65df4b3b7",
+    "section": "EventMain",
+    "text": "✓ Attending"
+  },
+  {
+    "key": "EventMain.a5eca6bbab46",
+    "section": "EventMain",
+    "text": "Edit event"
+  },
+  {
+    "key": "EventMain.aaa23ee92d0d",
+    "section": "EventMain",
+    "text": "Neighbors attending"
+  },
+  {
+    "key": "EventMain.ae65d096550f",
+    "section": "EventMain",
+    "text": "Capacity"
+  },
+  {
+    "key": "EventMain.b15fb1ea73ff",
+    "section": "EventMain",
+    "text": "Find your next favorite memory, meet a neighbor, and earn reward points just for being part of it."
+  },
+  {
+    "key": "EventMain.bbbc02efdd44",
+    "section": "EventMain",
+    "text": " points"
+  },
+  {
+    "key": "EventMain.beec6c108c00",
+    "section": "EventMain",
+    "text": "Submit for approval"
+  },
+  {
+    "key": "EventMain.bffda27f36ff",
+    "section": "EventMain",
+    "text": "Event cover image"
+  },
+  {
+    "key": "EventMain.c533cafab69e",
+    "section": "EventMain",
+    "text": "Featured"
+  },
+  {
+    "key": "EventMain.c9a41614cc4c",
+    "section": "EventMain",
+    "text": "Points awarded"
+  },
+  {
+    "key": "EventMain.cb098f834f89",
+    "section": "EventMain",
+    "text": "Attend events. Build community. Earn rewards."
+  },
+  {
+    "key": "EventMain.cb63ea590045",
+    "section": "EventMain",
+    "text": " Like"
+  },
+  {
+    "key": "EventMain.ceed9fd5f54d",
+    "section": "EventMain",
+    "text": "Choose an image"
+  },
+  {
+    "key": "EventMain.cf1ea92ad856",
+    "section": "EventMain",
+    "text": "Attendance confirmed"
+  },
+  {
+    "key": "EventMain.d6250c19639d",
+    "section": "EventMain",
+    "text": "Meet • Move • Make an impact"
+  },
+  {
+    "key": "EventMain.dafec36d8624",
+    "section": "EventMain",
+    "text": "View my event queue"
+  },
+  {
+    "key": "EventMain.dd0ae7a5cbcf",
+    "section": "EventMain",
+    "text": "Save changes"
+  },
+  {
+    "key": "EventMain.df9110b56fb1",
+    "section": "EventMain",
+    "text": "Upcoming events"
+  },
+  {
+    "key": "EventMain.e7bfaedbc121",
+    "section": "EventMain",
+    "text": "Points available"
+  },
+  {
+    "key": "EventMain.e98982c9f2ba",
+    "section": "EventMain",
+    "text": "Ends"
+  },
+  {
+    "key": "EventMain.eb4952ee1f5e",
+    "section": "EventMain",
+    "text": "Sign in to get started"
+  },
+  {
+    "key": "EventMain.f2e143ea38bc",
+    "section": "EventMain",
+    "text": "◆ Saved"
+  },
+  {
+    "key": "EventMain.f671bc43f7b7",
+    "section": "EventMain",
+    "text": "Community conversation"
+  },
+  {
+    "key": "EventMain.f75d709935cb",
+    "section": "EventMain",
+    "text": "Paste website links into the description; they become clickable when published."
+  },
+  {
+    "key": "Homepage.02a7a6bdd3bd",
+    "section": "Homepage",
+    "text": " Entertainment "
+  },
+  {
+    "key": "Homepage.0e9ac55ff218",
+    "section": "Homepage",
+    "text": "YOU HAVE A PLACE HERE"
+  },
+  {
+    "key": "Homepage.104f790fb7dd",
+    "section": "Homepage",
+    "text": "Health "
+  },
+  {
+    "key": "Homepage.12b8c75ebe88",
+    "section": "Homepage",
+    "text": "Join the community ↗"
+  },
+  {
+    "key": "Homepage.17b4926884be",
+    "section": "Homepage",
+    "text": "Show up for local."
+  },
+  {
+    "key": "Homepage.25e3d2254208",
+    "section": "Homepage",
+    "text": "together."
+  },
+  {
+    "key": "Homepage.29fa0264280d",
+    "section": "Homepage",
+    "text": "Explore community events, connect with members, and discover ways to take part in Impact Arlington."
+  },
+  {
+    "key": "Homepage.2a85aaa5fcd6",
+    "section": "Homepage",
+    "text": "Discover businesses, services, and partners in our community."
+  },
+  {
+    "key": "Homepage.2b5c3d26721a",
+    "section": "Homepage",
+    "text": "Contact"
+  },
+  {
+    "key": "Homepage.3b5879c27c82",
+    "section": "Homepage",
+    "text": "Find an event"
+  },
+  {
+    "key": "Homepage.471e88cea8b6",
+    "section": "Homepage",
+    "text": "A community within the community."
+  },
+  {
+    "key": "Homepage.48df9596d623",
+    "section": "Homepage",
+    "text": "THIS IS IMPACT ARLINGTON"
+  },
+  {
+    "key": "Homepage.4cb03767ddc6",
+    "section": "Homepage",
+    "text": "Let’s build something "
+  },
+  {
+    "key": "Homepage.4efca0d10c5f",
+    "section": "Homepage",
+    "text": "About"
+  },
+  {
+    "key": "Homepage.4fb33ef47481",
+    "section": "Homepage",
+    "text": "Stronger communities."
+  },
+  {
+    "key": "Homepage.502238d2e313",
+    "section": "Homepage",
+    "text": "Real impact."
+  },
+  {
+    "key": "Homepage.56a2fa896847",
+    "section": "Homepage",
+    "text": "Come together at community events and earn points for participating."
+  },
+  {
+    "key": "Homepage.61d9b96b9056",
+    "section": "Homepage",
+    "text": "Impact is more than a social platform. It’s a community hub where people come together to improve their lives and their community, with a focus on health, finances, entertainment, and the positive things in life."
+  },
+  {
+    "key": "Homepage.63c9b7172c2c",
+    "section": "Homepage",
+    "text": "THE POWER OF SHOWING UP."
+  },
+  {
+    "key": "Homepage.65d24ab78398",
+    "section": "Homepage",
+    "text": "Find the one that feels like you."
+  },
+  {
+    "key": "Homepage.66c702a56d1d",
+    "section": "Homepage",
+    "text": "Small steps. "
+  },
+  {
+    "key": "Homepage.6898b536ef95",
+    "section": "Homepage",
+    "text": "Explore events"
+  },
+  {
+    "key": "Homepage.878de437598e",
+    "section": "Homepage",
+    "text": "Lasting impact."
+  },
+  {
+    "key": "Homepage.899e466efb01",
+    "section": "Homepage",
+    "text": "Participate in community events."
+  },
+  {
+    "key": "Homepage.95c24f74d0e6",
+    "section": "Homepage",
+    "text": "Let’s make an impact."
+  },
+  {
+    "key": "Homepage.9b885d7aa786",
+    "section": "Homepage",
+    "text": " / GET INVOLVED"
+  },
+  {
+    "key": "Homepage.9e6d4a55ad80",
+    "section": "Homepage",
+    "text": "A place to belong."
+  },
+  {
+    "key": "Homepage.9fd641cc62c3",
+    "section": "Homepage",
+    "text": "Meet neighbors, share ideas, and build connections close to home."
+  },
+  {
+    "key": "Homepage.a21ecea3c0e9",
+    "section": "Homepage",
+    "text": "LIVE LIFE DIFFERENT."
+  },
+  {
+    "key": "Homepage.a9aa705f1bb6",
+    "section": "Homepage",
+    "text": " Finances "
+  },
+  {
+    "key": "Homepage.af710930d232",
+    "section": "Homepage",
+    "text": "Meet the members"
+  },
+  {
+    "key": "Homepage.b112f91b97ea",
+    "section": "Homepage",
+    "text": "Local people."
+  },
+  {
+    "key": "Homepage.b3150b9ccdf5",
+    "section": "Homepage",
+    "text": "Find your people."
+  },
+  {
+    "key": "Homepage.b7479b3ce3ab",
+    "section": "Homepage",
+    "text": "happen "
+  },
+  {
+    "key": "Homepage.b85a87faa67f",
+    "section": "Homepage",
+    "text": "Discover our vision ↗"
+  },
+  {
+    "key": "Homepage.bc26003ec124",
+    "section": "Homepage",
+    "text": "Your neighbors. Your local businesses. Your next great connection. A place to come together and make life a little better."
+  },
+  {
+    "key": "Homepage.bcf0d27e419e",
+    "section": "Homepage",
+    "text": "There’s more than one way to belong."
+  },
+  {
+    "key": "Homepage.c3189c9d5699",
+    "section": "Homepage",
+    "text": "Explore the directory"
+  },
+  {
+    "key": "Homepage.cb210d8bdcc0",
+    "section": "Homepage",
+    "text": " Positive living"
+  },
+  {
+    "key": "Homepage.d07244ebd582",
+    "section": "Homepage",
+    "text": "Better lives."
+  },
+  {
+    "key": "Homepage.d1286065beb7",
+    "section": "Homepage",
+    "text": "YOUR COMMUNITY STARTS HERE"
+  },
+  {
+    "key": "Homepage.d4e9e7564dca",
+    "section": "Homepage",
+    "text": "ARLINGTON / TX"
+  },
+  {
+    "key": "Homepage.d9c3fb02c2b0",
+    "section": "Homepage",
+    "text": "More than a platform."
+  },
+  {
+    "key": "Homepage.dbc468a14b60",
+    "section": "Homepage",
+    "text": "FAQ"
+  },
+  {
+    "key": "Homepage.de3d7a52c9a5",
+    "section": "Homepage",
+    "text": "Good things"
+  },
+  {
+    "key": "Homepage.e465ff137843",
+    "section": "Homepage",
+    "text": " ROOTED IN ARLINGTON. BUILT ON CONNECTION."
+  },
+  {
+    "key": "Homepage.ea55f5c01cc5",
+    "section": "Homepage",
+    "text": "Explore the community "
+  },
+  {
+    "key": "Homepage.eb557d40355d",
+    "section": "Homepage",
+    "text": "A little connection. A lot of possibility."
+  },
+  {
+    "key": "Homepage.f5ff9b4a9f49",
+    "section": "Homepage",
+    "text": "good."
+  },
+  {
+    "key": "Homepage.f84c046a9834",
+    "section": "Homepage",
+    "text": "Be part of something."
+  },
+  {
+    "key": "Homepage.fadc68bf318d",
+    "section": "Homepage",
+    "text": "Want to advertise with us, launch Impact in your city, or have your corporation walk with us? Contact Vincent Jenkins, CEO / Founder."
+  },
+  {
+    "key": "Homepage.fafb215dc37f",
+    "section": "Homepage",
+    "text": "Find your place "
+  },
+  {
+    "key": "Homepage.fdf7100bf8b1",
+    "section": "Homepage",
+    "text": "impactingcities101@gmail.com ↗"
+  },
+  {
+    "key": "ImageLightbox.278a830763dc",
+    "section": "ImageLightbox",
+    "text": "This image could not be loaded."
+  },
+  {
+    "key": "InboxMessage.19766ed6ccb2",
+    "section": "InboxMessage",
+    "text": "Cancel"
+  },
+  {
+    "key": "InboxMessage.625aafc3a9bd",
+    "section": "InboxMessage",
+    "text": "Send reply"
+  },
+  {
+    "key": "InboxMessage.b3abe483ea14",
+    "section": "InboxMessage",
+    "text": " / 1,000 characters"
+  },
+  {
+    "key": "InboxMessage.b8ed5279e897",
+    "section": "InboxMessage",
+    "text": "Sending…"
+  },
+  {
+    "key": "InboxMessage.c253f451bdd5",
+    "section": "InboxMessage",
+    "text": "Reply"
+  },
+  {
+    "key": "InboxMessage.ec06f3d2590e",
+    "section": "InboxMessage",
+    "text": "Reply to "
+  },
+  {
+    "key": "IncentiveAdmin.0e66373f45dc",
+    "section": "IncentiveAdmin",
+    "text": "Label"
+  },
+  {
+    "key": "IncentiveAdmin.1df3b9bcec30",
+    "section": "IncentiveAdmin",
+    "text": "Reward point claim codes"
+  },
+  {
+    "key": "IncentiveAdmin.2780bbe2bf5b",
+    "section": "IncentiveAdmin",
+    "text": "Scan link"
+  },
+  {
+    "key": "IncentiveAdmin.38da1505ca83",
+    "section": "IncentiveAdmin",
+    "text": "Activity"
+  },
+  {
+    "key": "IncentiveAdmin.5cb3d95ebe35",
+    "section": "IncentiveAdmin",
+    "text": "Download QR image"
+  },
+  {
+    "key": "IncentiveAdmin.5eb7d2d1e826",
+    "section": "IncentiveAdmin",
+    "text": "No claim codes yet."
+  },
+  {
+    "key": "IncentiveAdmin.9e309579da97",
+    "section": "IncentiveAdmin",
+    "text": "QR / scan link"
+  },
+  {
+    "key": "IncentiveAdmin.9e3e55d2f9d0",
+    "section": "IncentiveAdmin",
+    "text": " claims · "
+  },
+  {
+    "key": "IncentiveAdmin.bbbc02efdd44",
+    "section": "IncentiveAdmin",
+    "text": " points"
+  },
+  {
+    "key": "IncentiveAdmin.bfd8bc966ef7",
+    "section": "IncentiveAdmin",
+    "text": "Create codes for verified business visits, purchases, videos, and finding Vincent. Share the code or downloaded QR image after the activity. Each member can earn each new-user incentive once, even with different codes. Event attendance uses the event’s own code."
+  },
+  {
+    "key": "IncentiveAdmin.f1c5165ba063",
+    "section": "IncentiveAdmin",
+    "text": "Member incentives"
+  },
+  {
+    "key": "IncentiveAdmin.f711d7940d9d",
+    "section": "IncentiveAdmin",
+    "text": "Create claim code"
+  },
+  {
+    "key": "Members.04c0fcb6326f",
+    "section": "Members",
+    "text": "Try searching with a broader name, company, or position."
+  },
+  {
+    "key": "Members.19766ed6ccb2",
+    "section": "Members",
+    "text": "Cancel"
+  },
+  {
+    "key": "Members.4349a7b25a72",
+    "section": "Members",
+    "text": "Choose an event"
+  },
+  {
+    "key": "Members.706e226689f4",
+    "section": "Members",
+    "text": "Find the people making Arlington stronger."
+  },
+  {
+    "key": "Members.7391c427b44f",
+    "section": "Members",
+    "text": " members found"
+  },
+  {
+    "key": "Members.7a057bd996a3",
+    "section": "Members",
+    "text": "Your message"
+  },
+  {
+    "key": "Members.93a26b1eaff9",
+    "section": "Members",
+    "text": "Send message"
+  },
+  {
+    "key": "Members.a4e937d25742",
+    "section": "Members",
+    "text": "No members found"
+  },
+  {
+    "key": "Members.b8ed5279e897",
+    "section": "Members",
+    "text": "Sending…"
+  },
+  {
+    "key": "Members.c992ad297948",
+    "section": "Members",
+    "text": "Select an upcoming event"
+  },
+  {
+    "key": "Members.cbf8611bddbf",
+    "section": "Members",
+    "text": "Event invitation"
+  },
+  {
+    "key": "Members.cd3e16057d09",
+    "section": "Members",
+    "text": "Direct message"
+  },
+  {
+    "key": "Members.dba4038b651b",
+    "section": "Members",
+    "text": "Send invitation"
+  },
+  {
+    "key": "Members.e44b1dc797ed",
+    "section": "Members",
+    "text": "Community network"
+  },
+  {
+    "key": "Members.ef67fcbb4809",
+    "section": "Members",
+    "text": "Connect with neighbors, invite someone to your next event, or start a direct conversation."
+  },
+  {
+    "key": "Namespace.3588ac2689f5",
+    "section": "Namespace",
+    "text": "Business Directory"
+  },
+  {
+    "key": "Namespace.5b711b584c08",
+    "section": "Namespace",
+    "text": "Impact Members"
+  },
+  {
+    "key": "Namespace.66d1605446f4",
+    "section": "Namespace",
+    "text": "Admin Dashboard"
+  },
+  {
+    "key": "Namespace.68953d8b0c1c",
+    "section": "Namespace",
+    "text": "Community Events"
+  },
+  {
+    "key": "Nav.1044a4c056d0",
+    "section": "Nav",
+    "text": "Members"
+  },
+  {
+    "key": "Nav.3a78695388b3",
+    "section": "Nav",
+    "text": "Home"
+  },
+  {
+    "key": "Nav.849f21b8ac0a",
+    "section": "Nav",
+    "text": "Join / Sign in "
+  },
+  {
+    "key": "Nav.8d14f6e72de8",
+    "section": "Nav",
+    "text": "Events"
+  },
+  {
+    "key": "Nav.ac576a66d456",
+    "section": "Nav",
+    "text": "Skip to content"
+  },
+  {
+    "key": "Nav.bb501d7877eb",
+    "section": "Nav",
+    "text": "Community"
+  },
+  {
+    "key": "Nav.c8f84c3c5378",
+    "section": "Nav",
+    "text": "Directory"
+  },
+  {
+    "key": "Nav.d97f89486f63",
+    "section": "Nav",
+    "text": " Rewards"
+  },
+  {
+    "key": "ProfileModal.00d748af68a1",
+    "section": "ProfileModal",
+    "text": "Upload business picture"
+  },
+  {
+    "key": "ProfileModal.02833c2a3372",
+    "section": "ProfileModal",
+    "text": "Change cover image"
+  },
+  {
+    "key": "ProfileModal.04eb246f6e46",
+    "section": "ProfileModal",
+    "text": "Occupation (optional)"
+  },
+  {
+    "key": "ProfileModal.0aa62f7898f3",
+    "section": "ProfileModal",
+    "text": "Upload picture"
+  },
+  {
+    "key": "ProfileModal.0c8209e72ec8",
+    "section": "ProfileModal",
+    "text": "Save profile"
+  },
+  {
+    "key": "ProfileModal.134d540f4780",
+    "section": "ProfileModal",
+    "text": "Business tier"
+  },
+  {
+    "key": "ProfileModal.1359ec883b21",
+    "section": "ProfileModal",
+    "text": "About me"
+  },
+  {
+    "key": "ProfileModal.15c4aa13037e",
+    "section": "ProfileModal",
+    "text": "Edit profile"
+  },
+  {
+    "key": "ProfileModal.19766ed6ccb2",
+    "section": "ProfileModal",
+    "text": "Cancel"
+  },
+  {
+    "key": "ProfileModal.1bc6f23b5304",
+    "section": "ProfileModal",
+    "text": "Remove picture"
+  },
+  {
+    "key": "ProfileModal.1cacdf3c9293",
+    "section": "ProfileModal",
+    "text": "Add up to five images of your location, products, team, or work."
+  },
+  {
+    "key": "ProfileModal.1d6b64ffd5c1",
+    "section": "ProfileModal",
+    "text": "My ticket collection"
+  },
+  {
+    "key": "ProfileModal.1f106c1d188b",
+    "section": "ProfileModal",
+    "text": "Business gallery"
+  },
+  {
+    "key": "ProfileModal.23e39291d613",
+    "section": "ProfileModal",
+    "text": "Saving…"
+  },
+  {
+    "key": "ProfileModal.24fa88186972",
+    "section": "ProfileModal",
+    "text": "Your Business Account application is awaiting board approval."
+  },
+  {
+    "key": "ProfileModal.271c62fa2deb",
+    "section": "ProfileModal",
+    "text": "My profile"
+  },
+  {
+    "key": "ProfileModal.292c06f0045a",
+    "section": "ProfileModal",
+    "text": "Category"
+  },
+  {
+    "key": "ProfileModal.2b44a1bd7856",
+    "section": "ProfileModal",
+    "text": "Join the community"
+  },
+  {
+    "key": "ProfileModal.32ec26e19488",
+    "section": "ProfileModal",
+    "text": "Bookmarked posts"
+  },
+  {
+    "key": "ProfileModal.3d774bc968f5",
+    "section": "ProfileModal",
+    "text": " points · "
+  },
+  {
+    "key": "ProfileModal.4660a983366f",
+    "section": "ProfileModal",
+    "text": "Please wait…"
+  },
+  {
+    "key": "ProfileModal.48f0d3d397d4",
+    "section": "ProfileModal",
+    "text": "Sign out"
+  },
+  {
+    "key": "ProfileModal.4a05e159e9e5",
+    "section": "ProfileModal",
+    "text": "Visible on your member card"
+  },
+  {
+    "key": "ProfileModal.50f7ee4f6ae7",
+    "section": "ProfileModal",
+    "text": " rewards claimed"
+  },
+  {
+    "key": "ProfileModal.526e0087cc3f",
+    "section": "ProfileModal",
+    "text": "Description"
+  },
+  {
+    "key": "ProfileModal.56ef8f20955f",
+    "section": "ProfileModal",
+    "text": "Address"
+  },
+  {
+    "key": "ProfileModal.576471a4779f",
+    "section": "ProfileModal",
+    "text": "Enter an attendance code after an event to earn your first ticket."
+  },
+  {
+    "key": "ProfileModal.5cd7217486f8",
+    "section": "ProfileModal",
+    "text": "Redeem your points and your rewards will be kept here."
+  },
+  {
+    "key": "ProfileModal.60da60dfe461",
+    "section": "ProfileModal",
+    "text": "My rewards"
+  },
+  {
+    "key": "ProfileModal.61d30d997d13",
+    "section": "ProfileModal",
+    "text": "Create profile"
+  },
+  {
+    "key": "ProfileModal.61ff0d291ae1",
+    "section": "ProfileModal",
+    "text": "Events attended"
+  },
+  {
+    "key": "ProfileModal.63dceb8800b2",
+    "section": "ProfileModal",
+    "text": "Phone"
+  },
+  {
+    "key": "ProfileModal.6621249514b7",
+    "section": "ProfileModal",
+    "text": "Welcome back"
+  },
+  {
+    "key": "ProfileModal.702ef921ed1d",
+    "section": "ProfileModal",
+    "text": "First name"
+  },
+  {
+    "key": "ProfileModal.76e98b9490ca",
+    "section": "ProfileModal",
+    "text": "Reward points"
+  },
+  {
+    "key": "ProfileModal.777b96095f3b",
+    "section": "ProfileModal",
+    "text": "Image selected"
+  },
+  {
+    "key": "ProfileModal.79940bab3cb4",
+    "section": "ProfileModal",
+    "text": "My event queue"
+  },
+  {
+    "key": "ProfileModal.7aabcd8771c4",
+    "section": "ProfileModal",
+    "text": "Community inbox"
+  },
+  {
+    "key": "ProfileModal.7b4888049459",
+    "section": "ProfileModal",
+    "text": "Last name"
+  },
+  {
+    "key": "ProfileModal.82eec65d6f96",
+    "section": "ProfileModal",
+    "text": "Saved events"
+  },
+  {
+    "key": "ProfileModal.8a08f1a5ee3a",
+    "section": "ProfileModal",
+    "text": "My business profile"
+  },
+  {
+    "key": "ProfileModal.8c74141f01a9",
+    "section": "ProfileModal",
+    "text": "My donated rewards"
+  },
+  {
+    "key": "ProfileModal.8fd5ae966991",
+    "section": "ProfileModal",
+    "text": "Business Account application"
+  },
+  {
+    "key": "ProfileModal.93a3582040aa",
+    "section": "ProfileModal",
+    "text": "Edit business"
+  },
+  {
+    "key": "ProfileModal.94ef563338d4",
+    "section": "ProfileModal",
+    "text": "★ Sponsor"
+  },
+  {
+    "key": "ProfileModal.a921756ed1cc",
+    "section": "ProfileModal",
+    "text": "Business name"
+  },
+  {
+    "key": "ProfileModal.ad8cbd037148",
+    "section": "ProfileModal",
+    "text": "Account role"
+  },
+  {
+    "key": "ProfileModal.aff81808ea56",
+    "section": "ProfileModal",
+    "text": "Invitations & messages"
+  },
+  {
+    "key": "ProfileModal.b10ac6c11787",
+    "section": "ProfileModal",
+    "text": "Edit business profile"
+  },
+  {
+    "key": "ProfileModal.b11f4a82b989",
+    "section": "ProfileModal",
+    "text": "Select a category"
+  },
+  {
+    "key": "ProfileModal.b3c577bf3c50",
+    "section": "ProfileModal",
+    "text": " points earned"
+  },
+  {
+    "key": "ProfileModal.b5a229ac8bec",
+    "section": "ProfileModal",
+    "text": "Website"
+  },
+  {
+    "key": "ProfileModal.b62cee9371b0",
+    "section": "ProfileModal",
+    "text": "Cover image"
+  },
+  {
+    "key": "ProfileModal.b65784fb2855",
+    "section": "ProfileModal",
+    "text": "Save an event and it will appear in your queue."
+  },
+  {
+    "key": "ProfileModal.b78e413311e7",
+    "section": "ProfileModal",
+    "text": "Save business profile"
+  },
+  {
+    "key": "ProfileModal.ba4c5705edb4",
+    "section": "ProfileModal",
+    "text": "Apply for a Business Account"
+  },
+  {
+    "key": "ProfileModal.bb7234ec1245",
+    "section": "ProfileModal",
+    "text": "Register"
+  },
+  {
+    "key": "ProfileModal.bfd402b2f6f3",
+    "section": "ProfileModal",
+    "text": "Sign in"
+  },
+  {
+    "key": "ProfileModal.c14d5e8c2e18",
+    "section": "ProfileModal",
+    "text": "Claimed collection"
+  },
+  {
+    "key": "ProfileModal.cff989c347d3",
+    "section": "ProfileModal",
+    "text": "/500 characters"
+  },
+  {
+    "key": "ProfileModal.db78fb3cad2e",
+    "section": "ProfileModal",
+    "text": "Impact Arlington"
+  },
+  {
+    "key": "ProfileModal.e7cf3ef4f17c",
+    "section": "ProfileModal",
+    "text": "Password"
+  },
+  {
+    "key": "ProfileModal.e96bfc193c4b",
+    "section": "ProfileModal",
+    "text": " invited you"
+  },
+  {
+    "key": "ProfileModal.e977bbb06831",
+    "section": "ProfileModal",
+    "text": "Submit application"
+  },
+  {
+    "key": "ProfileModal.eefd92138ffe",
+    "section": "ProfileModal",
+    "text": "Choose gallery images"
+  },
+  {
+    "key": "ProfileModal.f2488fd4ef4a",
+    "section": "ProfileModal",
+    "text": "Email address"
+  },
+  {
+    "key": "ProfileModal.fa3eb947ad22",
+    "section": "ProfileModal",
+    "text": "Business image"
+  },
+  {
+    "key": "ProfileModal.fd2d2cd432de",
+    "section": "ProfileModal",
+    "text": " saved events"
+  },
+  {
+    "key": "RewardsModal.029b7f269798",
+    "section": "RewardsModal",
+    "text": "Find your claimed rewards."
+  },
+  {
+    "key": "RewardsModal.12e0c58afe4b",
+    "section": "RewardsModal",
+    "text": "rewards ready to claim"
+  },
+  {
+    "key": "RewardsModal.19766ed6ccb2",
+    "section": "RewardsModal",
+    "text": "Cancel"
+  },
+  {
+    "key": "RewardsModal.2289c1529912",
+    "section": "RewardsModal",
+    "text": "Point cost (0 = free)"
+  },
+  {
+    "key": "RewardsModal.245fcd2c209d",
+    "section": "RewardsModal",
+    "text": "Reward name"
+  },
+  {
+    "key": "RewardsModal.2b4ad38cc1ca",
+    "section": "RewardsModal",
+    "text": "Show up, support the community, and exchange the points you earn for local experiences and member perks."
+  },
+  {
+    "key": "RewardsModal.2bf1347bb03f",
+    "section": "RewardsModal",
+    "text": "Impact Rewards"
+  },
+  {
+    "key": "RewardsModal.2dda70845763",
+    "section": "RewardsModal",
+    "text": "Fully claimed"
+  },
+  {
+    "key": "RewardsModal.2eb591670ea0",
+    "section": "RewardsModal",
+    "text": "Offer something memorable"
+  },
+  {
+    "key": "RewardsModal.2ed08c41069a",
+    "section": "RewardsModal",
+    "text": "My balance"
+  },
+  {
+    "key": "RewardsModal.4761a83dade2",
+    "section": "RewardsModal",
+    "text": "New rewards are on the way"
+  },
+  {
+    "key": "RewardsModal.48c576db2910",
+    "section": "RewardsModal",
+    "text": "Opening the reward vault…"
+  },
+  {
+    "key": "RewardsModal.4bc7f76d36ad",
+    "section": "RewardsModal",
+    "text": "No longer available"
+  },
+  {
+    "key": "RewardsModal.526e0087cc3f",
+    "section": "RewardsModal",
+    "text": "Description"
+  },
+  {
+    "key": "RewardsModal.54d4ef974631",
+    "section": "RewardsModal",
+    "text": "Give back, too."
+  },
+  {
+    "key": "RewardsModal.58060ce5ad52",
+    "section": "RewardsModal",
+    "text": "Member sponsorship"
+  },
+  {
+    "key": "RewardsModal.702f4ab2f2de",
+    "section": "RewardsModal",
+    "text": "Claiming…"
+  },
+  {
+    "key": "RewardsModal.712a9c6973e0",
+    "section": "RewardsModal",
+    "text": "SPONSOR"
+  },
+  {
+    "key": "RewardsModal.777b96095f3b",
+    "section": "RewardsModal",
+    "text": "Image selected"
+  },
+  {
+    "key": "RewardsModal.781e6be8a0dc",
+    "section": "RewardsModal",
+    "text": "Apply to donate"
+  },
+  {
+    "key": "RewardsModal.7c67e79735ce",
+    "section": "RewardsModal",
+    "text": "Turn participation into rewards"
+  },
+  {
+    "key": "RewardsModal.7cc706ce8823",
+    "section": "RewardsModal",
+    "text": "In my rewards"
+  },
+  {
+    "key": "RewardsModal.7d4382523dbf",
+    "section": "RewardsModal",
+    "text": " Sign in, attend a community event, and confirm your attendance with its attendance code. Each event lists how many points you can earn. Points are awarded once per event."
+  },
+  {
+    "key": "RewardsModal.7e586e4bdce4",
+    "section": "RewardsModal",
+    "text": "better."
+  },
+  {
+    "key": "RewardsModal.8434ce6b7a5c",
+    "section": "RewardsModal",
+    "text": "Reward image"
+  },
+  {
+    "key": "RewardsModal.85c1346327ee",
+    "section": "RewardsModal",
+    "text": "Claim free reward"
+  },
+  {
+    "key": "RewardsModal.867704c4c56a",
+    "section": "RewardsModal",
+    "text": "Approved donors receive a Sponsor badge on their member profile."
+  },
+  {
+    "key": "RewardsModal.93b3607edcc0",
+    "section": "RewardsModal",
+    "text": "♡ Donate a reward"
+  },
+  {
+    "key": "RewardsModal.9c870aa6e5e9",
+    "section": "RewardsModal",
+    "text": "How it works"
+  },
+  {
+    "key": "RewardsModal.9d120318d0d2",
+    "section": "RewardsModal",
+    "text": "Choose your reward."
+  },
+  {
+    "key": "RewardsModal.a125e12f7c02",
+    "section": "RewardsModal",
+    "text": "Keep earning points while our community sponsors prepare the next collection."
+  },
+  {
+    "key": "RewardsModal.aebe24fd9cfa",
+    "section": "RewardsModal",
+    "text": "Earn points at events."
+  },
+  {
+    "key": "RewardsModal.af6b7896cdea",
+    "section": "RewardsModal",
+    "text": "Redeem your points."
+  },
+  {
+    "key": "RewardsModal.b3c5f6a6a5d6",
+    "section": "RewardsModal",
+    "text": "Sign in to redeem"
+  },
+  {
+    "key": "RewardsModal.b5df1f18b1ad",
+    "section": "RewardsModal",
+    "text": "Your points can make today "
+  },
+  {
+    "key": "RewardsModal.b5f261c40059",
+    "section": "RewardsModal",
+    "text": " Select Redeem reward and confirm. Free rewards require no points. Other rewards require enough points; all rewards require available stock. The point cost is deducted from your balance, and each reward can be redeemed once per member."
+  },
+  {
+    "key": "RewardsModal.b8ed5279e897",
+    "section": "RewardsModal",
+    "text": "Sending…"
+  },
+  {
+    "key": "RewardsModal.c62d2cf8f289",
+    "section": "RewardsModal",
+    "text": "available points"
+  },
+  {
+    "key": "RewardsModal.d2c007505572",
+    "section": "RewardsModal",
+    "text": "Redeem reward"
+  },
+  {
+    "key": "RewardsModal.d3965f8691a5",
+    "section": "RewardsModal",
+    "text": "Gifted by "
+  },
+  {
+    "key": "RewardsModal.db78fb3cad2e",
+    "section": "RewardsModal",
+    "text": "Impact Arlington"
+  },
+  {
+    "key": "RewardsModal.ddcd2779294a",
+    "section": "RewardsModal",
+    "text": "Claimed"
+  },
+  {
+    "key": "RewardsModal.e820fcff3cc9",
+    "section": "RewardsModal",
+    "text": " Check My balance, then browse the available rewards. Each card shows the point cost (or Free) and how many are left."
+  },
+  {
+    "key": "RewardsModal.f411a1fb6275",
+    "section": "RewardsModal",
+    "text": "Free"
+  },
+  {
+    "key": "RewardsModal.f4fa48cfa39e",
+    "section": "RewardsModal",
+    "text": "Sponsor name"
+  },
+  {
+    "key": "RewardsModal.f55716eeca26",
+    "section": "RewardsModal",
+    "text": "Sign in to view"
+  },
+  {
+    "key": "RewardsModal.fabf3c884861",
+    "section": "RewardsModal",
+    "text": "Available count"
+  },
+  {
+    "key": "RewardsModal.fbf90ac96974",
+    "section": "RewardsModal",
+    "text": " Use Donate a reward to offer a perk to the community. Donations are reviewed before appearing here; approved donors receive a Sponsor badge."
+  },
+  {
+    "key": "RewardsModal.ffa6648883a4",
+    "section": "RewardsModal",
+    "text": " Open your profile to see your redeemed rewards. Claimed items are also marked In my rewards in this dashboard."
+  },
+  {
+    "key": "RewardsModal.ffe4df6c7ca6",
+    "section": "RewardsModal",
+    "text": "Upload image"
+  },
+  {
+    "key": "Rules.0a88f211be77",
+    "section": "Rules",
+    "text": "Keep everyone safe"
+  },
+  {
+    "key": "Rules.14226d39d980",
+    "section": "Rules",
+    "text": "That’s how Arlington makes an impact."
+  },
+  {
+    "key": "Rules.2dd91040a484",
+    "section": "Rules",
+    "text": "kindness"
+  },
+  {
+    "key": "Rules.3a4327a2008c",
+    "section": "Rules",
+    "text": "By participating, every member helps protect the welcoming community we’re building together."
+  },
+  {
+    "key": "Rules.54bd5e8bb54c",
+    "section": "Rules",
+    "text": "Our community promise"
+  },
+  {
+    "key": "Rules.5aa943927ca3",
+    "section": "Rules",
+    "text": "No hate speech or bullying. Bullying of any kind will not be allowed. Degrading comments about religion, race, sexual orientation, or culture will not be tolerated."
+  },
+  {
+    "key": "Rules.78822165e759",
+    "section": "Rules",
+    "text": "Being part of our community requires mutual trust. Authentic, expressive discussions make communities great, but always be sensitive to the privacy of others."
+  },
+  {
+    "key": "Rules.887fbe9de8cb",
+    "section": "Rules",
+    "text": "Respect privacy"
+  },
+  {
+    "key": "Rules.8b28c004587f",
+    "section": "Rules",
+    "text": "Belong. Respect. Uplift."
+  },
+  {
+    "key": "Rules.959e96011a11",
+    "section": "Rules",
+    "text": "Be kind and courteous online as well as off. We’re in this together to create an inviting and welcoming environment."
+  },
+  {
+    "key": "Rules.c124d841e709",
+    "section": "Rules",
+    "text": "Take the time to read our rules for making the world a better place—one neighbor, conversation, and act of kindness at a time."
+  },
+  {
+    "key": "Rules.c3805cf8d9d4",
+    "section": "Rules",
+    "text": " rules, morals & values."
+  },
+  {
+    "key": "Rules.d786b9e5c8e2",
+    "section": "Rules",
+    "text": "A community isn’t a true community without"
+  },
+  {
+    "key": "Rules.e74ce01c1f8d",
+    "section": "Rules",
+    "text": "Lead with kindness"
+  },
+  {
+    "key": "Rules.f796e2f28ae5",
+    "section": "Rules",
+    "text": "trust"
+  },
+  {
+    "key": "SignUpAside.60e2eae3590f",
+    "section": "SignUpAside",
+    "text": "SignUpAside"
+  },
+  {
+    "key": "Vision.0b7c182becbc",
+    "section": "Vision",
+    "text": "We work together, share resources, and help one another grow."
+  },
+  {
+    "key": "Vision.109b0f8236f6",
+    "section": "Vision",
+    "text": "It’s time to"
+  },
+  {
+    "key": "Vision.1daaa38f33cd",
+    "section": "Vision",
+    "text": "Where"
+  },
+  {
+    "key": "Vision.1dca186466be",
+    "section": "Vision",
+    "text": "Positive change is not a special occasion. We make room for it every day."
+  },
+  {
+    "key": "Vision.2642f93dd297",
+    "section": "Vision",
+    "text": "Our vision"
+  },
+  {
+    "key": "Vision.2a7b7c15012c",
+    "section": "Vision",
+    "text": "A community within "
+  },
+  {
+    "key": "Vision.326566754f50",
+    "section": "Vision",
+    "text": "Arlington—and beyond"
+  },
+  {
+    "key": "Vision.38fa6d906a03",
+    "section": "Vision",
+    "text": "Better lives create stronger communities."
+  },
+  {
+    "key": "Vision.4b17255ee0bd",
+    "section": "Vision",
+    "text": "Every chance we get"
+  },
+  {
+    "key": "Vision.4b95ce627201",
+    "section": "Vision",
+    "text": "Texas"
+  },
+  {
+    "key": "Vision.4ee86f7abbd1",
+    "section": "Vision",
+    "text": "Together, every chance we get."
+  },
+  {
+    "key": "Vision.55898449eb74",
+    "section": "Vision",
+    "text": "Health"
+  },
+  {
+    "key": "Vision.58be38ec2f57",
+    "section": "Vision",
+    "text": "Tools for a secure future"
+  },
+  {
+    "key": "Vision.614e14f791b0",
+    "section": "Vision",
+    "text": "Finances"
+  },
+  {
+    "key": "Vision.7470bd3bc2ab",
+    "section": "Vision",
+    "text": "How"
+  },
+  {
+    "key": "Vision.7a1ecbf219a3",
+    "section": "Vision",
+    "text": "More reasons to come together"
+  },
+  {
+    "key": "Vision.83e6ebcf9db5",
+    "section": "Vision",
+    "text": "Impact is a community hub where people operate like family—coming together to improve their lives and the place they call home."
+  },
+  {
+    "key": "Vision.8b4e7bf112da",
+    "section": "Vision",
+    "text": "We begin in Arlington, Texas and surrounding communities, with a goal of expanding into other cities."
+  },
+  {
+    "key": "Vision.9b6d0b161197",
+    "section": "Vision",
+    "text": "Stronger bodies and minds"
+  },
+  {
+    "key": "Vision.9d3a4803ad5c",
+    "section": "Vision",
+    "text": "the community."
+  },
+  {
+    "key": "Vision.a9d7d09bb0c4",
+    "section": "Vision",
+    "text": "Positive living"
+  },
+  {
+    "key": "Vision.aacaaefed2a3",
+    "section": "Vision",
+    "text": "Plan. Connect. Act."
+  },
+  {
+    "key": "Vision.c439956609b0",
+    "section": "Vision",
+    "text": "More than a social platform"
+  },
+  {
+    "key": "Vision.c718343e46c2",
+    "section": "Vision",
+    "text": "live life different."
+  },
+  {
+    "key": "Vision.c7c932ffdf72",
+    "section": "Vision",
+    "text": "Celebrating the good in life"
+  },
+  {
+    "key": "Vision.ceaa553e838f",
+    "section": "Vision",
+    "text": "Entertainment"
+  },
+  {
+    "key": "Vision.cf9c7aa24a26",
+    "section": "Vision",
+    "text": "When"
+  },
+  {
+    "key": "Vision.e1bc49217e4f",
+    "section": "Vision",
+    "text": "Get more out of life"
+  },
+  {
+    "key": "Vision.f17ebf87966e",
+    "section": "Vision",
+    "text": "We use this platform to bring people together and make meaningful change happen."
+  },
+  {
+    "key": "Vision.f1cb587545a0",
+    "section": "Vision",
+    "text": "Arlington"
+  },
+  {
+    "key": "Vision.f8cf83a76a98",
+    "section": "Vision",
+    "text": "What"
+  }
+]

@@ -1,7 +1,8 @@
+import SiteText from "./SiteText";
 
 function SignUpAside() {
   return (
-    <div>SignUpAside</div>
+    <div><SiteText contentKey="SignUpAside.60e2eae3590f">{"SignUpAside"}</SiteText></div>
   )
 }
 

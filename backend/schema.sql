@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('pending','active','suspended')),
   avatar_url TEXT,
   bio TEXT DEFAULT '',
+  occupation TEXT NOT NULL DEFAULT '',
   points INTEGER NOT NULL DEFAULT 0,
   sponsor_badge INTEGER NOT NULL DEFAULT 0,
   business_tier TEXT NOT NULL DEFAULT 'standard' CHECK(business_tier IN ('standard','pending','premium','denied')),
@@ -119,3 +120,29 @@ CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
 CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
 CREATE INDEX IF NOT EXISTS idx_companies_status ON companies(status);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_log(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS site_text (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS incentive_codes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  incentive_id TEXT NOT NULL,
+  code TEXT NOT NULL UNIQUE,
+  label TEXT NOT NULL,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS incentive_claims (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  incentive_id TEXT NOT NULL,
+  code_id INTEGER REFERENCES incentive_codes(id),
+  points_awarded INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id,incentive_id)
+);

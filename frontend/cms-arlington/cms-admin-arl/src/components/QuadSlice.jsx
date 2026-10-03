@@ -1,3 +1,4 @@
+import SiteText from "./SiteText";
 function QuadSlice({ quadObj, isSelected, onSelect }) {
     return (
       <button
@@ -7,8 +8,8 @@ function QuadSlice({ quadObj, isSelected, onSelect }) {
         aria-expanded={isSelected}
       >
         <img src={quadObj.img} alt="" className="qImg" />
-        <span className="qContent">{quadObj.title}</span>
-        {isSelected && <span className="quadDescription">{quadObj.info}</span>}
+        <span className="qContent"><SiteText section="BusinessQuad">{quadObj.title}</SiteText></span>
+        {isSelected && <span className="quadDescription"><SiteText section="BusinessQuad">{quadObj.info}</SiteText></span>}
       </button>
     );
   }

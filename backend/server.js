@@ -1,11 +1,14 @@
 import http from 'node:http';
+import { readFileSync } from 'node:fs';
 import { randomBytes, scryptSync, timingSafeEqual, createHash } from 'node:crypto';
 import { db, hashPassword } from './db.js';
 import { persistImage } from './storage.js';
 import { scheduleBackups } from './backup.js';
 import { parseAllowedOrigins } from './cors.js';
+import { incentives } from './incentives.js';
 
 const PORT = Number(process.env.PORT || 4000);
+const siteTextKeys = new Set(JSON.parse(readFileSync(new URL('./siteText.json',import.meta.url),'utf8')).map(entry=>entry.key));
 const allowedOrigins = parseAllowedOrigins(process.env.CLIENT_ORIGIN || 'http://localhost:5173');
 const allowedTables = new Set(['events','posts','rewards','companies','users','employees']);
 const editable = {
@@ -13,17 +16,17 @@ const editable = {
   posts: ['author_id','title','body','category','image_url','status','featured','admin_feedback'],
   rewards: ['name','description','points_cost','inventory','image_url','sponsor_name','sponsor_id','status','admin_feedback','active','expires_at'],
   companies: ['owner_id','name','category','description','image_url','website','phone','address','status','featured','verified','spotlight_position','admin_feedback'],
-  users: ['first_name','last_name','email','role','status','avatar_url','bio','points','business_tier'],
+  users: ['first_name','last_name','email','role','status','avatar_url','bio','occupation','points','business_tier'],
   employees: ['user_id','company_id','title','status','admin_feedback']
 };
-const publicUser = `id,first_name,last_name,email,role,status,avatar_url,bio,points,sponsor_badge,business_tier,created_at,updated_at`;
+const publicUser = `id,first_name,last_name,email,role,status,avatar_url,bio,occupation,points,sponsor_badge,business_tier,created_at,updated_at`;
 const send = (res, status, data) => { res.writeHead(status, {'Content-Type':'application/json'}); res.end(JSON.stringify(data)); };
 const tokenHash = (token) => createHash('sha256').update(token).digest('hex');
 const log = (actor, action, type, id, details='') => db.prepare('INSERT INTO activity_log(actor_id,action,entity_type,entity_id,details) VALUES(?,?,?,?,?)').run(actor,action,type,id,details);
 function auth(req) {
   const token = (req.headers.authorization || '').replace(/^Bearer /, '');
   if (!token) return null;
-  return db.prepare(`SELECT users.id,users.first_name,users.last_name,users.email,users.role,users.status,users.avatar_url,users.bio,users.points,users.sponsor_badge,users.business_tier,users.created_at,users.updated_at FROM users JOIN sessions ON users.id=sessions.user_id WHERE sessions.token_hash=? AND sessions.expires_at > datetime('now')`).get(tokenHash(token));
+  return db.prepare(`SELECT users.id,users.first_name,users.last_name,users.email,users.role,users.status,users.avatar_url,users.bio,users.occupation,users.points,users.sponsor_badge,users.business_tier,users.created_at,users.updated_at FROM users JOIN sessions ON users.id=sessions.user_id WHERE sessions.token_hash=? AND sessions.expires_at > datetime('now')`).get(tokenHash(token));
 }
 function verify(password, encoded) {
   const [salt, saved] = encoded.split(':');
@@ -49,6 +52,27 @@ const server = http.createServer(async (req,res) => {
   if (req.method === 'OPTIONS') return send(res,204,{});
   const url = new URL(req.url, `http://${req.headers.host}`); const path = url.pathname; const user = auth(req);
   try {
+    if(path==='/api/site-text' && req.method==='GET') {
+      return send(res,200,Object.fromEntries(db.prepare('SELECT key,value FROM site_text').all().filter(row=>siteTextKeys.has(row.key)).map(row=>[row.key,row.value])));
+    }
+    if(path==='/api/site-text' && req.method==='PATCH') {
+      if(!user || user.role!=='admin') return send(res,403,{error:'Administrator access required to edit site text.'});
+      const {changes}=await body(req);
+      if(!changes || typeof changes!=='object' || Array.isArray(changes) || !Object.keys(changes).length || Object.keys(changes).length>100) return send(res,400,{error:'Provide between 1 and 100 text changes.'});
+      for(const [key,value] of Object.entries(changes)) {
+        if(!siteTextKeys.has(key)) return send(res,400,{error:'Unknown site text field.'});
+        if(value!==null && (typeof value!=='string' || !value.trim() || value.length>5000)) return send(res,400,{error:'Site text must contain between 1 and 5,000 characters.'});
+      }
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        const save=db.prepare('INSERT INTO site_text(key,value,updated_by) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_by=excluded.updated_by,updated_at=CURRENT_TIMESTAMP');
+        const reset=db.prepare('DELETE FROM site_text WHERE key=?');
+        for(const [key,value] of Object.entries(changes)) {if(value===null)reset.run(key);else save.run(key,value,user.id);}
+        log(user.id,'updated','site text',null,Object.keys(changes).join(', '));
+        db.exec('COMMIT');
+      } catch(error) {db.exec('ROLLBACK');throw error;}
+      return send(res,200,{message:'Site text saved.',overrides:Object.fromEntries(db.prepare('SELECT key,value FROM site_text').all().map(row=>[row.key,row.value]))});
+    }
     if (path === '/' && (req.method === 'GET' || req.method === 'HEAD')) {
       const frontend = [...allowedOrigins].find((value) => {
         try {
@@ -67,8 +91,16 @@ const server = http.createServer(async (req,res) => {
     if (path === '/api/health') return send(res,200,{status:'ok'});
     if (path === '/api/auth/register' && req.method === 'POST') {
       const data=await body(req); if (!data.firstName || !data.lastName || !data.email || String(data.password||'').length < 8) return send(res,400,{error:'Name, email, and an 8-character password are required.'});
-      const result=db.prepare('INSERT INTO users(first_name,last_name,email,password_hash) VALUES(?,?,?,?)').run(data.firstName.trim(),data.lastName.trim(),data.email.trim().toLowerCase(),hashPassword(data.password));
-      log(result.lastInsertRowid,'registered','user',result.lastInsertRowid); return createSession(res,result.lastInsertRowid);
+      const passwordHash=hashPassword(data.password); let userId;
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        const result=db.prepare('INSERT INTO users(first_name,last_name,email,password_hash,points) VALUES(?,?,?,?,100)').run(data.firstName.trim(),data.lastName.trim(),data.email.trim().toLowerCase(),passwordHash);
+        userId=Number(result.lastInsertRowid);
+        db.prepare('INSERT INTO incentive_claims(user_id,incentive_id,points_awarded) VALUES(?,?,100)').run(userId,'registration');
+        db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(userId,'reward','Welcome! You earned 100 points for registering on the site.');
+        log(userId,'registered','user',userId);db.exec('COMMIT');
+      } catch(error) {db.exec('ROLLBACK');throw error;}
+      return createSession(res,userId);
     }
     if (path === '/api/auth/login' && req.method === 'POST') {
       const data=await body(req); const record=db.prepare('SELECT * FROM users WHERE email=?').get(String(data.email||'').trim().toLowerCase());
@@ -78,14 +110,67 @@ const server = http.createServer(async (req,res) => {
     }
     if (path === '/api/auth/me' && req.method === 'GET') return user ? send(res,200,{user}) : send(res,401,{error:'Not signed in.'});
     if (path === '/api/auth/logout' && req.method === 'POST') { const token=(req.headers.authorization||'').replace(/^Bearer /,''); if(token) db.prepare('DELETE FROM sessions WHERE token_hash=?').run(tokenHash(token)); return send(res,200,{ok:true}); }
+    if(path==='/api/incentives' && req.method==='GET') {
+      const claims=user?db.prepare('SELECT incentive_id,points_awarded,created_at FROM incentive_claims WHERE user_id=?').all(user.id):[];
+      const attended=user?db.prepare('SELECT 1 FROM event_registrations WHERE user_id=? AND attended=1 LIMIT 1').get(user.id):null;
+      return send(res,200,incentives.map(item=>({...item,claimed:item.id==='event'?Boolean(attended):claims.some(claim=>claim.incentive_id===item.id)})));
+    }
+    if(path==='/api/incentives/website' && req.method==='POST') {
+      if(!user) return send(res,401,{error:'Sign in to earn website visit points.'});
+      db.exec('BEGIN IMMEDIATE');let awarded=false;
+      try {
+        const result=db.prepare("INSERT OR IGNORE INTO incentive_claims(user_id,incentive_id,points_awarded) VALUES(?,'website',25)").run(user.id);
+        awarded=Boolean(result.changes);
+        if(awarded){db.prepare('UPDATE users SET points=points+25,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(user.id);db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(user.id,'reward','You earned 25 points for visiting the website.');log(user.id,'earned incentive','website',null,'25 points');}
+        db.exec('COMMIT');
+      } catch(error){db.exec('ROLLBACK');throw error;}
+      return send(res,200,{awarded,user:db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id)});
+    }
+    if(path==='/api/incentive-codes' && ['GET','POST','PATCH'].includes(req.method)) {
+      if(user?.role!=='admin') return send(res,403,{error:'Administrator access required.'});
+      if(req.method==='GET') return send(res,200,db.prepare('SELECT incentive_codes.*,(SELECT COUNT(*) FROM incentive_claims WHERE code_id=incentive_codes.id) claim_count FROM incentive_codes ORDER BY id DESC').all());
+      const data=await body(req);
+      if(req.method==='PATCH') {
+        if(!Number.isInteger(data.id)||typeof data.active!=='boolean') return send(res,400,{error:'Choose a code and its active state.'});
+        const result=db.prepare('UPDATE incentive_codes SET active=? WHERE id=?').run(data.active?1:0,data.id);
+        return result.changes?send(res,200,{message:'Code updated.'}):send(res,404,{error:'Code not found.'});
+      }
+      const incentive=incentives.find(item=>item.id===data.incentive_id&&item.method==='code');
+      const label=typeof data.label==='string'?data.label.trim():'';
+      if(!incentive||!label||label.length>100) return send(res,400,{error:'Choose an eligible incentive and enter a label of up to 100 characters.'});
+      const code=randomBytes(12).toString('hex').toUpperCase();
+      const result=db.prepare('INSERT INTO incentive_codes(incentive_id,code,label,created_by) VALUES(?,?,?,?)').run(incentive.id,code,label,user.id);
+      log(user.id,'created claim code','incentive',Number(result.lastInsertRowid),incentive.id);
+      return send(res,201,{id:Number(result.lastInsertRowid),code,label,incentive_id:incentive.id});
+    }
+    if(path==='/api/incentives/claim' && req.method==='POST') {
+      if(!user) return send(res,401,{error:'Sign in to claim incentive points.'});
+      const data=await body(req);const code=typeof data.code==='string'?data.code.trim().toUpperCase():'';
+      if(!code||code.length>64) return send(res,400,{error:'Enter a valid incentive code.'});
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        const record=db.prepare('SELECT * FROM incentive_codes WHERE code=? AND active=1').get(code);
+        const incentive=incentives.find(item=>item.id===record?.incentive_id&&item.method==='code');
+        if(!incentive){db.exec('ROLLBACK');return send(res,404,{error:'This incentive code is invalid or inactive.'});}
+        if(db.prepare('SELECT 1 FROM incentive_claims WHERE user_id=? AND incentive_id=?').get(user.id,incentive.id)){db.exec('ROLLBACK');return send(res,409,{error:'You already earned this new-user incentive.'});}
+        db.prepare('INSERT INTO incentive_claims(user_id,incentive_id,code_id,points_awarded) VALUES(?,?,?,?)').run(user.id,incentive.id,record.id,incentive.points);
+        db.prepare('UPDATE users SET points=points+?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(incentive.points,user.id);
+        db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(user.id,'reward',`You earned ${incentive.points} points: ${incentive.name}.`);
+        log(user.id,'earned incentive',incentive.id,record.id,`${incentive.points} points`);db.exec('COMMIT');
+        return send(res,200,{message:`You earned ${incentive.points} points for ${incentive.name.toLowerCase()}.`,user:db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id)});
+      } catch(error){db.exec('ROLLBACK');throw error;}
+    }
     if (path === '/api/profile' && req.method === 'PATCH') {
       if (!user) return send(res,401,{error:'Sign in first.'});
       const data=await body(req); const firstName=String(data.first_name||'').trim(); const lastName=String(data.last_name||'').trim(); const email=String(data.email||'').trim().toLowerCase(); const bio=String(data.bio||'').trim(); let avatar=data.avatar_url || null;
       if (!firstName || !lastName || !email) return send(res,400,{error:'First name, last name, and email are required.'});
+      if(data.occupation!==undefined && typeof data.occupation!=='string') return send(res,400,{error:'Occupation must be text.'});
+      const occupation=data.occupation===undefined?user.occupation:data.occupation.trim();
+      if(occupation.length>100) return send(res,400,{error:'Occupation must be 100 characters or fewer.'});
       if (bio.length > 500) return send(res,400,{error:'Bio must be 500 characters or fewer.'});
       if (avatar && (!String(avatar).startsWith('data:image/') || String(avatar).length > 3e6)) return send(res,400,{error:'Profile image must be a supported image under 2 MB.'});
       avatar=await persistImage(avatar,'impact-arlington/profiles');
-      db.prepare('UPDATE users SET first_name=?,last_name=?,email=?,bio=?,avatar_url=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(firstName,lastName,email,bio,avatar,user.id);
+      db.prepare('UPDATE users SET first_name=?,last_name=?,email=?,bio=?,occupation=?,avatar_url=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(firstName,lastName,email,bio,occupation,avatar,user.id);
       log(user.id,'updated','profile',user.id); const updated=db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id); return send(res,200,{user:updated});
     }
     if (path === '/api/profile/business-application' && req.method === 'POST') {
@@ -143,7 +228,7 @@ const server = http.createServer(async (req,res) => {
       return send(res,200,{connections:db.prepare('SELECT member_ref FROM member_connections WHERE user_id=?').all(user.id).map(item=>item.member_ref)});
     }
     if(path==='/api/community-members'&&req.method==='GET'){
-      const members=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url,users.bio,users.role,users.business_tier,companies.name company,employees.title position FROM users LEFT JOIN companies ON companies.owner_id=users.id AND companies.status='approved' LEFT JOIN employees ON employees.user_id=users.id AND employees.status='approved' WHERE users.status='active' ORDER BY users.first_name,users.last_name`).all();
+      const members=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url,users.bio,users.occupation,users.role,users.business_tier,companies.name company,employees.title position FROM users LEFT JOIN companies ON companies.owner_id=users.id AND companies.status='approved' LEFT JOIN employees ON employees.user_id=users.id AND employees.status='approved' WHERE users.status='active' ORDER BY users.first_name,users.last_name`).all();
       return send(res,200,members.map(member=>({...member,ref:`user-${member.id}`,name:`${member.first_name} ${member.last_name}`,img:member.avatar_url||`https://i.pravatar.cc/300?u=impact-${member.id}`,company:member.company||'Impact Arlington Community',position:member.position||`${member.role} member`})));
     }
     if(path==='/api/profile/social'&&req.method==='GET'){
@@ -151,6 +236,24 @@ const server = http.createServer(async (req,res) => {
       const invitations=db.prepare(`SELECT event_invitations.id,event_invitations.created_at,events.title,events.starts_at,users.first_name,users.last_name FROM event_invitations JOIN events ON events.id=event_invitations.event_id JOIN users ON users.id=event_invitations.sender_id WHERE event_invitations.recipient_id=? ORDER BY event_invitations.id DESC LIMIT 10`).all(user.id);
       const messages=db.prepare(`SELECT direct_messages.id,direct_messages.body,direct_messages.created_at,users.first_name,users.last_name FROM direct_messages JOIN users ON users.id=direct_messages.sender_id WHERE direct_messages.recipient_id=? ORDER BY direct_messages.id DESC LIMIT 10`).all(user.id);
       return send(res,200,{invitations,messages});
+    }
+    const messageReply=path.match(/^\/api\/messages\/(\d+)\/reply$/);
+    if(messageReply&&req.method==='POST') {
+      if(!user) return send(res,401,{error:'Sign in to reply to a message.'});
+      const original=db.prepare(`SELECT direct_messages.sender_id,users.first_name,users.last_name,users.status FROM direct_messages JOIN users ON users.id=direct_messages.sender_id WHERE direct_messages.id=? AND direct_messages.recipient_id=?`).get(Number(messageReply[1]),user.id);
+      if(!original) return send(res,404,{error:'Message not found in your inbox.'});
+      if(original.status!=='active') return send(res,409,{error:'This member is no longer available to receive messages.'});
+      const data=await body(req); const text=typeof data.body==='string'?data.body.trim():'';
+      if(!text||text.length>1000) return send(res,400,{error:'Write a reply between 1 and 1,000 characters.'});
+      const recipientName=`${original.first_name} ${original.last_name}`;
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        const result=db.prepare('INSERT INTO direct_messages(sender_id,recipient_id,member_ref,member_name,body) VALUES(?,?,?,?,?)').run(user.id,original.sender_id,`user-${original.sender_id}`,recipientName,text);
+        db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(original.sender_id,'direct-message',`${user.first_name} ${user.last_name} replied to your message.`);
+        log(user.id,'replied','message',Number(messageReply[1]),recipientName);
+        db.exec('COMMIT');
+        return send(res,201,{id:Number(result.lastInsertRowid),message:`Reply sent to ${recipientName}.`});
+      } catch(error) {db.exec('ROLLBACK');throw error;}
     }
     const memberAction=path.match(/^\/api\/members\/([^/]+)\/(connect|invite|message)$/);
     if(memberAction&&req.method==='POST'){
@@ -196,7 +299,7 @@ const server = http.createServer(async (req,res) => {
       if (!user) return send(res,401,{error:'Sign in to apply to donate a reward.'});
       const data=await body(req); const name=String(data.name||'').trim(); const description=String(data.description||'').trim(); const sponsorName=String(data.sponsor_name||`${user.first_name} ${user.last_name}`).trim();
       const pointsCost=Number(data.points_cost); const inventory=Number(data.inventory); let image=String(data.image_url||'');
-      if(!name || !description || !Number.isInteger(pointsCost) || pointsCost<1 || !Number.isInteger(inventory) || inventory<1) return send(res,400,{error:'Name, description, positive point value, and available count are required.'});
+      if(!name || !description || data.points_cost===null || String(data.points_cost??'').trim()==='' || !Number.isInteger(pointsCost) || pointsCost<0 || !Number.isInteger(inventory) || inventory<1) return send(res,400,{error:'Name, description, a point value of 0 or more, and a positive available count are required.'});
       if(image.startsWith('data:') && (!image.startsWith('data:image/') || image.length>3e6)) return send(res,400,{error:'Reward image must be a supported image under 2 MB.'});
       if(image) image=await persistImage(image,'impact-arlington/rewards');
       const result=db.prepare(`INSERT INTO rewards(name,description,points_cost,inventory,image_url,sponsor_name,sponsor_id,status) VALUES(?,?,?,?,?,?,?,'pending')`).run(name,description,pointsCost,inventory,image,sponsorName,user.id);
@@ -270,10 +373,16 @@ const server = http.createServer(async (req,res) => {
         const result=id?db.prepare(query).get(Number(id)):db.prepare(query).all(); return result ? send(res,200,result) : send(res,404,{error:'Not found.'});
       }
       if (!user || !['admin','board'].includes(user.role)) return send(res,403,{error:'Admin access required.'});
-      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
+      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'}); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'}); if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
       if (req.method === 'PATCH' && id) {
         if (table === 'posts' && !db.prepare('SELECT id FROM posts WHERE id=?').get(Number(id))) return send(res,404,{error:'Post not found.'});
         const data=fields(table,await body(req));
+        if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'});
+        if(table==='events') {
+          if(!db.prepare('SELECT id FROM events WHERE id=?').get(Number(id))) return send(res,404,{error:'Event not found.'});
+          for(const field of ['title','description','location','starts_at']) if(data[field]!==undefined && (typeof data[field]!=='string' || !data[field].trim())) return send(res,400,{error:'Event title, description, location, and start date cannot be empty.'});
+          if(data.image_url?.startsWith('data:')) data.image_url=await persistImage(data.image_url,'impact-arlington/events');
+        }
         if (table === 'posts') {
           for (const field of ['title', 'body', 'category']) {
             if (data[field] !== undefined && (typeof data[field] !== 'string' || !data[field].trim())) return send(res,400,{error:'Post title, message, and category cannot be empty.'});
@@ -298,6 +407,7 @@ const server = http.createServer(async (req,res) => {
           } else if(data.spotlight_position!==undefined) { data.spotlight_position=null; data.featured=0; }
         }
         if(table==='rewards') {
+          if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'});
           const current=db.prepare('SELECT * FROM rewards WHERE id=?').get(Number(id)); if(!current) return send(res,404,{error:'Reward not found.'});
           if(data.image_url && data.image_url.startsWith('data:') && (!data.image_url.startsWith('data:image/') || data.image_url.length>3e6)) return send(res,400,{error:'Reward image must be a supported image under 2 MB.'});
           if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards');
@@ -319,4 +429,4 @@ const server = http.createServer(async (req,res) => {
 
 function createSession(res,userId) { const token=randomBytes(32).toString('hex'); db.prepare("INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(?,?,datetime('now','+7 days'))").run(tokenHash(token),userId); const user=db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(userId); return send(res,200,{token,user}); }
 scheduleBackups();
-server.listen(PORT,'0.0.0.0',()=>console.log(`Impact Arlington API listening on 0.0.0.0:${PORT}`));
+server.listen(PORT,'0.0.0.0',()=>console.log(`Impact Arlington API listening on 0.0.0.0:${server.address().port}`));

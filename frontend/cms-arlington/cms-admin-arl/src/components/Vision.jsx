@@ -1,3 +1,4 @@
+import SiteText from "./SiteText";
 import BusinessQuad from '../components/BusinessQuad'
 function Vision() {
   const focusAreas = [
@@ -34,15 +35,12 @@ function Vision() {
     <section className="visionSection" aria-labelledby="vision-heading">
       <header className="visionHero">
         <div className="visionCopy">
-          <p className="visionKicker">More than a social platform</p>
-          <h2 id="vision-heading">A community within <em>the community.</em></h2>
-          <p>
-            Impact is a community hub where people operate like family—coming
-            together to improve their lives and the place they call home.
-          </p>
+          <p className="visionKicker"><SiteText contentKey="Vision.c439956609b0">{"More than a social platform"}</SiteText></p>
+          <h2 id="vision-heading"><SiteText contentKey="Vision.2a7b7c15012c">{"A community within "}</SiteText><em><SiteText contentKey="Vision.9d3a4803ad5c">{"the community."}</SiteText></em></h2>
+          <p><SiteText contentKey="Vision.83e6ebcf9db5">{"Impact is a community hub where people operate like family—coming together to improve their lives and the place they call home."}</SiteText></p>
           <div className="visionCallout">
-            <span>Our vision</span>
-            <strong>Better lives create stronger communities.</strong>
+            <span><SiteText contentKey="Vision.2642f93dd297">{"Our vision"}</SiteText></span>
+            <strong><SiteText contentKey="Vision.38fa6d906a03">{"Better lives create stronger communities."}</SiteText></strong>
           </div>
         </div>
 
@@ -52,13 +50,13 @@ function Vision() {
           </div>
           <div className="impactCenter">
             <span className="impactStar" aria-hidden="true">★</span>
-            <strong>Arlington</strong>
-            <small>Texas</small>
+            <strong><SiteText contentKey="Vision.f1cb587545a0">{"Arlington"}</SiteText></strong>
+            <small><SiteText contentKey="Vision.4b95ce627201">{"Texas"}</SiteText></small>
           </div>
           {focusAreas.map((area, index) => (
             <div className={`focusPoint focusPoint${index + 1}`} key={area.title}>
               <span aria-hidden="true">{area.icon}</span>
-              <div><strong>{area.title}</strong><small>{area.note}</small></div>
+              <div><strong><SiteText section="Vision">{area.title}</SiteText></strong><small><SiteText section="Vision">{area.note}</SiteText></small></div>
             </div>
           ))}
         </div>
@@ -69,18 +67,18 @@ function Vision() {
         {visionPath.map((item, index) => (
           <article className="visionStep" key={item.label}>
             <span className="visionStepNumber">0{index + 1}</span>
-            <p>{item.label}</p>
-            <h3>{item.title}</h3>
-            <small>{item.description}</small>
+            <p><SiteText section="Vision">{item.label}</SiteText></p>
+            <h3><SiteText section="Vision">{item.title}</SiteText></h3>
+            <small><SiteText section="Vision">{item.description}</SiteText></small>
           </article>
         ))}
       </div>
 <BusinessQuad />
       <footer className="visionFooter">
         <div aria-hidden="true"><span></span><span></span><span></span></div>
-        <p>It’s time to</p>
-        <strong>live life different.</strong>
-        <small>Together, every chance we get.</small>
+        <p><SiteText contentKey="Vision.109b0f8236f6">{"It’s time to"}</SiteText></p>
+        <strong><SiteText contentKey="Vision.c718343e46c2">{"live life different."}</SiteText></strong>
+        <small><SiteText contentKey="Vision.4ee86f7abbd1">{"Together, every chance we get."}</SiteText></small>
       </footer>
     </section>
   );

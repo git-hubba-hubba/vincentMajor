@@ -1,9 +1,10 @@
+import SiteText from "./SiteText";
 
 function Namespace({title}) {
   return (
     <>
     
-    <h1 className="namespaceTitle rye-regular">{title}</h1>
+    <h1 className="namespaceTitle rye-regular"><SiteText section="Namespace">{title}</SiteText></h1>
     
     </>
   )

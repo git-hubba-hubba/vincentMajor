@@ -2,13 +2,12 @@ import SiteText from "../components/SiteText";
 import { useEffect, useMemo, useState } from "react";
 import Namespace from "../components/Namespace";
 import ActiveUser from "../components/ActiveUser";
-import members from "../data/members";
 import { api } from "../lib/api";
 
 function Members({ user, onProfileClick }) {
   const [search,setSearch]=useState(""); const [connections,setConnections]=useState([]); const [realMembers,setRealMembers]=useState([]); const [dialog,setDialog]=useState(null);
   const [events,setEvents]=useState([]); const [eventId,setEventId]=useState(""); const [message,setMessage]=useState(""); const [notice,setNotice]=useState(""); const [busy,setBusy]=useState(false);
-  const profiles=useMemo(()=>[...realMembers.filter(member=>member.id!==user?.id),...members.map((member,index)=>({...member,ref:`community-${index+1}`}))],[realMembers,user]);
+  const profiles=useMemo(()=>realMembers.filter(member=>member.id!==user?.id),[realMembers,user]);
   const visible=useMemo(()=>{const term=search.trim().toLowerCase();return profiles.filter(member=>!term||[member.name,member.company,member.position,member.occupation].some(value=>String(value||"").toLowerCase().includes(term)));},[profiles,search]);
   useEffect(()=>{api("/community-members").then(setRealMembers).catch(()=>{});if(!user)return;Promise.all([api("/member-actions"),api("/community-events")]).then(([actions,available])=>{setConnections(actions.connections);setEvents(available);}).catch(()=>{});},[user]);
   const requireUser=()=>{if(user)return true;onProfileClick();return false;};

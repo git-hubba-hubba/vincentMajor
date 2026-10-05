@@ -7,7 +7,8 @@
     "dev": "node --env-file-if-exists=.env --watch server.js",
     "start": "node --env-file-if-exists=.env server.js",
     "init-db": "node --env-file-if-exists=.env init-db.js",
-    "backup": "node --env-file-if-exists=.env backup-db.js"
+    "backup": "node --env-file-if-exists=.env backup-db.js",
+    "delete-non-admin-members": "node --env-file-if-exists=.env delete-non-admin-members.js"
   },
   "engines": { "node": ">=22.5" }
 }

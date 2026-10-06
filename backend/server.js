@@ -228,7 +228,7 @@ const server = http.createServer(async (req,res) => {
       return send(res,200,{connections:db.prepare('SELECT member_ref FROM member_connections WHERE user_id=?').all(user.id).map(item=>item.member_ref)});
     }
     if(path==='/api/community-members'&&req.method==='GET'){
-      const members=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url,users.bio,users.occupation,users.role,users.business_tier,companies.name company,employees.title position FROM users LEFT JOIN companies ON companies.owner_id=users.id AND companies.status='approved' LEFT JOIN employees ON employees.user_id=users.id AND employees.status='approved' WHERE users.status='active' ORDER BY users.first_name,users.last_name`).all();
+      const members=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url,users.bio,users.occupation,users.role,users.business_tier,companies.name company,employees.title position FROM users LEFT JOIN companies ON companies.id=(SELECT id FROM companies WHERE owner_id=users.id AND status='approved' ORDER BY id LIMIT 1) LEFT JOIN employees ON employees.user_id=users.id AND employees.status='approved' WHERE users.status='active' ORDER BY users.first_name,users.last_name,users.id`).all();
       return send(res,200,members.map(member=>({...member,ref:`user-${member.id}`,name:`${member.first_name} ${member.last_name}`,img:member.avatar_url||`https://i.pravatar.cc/300?u=impact-${member.id}`,company:member.company||'Impact Arlington Community',position:member.position||`${member.role} member`})));
     }
     if(path==='/api/profile/social'&&req.method==='GET'){

@@ -1,6 +1,7 @@
 import SiteText from "./components/SiteText";
 import { useEffect, useState } from "react";
 import "./App.css";
+import Notifications from "./components/Notifications";
 import Nav from "./components/Nav";
 import AdminDash from './pages/AdminDash'
 import Directory from './pages/Directory'
@@ -27,6 +28,7 @@ function App() {
     <>
       {/* Nav */}
       <Nav currentComponent={currentComponent} setCurrentComponent={setCurrentComponent} user={user} onProfileClick={() => setProfileOpen(true)} onRewardsClick={() => setRewardsOpen(true)}/>
+      {user && <Notifications key={user.id} userId={user.id} onOpenInbox={()=>setProfileOpen(true)} onOpenEvents={()=>setCurrentComponent("Events")} />}
       <div id="main-content" tabIndex={-1}>
       {/* TopDisplay */}
       { currentComponent === "Homepage" ? <Homepage onNavigate={setCurrentComponent} onProfileClick={() => setProfileOpen(true)} /> :null}

@@ -35,6 +35,18 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
     api("/profile/social").then(setSocialInbox).catch(()=>setSocialInbox({invitations:[],messages:[]}));
   }, [open, user]);
 
+  useEffect(() => {
+    if (!open || !user) return;
+    let active=true;
+    const refresh=()=>api('/profile/social').then(data=>{if(active)setSocialInbox(data);}).catch(()=>{});
+    const timer=setInterval(refresh,5000);
+    return ()=>{active=false;clearInterval(timer);};
+  },[open,user]);
+
+  const clearMessages=async(id)=>{
+    try {await api(`/messages${id?`/${id}`:''}`,{method:'DELETE'});setSocialInbox(current=>({...current,messages:id?current.messages.filter(item=>item.id!==id):[]}));}
+    catch(error){setMessage(error.message);}
+  };
   if (!open) return null;
 
   const submitAuth = async (event) => {
@@ -139,7 +151,7 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
               {profileRewards.redeemed.length?<div className="profileRewardList">{profileRewards.redeemed.map(reward=><div key={reward.id}><div style={{backgroundImage:`url(${reward.image_url||'/images/banner.png'})`}}></div><p><strong>{reward.name}</strong><small>{reward.points_spent.toLocaleString()}<SiteText contentKey="ProfileModal.3d774bc968f5">{" points · "}</SiteText>{reward.sponsor_name}</small></p></div>)}</div>:<p className="profileEmptyState"><SiteText contentKey="ProfileModal.5cd7217486f8">{"Redeem your points and your rewards will be kept here."}</SiteText></p>}
               {profileRewards.donations.length>0&&<div className="donationStatusList"><strong><SiteText contentKey="ProfileModal.8c74141f01a9">{"My donated rewards"}</SiteText></strong>{profileRewards.donations.map(item=><p key={item.id}><span>{item.name}</span><em className={`donationStatus ${item.status}`}>{item.status}</em></p>)}</div>}
             </section>
-            {(socialInbox.invitations.length>0||socialInbox.messages.length>0)&&<section className="profileEventSection socialInbox"><div className="profileSectionHeading"><div><p className="eyebrow"><SiteText contentKey="ProfileModal.7aabcd8771c4">{"Community inbox"}</SiteText></p><h3><SiteText contentKey="ProfileModal.aff81808ea56">{"Invitations & messages"}</SiteText></h3></div><span>{socialInbox.invitations.length+socialInbox.messages.length}</span></div>{socialInbox.invitations.map(item=><div className="socialInboxItem" key={`invite-${item.id}`}><span>◫</span><p><strong>{item.first_name} {item.last_name}<SiteText contentKey="ProfileModal.e96bfc193c4b">{" invited you"}</SiteText></strong><small>{item.title} · {new Date(item.starts_at).toLocaleDateString()}</small></p></div>)}{socialInbox.messages.map(item=><InboxMessage key={`${user.id}-${item.id}`} item={item}/> )}</section>}
+            {(socialInbox.invitations.length>0||socialInbox.messages.length>0)&&<section className="profileEventSection socialInbox"><div className="profileSectionHeading"><div><p className="eyebrow"><SiteText contentKey="ProfileModal.7aabcd8771c4">{"Community inbox"}</SiteText></p><h3><SiteText contentKey="ProfileModal.aff81808ea56">{"Invitations & messages"}</SiteText></h3></div><span>{socialInbox.invitations.length+socialInbox.messages.length}</span></div>{socialInbox.invitations.map(item=><div className="socialInboxItem" key={`invite-${item.id}`}><span>◫</span><p><strong>{item.first_name} {item.last_name}<SiteText contentKey="ProfileModal.e96bfc193c4b">{" invited you"}</SiteText></strong><small>{item.title} · {new Date(item.starts_at).toLocaleDateString()}</small></p></div>)}{socialInbox.messages.length>0&&<button type="button" className="textButton" onClick={()=>clearMessages()}>Clear all messages</button>}{socialInbox.messages.map(item=><InboxMessage key={`${user.id}-${item.id}`} item={item} onClear={()=>clearMessages(item.id)}/> )}</section>}
             {message && !editing && <p className="formMessage" role="status">{message}</p>}
             {user.business_tier === "standard" && !showBusiness && <button className="primaryButton" type="button" onClick={() => setShowBusiness(true)}><SiteText contentKey="ProfileModal.ba4c5705edb4">{"Apply for a Business Account"}</SiteText></button>}
             {user.business_tier === "pending" && <p className="pendingNote"><SiteText contentKey="ProfileModal.24fa88186972">{"Your Business Account application is awaiting board approval."}</SiteText></p>}

@@ -23,6 +23,10 @@ const publicUser = `id,first_name,last_name,email,role,status,avatar_url,bio,occ
 const send = (res, status, data) => { res.writeHead(status, {'Content-Type':'application/json'}); res.end(JSON.stringify(data)); };
 const tokenHash = (token) => createHash('sha256').update(token).digest('hex');
 const log = (actor, action, type, id, details='') => db.prepare('INSERT INTO activity_log(actor_id,action,entity_type,entity_id,details) VALUES(?,?,?,?,?)').run(actor,action,type,id,details);
+function notifyEvent(id) {
+  const event=db.prepare("SELECT title FROM events WHERE id=? AND status='approved'").get(id);
+  if(event) db.prepare("INSERT INTO notifications(user_id,type,message) SELECT id,'new-event',? FROM users WHERE status='active'").run(`New event: ${event.title}`);
+}
 function auth(req) {
   const token = (req.headers.authorization || '').replace(/^Bearer /, '');
   if (!token) return null;
@@ -221,6 +225,7 @@ const server = http.createServer(async (req,res) => {
       const status=['admin','board'].includes(user.role)?'approved':'pending'; const code=String(data.attendance_code||randomBytes(4).toString('hex')).trim().toUpperCase(); let image=String(data.image_url||'');
       if(image.startsWith('data:')) image=await persistImage(image,'impact-arlington/events');
       const result=db.prepare(`INSERT INTO events(creator_id,title,description,category,image_url,location,starts_at,ends_at,capacity,attendance_code,points_awarded,status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).run(user.id,data.title,data.description,data.category||'Community',image,data.location,data.starts_at,data.ends_at||null,data.capacity||null,code,Number(data.points_awarded)||100,status);
+      if(status==='approved')notifyEvent(Number(result.lastInsertRowid));
       log(user.id,'created','event',Number(result.lastInsertRowid),status); return send(res,201,{id:Number(result.lastInsertRowid),status,attendance_code:code});
     }
     if (path === '/api/member-actions' && req.method === 'GET') {
@@ -230,6 +235,24 @@ const server = http.createServer(async (req,res) => {
     if(path==='/api/community-members'&&req.method==='GET'){
       const members=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url,users.bio,users.occupation,users.role,users.business_tier,companies.name company,employees.title position FROM users LEFT JOIN companies ON companies.id=(SELECT id FROM companies WHERE owner_id=users.id AND status='approved' ORDER BY id LIMIT 1) LEFT JOIN employees ON employees.user_id=users.id AND employees.status='approved' WHERE users.status='active' ORDER BY users.first_name,users.last_name,users.id`).all();
       return send(res,200,members.map(member=>({...member,ref:`user-${member.id}`,name:`${member.first_name} ${member.last_name}`,img:member.avatar_url||`https://i.pravatar.cc/300?u=impact-${member.id}`,company:member.company||'Impact Arlington Community',position:member.position||`${member.role} member`})));
+    }
+    const notificationRoute=path.match(/^\/api\/notifications(?:\/(\d+))?$/);
+    if(notificationRoute) {
+      if(!user)return send(res,401,{error:'Sign in to view notifications.'});
+      const id=notificationRoute[1];
+      if(req.method==='GET'&&!id)return send(res,200,db.prepare('SELECT * FROM notifications WHERE user_id=? ORDER BY id DESC').all(user.id));
+      if(req.method==='DELETE') {
+        if(id) {const result=db.prepare('DELETE FROM notifications WHERE id=? AND user_id=?').run(Number(id),user.id);if(!result.changes)return send(res,404,{error:'Notification not found.'});}
+        else db.prepare('DELETE FROM notifications WHERE user_id=?').run(user.id);
+        return send(res,200,{ok:true});
+      }
+    }
+    const clearMessages=path.match(/^\/api\/messages(?:\/(\d+))?$/);
+    if(clearMessages&&req.method==='DELETE') {
+      if(!user)return send(res,401,{error:'Sign in to clear messages.'});
+      if(clearMessages[1]) {const result=db.prepare('DELETE FROM direct_messages WHERE id=? AND recipient_id=?').run(Number(clearMessages[1]),user.id);if(!result.changes)return send(res,404,{error:'Message not found in your inbox.'});}
+      else db.prepare('DELETE FROM direct_messages WHERE recipient_id=?').run(user.id);
+      return send(res,200,{ok:true});
     }
     if(path==='/api/profile/social'&&req.method==='GET'){
       if(!user)return send(res,401,{error:'Sign in to view your community inbox.'});
@@ -373,9 +396,10 @@ const server = http.createServer(async (req,res) => {
         const result=id?db.prepare(query).get(Number(id)):db.prepare(query).all(); return result ? send(res,200,result) : send(res,404,{error:'Not found.'});
       }
       if (!user || !['admin','board'].includes(user.role)) return send(res,403,{error:'Admin access required.'});
-      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'}); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'}); if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
+      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'}); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'}); if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); if(table==='events')notifyEvent(Number(result.lastInsertRowid)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
       if (req.method === 'PATCH' && id) {
         if (table === 'posts' && !db.prepare('SELECT id FROM posts WHERE id=?').get(Number(id))) return send(res,404,{error:'Post not found.'});
+        const previousEvent=table==='events'?db.prepare('SELECT status FROM events WHERE id=?').get(Number(id)):null;
         const data=fields(table,await body(req));
         if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'});
         if(table==='events') {
@@ -419,6 +443,7 @@ const server = http.createServer(async (req,res) => {
         }
         const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); db.prepare(`UPDATE ${table} SET ${keys.map(k=>`${k}=?`).join(',')},updated_at=CURRENT_TIMESTAMP WHERE id=?`).run(...Object.values(data),Number(id));
         if(table==='companies' && data.status) { const company=db.prepare('SELECT owner_id FROM companies WHERE id=?').get(Number(id)); if(company) db.prepare('UPDATE users SET business_tier=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(data.status==='approved'?'premium':data.status,company.owner_id); }
+        if(table==='events'&&data.status==='approved'&&previousEvent?.status!=='approved')notifyEvent(Number(id));
         log(user.id,'updated',table,Number(id)); return send(res,200,{ok:true});
       }
       if (req.method === 'DELETE' && id) { db.prepare(`DELETE FROM ${table} WHERE id=?`).run(Number(id)); log(user.id,'deleted',table,Number(id)); return send(res,200,{ok:true}); }

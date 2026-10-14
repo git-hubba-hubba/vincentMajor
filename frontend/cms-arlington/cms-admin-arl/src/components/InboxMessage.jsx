@@ -3,7 +3,7 @@ import { useState } from "react";
 import { api } from "../lib/api";
 import LinkedText from "./LinkedText";
 
-export default function InboxMessage({ item }) {
+export default function InboxMessage({ item, onClear }) {
   const [replying, setReplying] = useState(false);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -26,6 +26,7 @@ export default function InboxMessage({ item }) {
       {!replying && <button type="button" className="secondaryButton inboxReplyButton"
         aria-expanded={false} aria-controls={`inbox-reply-${item.id}`}
         onClick={() => {setReplying(true);setNotice("");}}><SiteText contentKey="InboxMessage.c253f451bdd5">{"Reply"}</SiteText></button>}
+      <button type="button" className="textButton" onClick={onClear}>Clear message</button>
       {replying && <form id={`inbox-reply-${item.id}`} className="inboxReplyForm" onSubmit={submit}>
         <label htmlFor={`inbox-draft-${item.id}`}><SiteText contentKey="InboxMessage.ec06f3d2590e">{"Reply to "}</SiteText>{name}</label>
         <textarea id={`inbox-draft-${item.id}`} autoFocus required maxLength={1000} rows={3}

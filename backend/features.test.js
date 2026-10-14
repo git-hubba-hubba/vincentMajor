@@ -99,7 +99,7 @@ test('free rewards and content edits', async () => {
     const website=await request('/incentives/website','POST',{},member.token);
     assert.equal(website.awarded,true);assert.equal(website.user.points,25);
     assert.equal((await request('/incentives/website','POST',{},member.token)).awarded,false);
-    for(const [incentive_id,points] of [['business-visit',50],['purchase',100],['video',25],['vincent',500]]) {
+    for(const [incentive_id,points] of [['business-visit',50],['purchase',100],['video',25],['vincent',75]]) {
       await request('/incentive-codes','POST',{incentive_id,label:'Test'},member.token,403);
       const code=await request('/incentive-codes','POST',{incentive_id,label:'Test'},admin.token,201);
       await request('/incentives/claim','POST',{code:code.code},undefined,401);

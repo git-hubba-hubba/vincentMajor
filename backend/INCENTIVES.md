@@ -7,7 +7,7 @@
 | Make purchase from business | 100 | Admin-issued incentive code |
 | Watch video | 25 | Admin-issued incentive code |
 | Attend event | 100 | Existing event attendance code; 100 is the default award |
-| Find Vincent | 500 | Admin-issued incentive code |
+| Find Vincent | 75 | Admin-issued incentive code |
 | Register on site | 100 | Automatically when a new account is registered |
 
 Each new-user incentive can be earned once per member, even when different

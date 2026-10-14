@@ -4,6 +4,6 @@ export const incentives = [
   {id:'purchase',name:'Make purchase from business',points:100,method:'code'},
   {id:'video',name:'Watch video',points:25,method:'code'},
   {id:'event',name:'Attend event',points:100,method:'event'},
-  {id:'vincent',name:'Find Vincent',points:500,method:'code'},
+  {id:'vincent',name:'Find Vincent',points:75,method:'code'},
   {id:'registration',name:'Register on site',points:100,method:'registration'},
 ];

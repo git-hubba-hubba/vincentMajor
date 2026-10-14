@@ -1690,17 +1690,17 @@ body{
 .notificationToasts p { margin: 0 0 .5rem; }
 @media (max-width: 760px) { .notificationPanel ~ .notificationToasts { right: 0; } .notificationCenter:has(.notificationPanel) .notificationToasts { display: none; } }
 
-/* Slate surfaces and blue accents, toggled by the navigation logo. */
+/* Soft grey surfaces and sky-blue accents, toggled by the navigation logo. */
 :root.darkMode {
-  color-scheme: dark;
-  --bg: #1e293b;
-  --text: #cbd5e1;
-  --text-h: #f1f5f9;
-  --border: #475569;
-  --brand-blue: #60a5fa;
-  --brand-blue-dark: #93c5fd;
-  --brand-soft: #283b53;
-  background: #182231;
+  color-scheme: light;
+  --bg: #e9eef2;
+  --text: #465968;
+  --text-h: #243e50;
+  --border: #c4d3de;
+  --brand-blue: #87c5e5;
+  --brand-blue-dark: #286588;
+  --brand-soft: #dcecf5;
+  background: #dfe7ed;
   color: var(--text);
 }
 .darkMode body, .darkMode #root { background: var(--bg); color: var(--text); }
@@ -1712,20 +1712,42 @@ body{
 }
 .darkMode :is(h1,h2,h3,h4,h5,h6,strong,label,th) { color: var(--text-h); }
 .darkMode :is(p,small,.eyebrow,.sectionKicker,.directoryKicker,.heroDescription,.heroFootnote,.valuesStrip>span,.categorySelect,.profileOccupation,.memOccupation) { color: var(--text); }
-.darkMode :is(input,textarea,select) { background: #172334; color: var(--text-h); border-color: var(--border); }
-.darkMode :is(input,textarea)::placeholder { color: #94a3b8; opacity: 1; }
+.darkMode :is(input,textarea,select) { background: #f2f5f7; color: var(--text-h); border-color: var(--border); }
+.darkMode :is(input,textarea)::placeholder { color: #607789; opacity: 1; }
 .darkMode :is(.primaryNav button,.siteFooter button,.textButton,.secondaryButton,.rewardsNavButton,.eventActions button,.businessCardActions a) { color: var(--brand-blue-dark); border-color: var(--border); }
 .darkMode :is(.secondaryButton,.rewardsNavButton,.eventActions button,.businessCardActions a) { background: var(--brand-soft); }
-.darkMode :is(.primaryButton,.profileButton,.eventCreateButton,.businessSiteButton) { background: #2563eb; border-color: #60a5fa; color: #fff; }
-.darkMode :is(.primaryButton,.profileButton,.eventCreateButton):hover { background: #1d4ed8; }
+.darkMode :is(.primaryButton,.profileButton,.eventCreateButton,.businessSiteButton) { background: #32779e; border-color: #32779e; color: #fff; }
+.darkMode :is(.primaryButton,.profileButton,.eventCreateButton):hover { background: #286588; }
 .darkMode :is(.primaryNav button:hover,.primaryNav button[aria-current="page"],a,.sectionHeading h2 em,.directoryHero h1 span,.eventsHero h1 span) { color: var(--brand-blue-dark); }
 .darkMode :is(.editorModal .feedComposer,.editorModal .eventCreatePanel,.editorModal .createPanel,.editorModal .formActions) { background: var(--bg); }
-.darkMode :is(.profileSectionHeading>span,.businessMonogram,.profileButtonAvatar) { background: #334e70; color: #dbeafe; }
+.darkMode :is(.profileSectionHeading>span,.businessMonogram,.profileButtonAvatar) { background: #c7e1ef; color: #285b78; }
 .darkMode :is(table,td,th,.profileEventSection,.valuesStrip,.pathCard,.businessContact,.businessCardActions) { border-color: var(--border); }
 .darkMode .brand { background: #f1f5f9; border-radius: 8px; padding: 6px 10px; }
-.darkMode :is(button,a,input,textarea,select):focus-visible { outline-color: #93c5fd; }
-.darkMode ::selection { background: #2563eb; color: white; }
+.darkMode :is(button,a,input,textarea,select):focus-visible { outline-color: #32779e; }
+.darkMode ::selection { background: #b7daed; color: #243e50; }
 .darkMode :is(.joinMajor.contentActive,.memberActionModal,.memberMaster,.ruleCard,.visionStep,.eventsToolbar,.rewardItem,.adminTable,.adminTableWrap) { background: var(--bg); color: var(--text); border-color: var(--border); }
 .darkMode :is(.membersHero,.visionHero,.rulesIntro,.feedHero,.adImg,.eventFilters button.active,.authTabs button.active) { background: var(--brand-soft); color: var(--text-h); }
 .darkMode :is(.eventsHeroCopy>p:not(.eventsEyebrow),.eventsHeroStats span,.directoryStats span,.feedHero>div>span,.eventCardBody p,.pathCard>p,.businessCardContent>p,.spotlightBusiness>small,.savedEventList small,.profileTicket small) { color: var(--text); }
 .darkMode :is(.eventsHeroStats strong,.directoryStats strong,.memName,.namespaceTitle,.heroNote>span,.heroNote>div,.heroNote small) { color: var(--text-h); }
+
+.logoSplash { position: fixed; inset: 0; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(24px,6vh,64px); overflow: hidden; padding: 28px; background: radial-gradient(ellipse at 50% 45%,#344b65 0%,#1e293b 48%,#111b29 100%); color: #f1f5f9; }
+.splashGlow { position: absolute; width: min(90vw,900px); height: 250px; background: #60a5fa; filter: blur(140px); opacity: .14; pointer-events: none; }
+.logoSplash .splashEyebrow { position: relative; color: #93c5fd; text-align: center; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+.splashLogoButton { position: relative; width: min(760px,85vw); border: 0; padding: 0; background: transparent; cursor: pointer; filter: drop-shadow(0 12px 35px #0005); -webkit-tap-highlight-color: transparent; }
+.splashLogoButton:disabled { cursor: default; }
+.splashLogoButton:focus-visible { outline: 3px solid #93c5fd; outline-offset: 18px; border-radius: 4px; }
+.splashGlass { display: block; width: 100%; height: auto; overflow: visible; }
+.splashShard { transform-box: view-box; }
+.splashShardLoose { animation: splashShardFall 1.15s cubic-bezier(.24,.1,.58,1) var(--shard-delay) both; }
+.splashCrack { fill: none; stroke: #93c5fd; stroke-width: 1.5; transition: opacity .2s; }
+.splashImpactCrack { fill: none; stroke: #334e70; stroke-width: 2; filter: drop-shadow(1px 1px 0 #e0f2fe); pointer-events: none; }
+.splashInstructions { position: relative; text-align: center; }
+.logoSplash .splashInstructions h1 { color: #f1f5f9; font-size: clamp(25px,4vw,42px); letter-spacing: -.03em; }
+.logoSplash .splashInstructions p { color: #b7c9df; margin-top: 12px; font-size: 14px; }
+.splashProgress { display: flex; justify-content: center; gap: 9px; margin-top: 24px; }
+.splashProgress span { width: 28px; height: 3px; border-radius: 4px; background: #475569; transition: background .2s; }
+.splashProgress span.complete { background: #60a5fa; box-shadow: 0 0 12px #60a5fa80; }
+.logoSplashBreaking { animation: splashReveal .4s ease 1.1s both; }
+@keyframes splashShardFall { 0% { transform: translate(0,0) rotate(0) scale(1); opacity: 1; } 18% { opacity: 1; } 100% { transform: translate(var(--shard-x),var(--shard-y)) rotate(var(--shard-turn)) scale(.45); opacity: 0; } }
+@keyframes splashReveal { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .splashShardLoose { opacity: 0; } .logoSplashBreaking { opacity: 0; } .splashGlow { filter: none; opacity: .03; } }

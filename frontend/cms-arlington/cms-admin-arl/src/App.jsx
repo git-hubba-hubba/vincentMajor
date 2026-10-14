@@ -1,7 +1,8 @@
 import SiteText from "./components/SiteText";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./App.css";
 import Notifications from "./components/Notifications";
+import LogoSplash from "./components/LogoSplash";
 import Nav from "./components/Nav";
 import AdminDash from './pages/AdminDash'
 import Directory from './pages/Directory'
@@ -14,12 +15,17 @@ import JoinUs from "./components/JoinUs";
 import { api } from "./lib/api";
 
 function App() {
+  const [splashOpen, setSplashOpen] = useState(true);
+  const finishSplash = useCallback(() => {
+    setSplashOpen(false);
+    requestAnimationFrame(() => document.getElementById("main-content")?.focus());
+  }, []);
   const [darkMode, setDarkMode] = useState(() => {
     try { return localStorage.getItem("impact_darkMode") === "true"; } catch { return false; }
   });
   useEffect(() => {
     document.documentElement.classList.toggle("darkMode", darkMode);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", darkMode ? "#1e293b" : "#ffffff");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", darkMode ? "#e9eef2" : "#ffffff");
     try { localStorage.setItem("impact_darkMode", String(darkMode)); } catch { /* Theme works when storage is unavailable. */ }
   }, [darkMode]);
   const [currentComponent, setCurrentComponent] = useState("Homepage")
@@ -32,6 +38,7 @@ function App() {
   }, []);
   const memberId=user?.id;
   useEffect(()=>{if(!memberId)return;let active=true;api('/incentives/website',{method:'POST'}).then(result=>{if(active)setUser(current=>current?.id===memberId&&current.points!==result.user.points?{...current,points:result.user.points}:current);}).catch(()=>{});return()=>{active=false;};},[memberId]);
+  if (splashOpen) return <LogoSplash onComplete={finishSplash} />;
   return (
     <>
       {/* Nav */}

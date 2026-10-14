@@ -43,7 +43,10 @@ export default function Notifications({ userId, onOpenInbox, onOpenEvents }) {
     if (item.type === 'new-event') onOpenEvents(); else onOpenInbox();
   };
   return <aside className="notificationCenter" aria-label="Notifications">
-    <button className="secondaryButton" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>Notifications ({items.length})</button>
+    <button className="notificationToggle" type="button" aria-label={`Notifications, ${items.length} items`} title="Notifications" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+      {items.length > 0 && <span className="notificationBadge" aria-hidden="true">{items.length > 99 ? '99+' : items.length}</span>}
+    </button>
     {open && <section className="notificationPanel" aria-label="Your notifications">
       <h3>Notifications</h3>
       {items.length > 0 && <button type="button" className="textButton" onClick={() => clear()}>Clear all notifications</button>}

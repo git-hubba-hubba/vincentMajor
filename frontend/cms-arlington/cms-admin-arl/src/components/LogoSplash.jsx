@@ -1,47 +1,60 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
-const confetti = Array.from({ length: 110 }, (_, index) => {
-  const angle = index * 2.39996;
-  const spread = 150 + (index % 13) * 32;
-  return {
-    x: Math.cos(angle) * spread,
-    y: -100 - Math.abs(Math.sin(angle)) * spread * .65,
-    fall: 250 + (index % 9) * 55,
-    turn: (index % 2 ? 1 : -1) * (280 + index * 17),
-    color: ['#ffffff', '#7dd3fc', '#38bdf8', '#dbeafe', '#60a5fa'][index % 5],
-  };
-});
+const WIDTH = 1031;
+const HEIGHT = 389;
+// Fixed masonry joints: every piece uses the same original image coordinates.
+const bricks = Array.from({ length: 4 }, (_, row) => {
+  const edges = row % 2 ? [0, 103, 309, 515, 721, 927, WIDTH] : [0, 206, 412, 618, 824, WIDTH];
+  return edges.slice(0, -1).map((left, col) => {
+    const right = edges[col + 1];
+    const top = row * HEIGHT / 4;
+    const bottom = (row + 1) * HEIGHT / 4;
+    const index = row * 6 + col;
+    return {
+      points: `${left},${top} ${right},${top} ${right},${bottom} ${left},${bottom}`,
+      x: (left + right) / 2, y: (top + bottom) / 2,
+      release: row === 3 && col === 0 ? 2 : row === 3 && col === 5 ? 3 : row === 2 && col === 0 ? 4 : 5,
+      drift: ((left + right) / 2 - WIDTH / 2) * .22,
+      turn: (index % 2 ? 1 : -1) * (8 + index % 5 * 4),
+      delay: (3 - row) * 65 + col * 18,
+    };
+  });
+}).flat();
 
 export default function LogoSplash({ onComplete }) {
   const [hits, setHits] = useState(0);
-  const celebrating = hits === 5;
+  const id = useId().replaceAll(':', '');
+  const breaking = hits === 5;
   useEffect(() => {
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = previous; };
   }, []);
   useEffect(() => {
-    if (!celebrating) return;
+    if (!breaking) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const timer = setTimeout(onComplete, reduced ? 150 : 2100);
+    const timer = setTimeout(onComplete, reduced ? 150 : 1700);
     return () => clearTimeout(timer);
-  }, [celebrating, onComplete]);
-  return <section className={`logoSplash${celebrating ? ' logoSplashCelebrating' : ''}`} aria-label="Welcome to Impact Arlington">
+  }, [breaking, onComplete]);
+  return <section className={`logoSplash${breaking ? ' logoSplashBreaking' : ''}`} aria-label="Welcome to Impact Arlington">
     <div className="splashGlow" aria-hidden="true" />
     <p className="splashEyebrow">Arlington, Texas · A community within the community</p>
-    <button type="button" className="splashLogoButton" disabled={celebrating}
-      aria-label={`Pop the logo piñata to enter. ${hits} of 5 clicks complete.`}
+    <button type="button" className="splashLogoButton" disabled={breaking}
+      aria-label={`Break through the brick logo to enter. ${hits} of 5 clicks complete.`}
       onClick={() => setHits(current => Math.min(5, current + 1))}>
-      <img key={hits} className={`splashLogo${hits ? ' splashLogoBounce' : ''}`} src="/images/impact-official-logo.png" alt="IMPACT — Walk With Us" width="2062" height="778" />
-      {Array.from({ length: hits }, (_, burst) => <span key={burst} className="splashConfettiBurst" aria-hidden="true">
-        {confetti.slice(0, burst === 4 ? 110 : 26).map((piece, index) => <span key={index}
-          className={`splashConfetti${index % 3 === 0 ? ' splashConfettiRound' : ''}`}
-          style={{ '--confetti-x': `${piece.x * (burst === 4 ? 1 : .55)}px`, '--confetti-y': `${piece.y}px`, '--confetti-fall': `${piece.fall}px`, '--confetti-turn': `${piece.turn}deg`, '--confetti-color': piece.color, '--confetti-delay': `${index % 7 * 16}ms` }} />)}
-      </span>)}
+      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="splashBrickLogo" role="img" aria-label="IMPACT — Walk With Us">
+        <defs>{bricks.map((brick, index) => <clipPath key={index} id={`${id}-brick-${index}`}><polygon points={brick.points} /></clipPath>)}</defs>
+        {bricks.map((brick, index) => <g key={index} className={`splashBrick${hits >= brick.release ? ' splashBrickFalling' : ''}`}
+          style={{ transformOrigin: `${brick.x}px ${brick.y}px`, '--brick-drift': `${brick.drift}px`, '--brick-turn': `${brick.turn}deg`, '--brick-delay': `${brick.delay}ms` }}>
+          {hits >= brick.release && <polygon points={brick.points} transform="translate(0 6)" fill="#64748b" />}
+          <image href="/images/impact-official-logo.png" width={WIDTH} height={HEIGHT} clipPath={`url(#${id}-brick-${index})`} />
+          <polygon points={brick.points} className="splashMortar" style={{ opacity: hits ? Math.min(.85, hits * .22) : 0 }} />
+        </g>)}
+      </svg>
     </button>
     <div className="splashInstructions" aria-live="polite">
-      <h1>{celebrating ? 'Make an impact!' : hits ? 'Keep the celebration going.' : 'Make your entrance.'}</h1>
-      <p>{celebrating ? 'Welcome to the community.' : `Click the logo ${5 - hits} ${5 - hits === 1 ? 'more time' : 'times'} for a confetti celebration.`}</p>
+      <h1>{breaking ? 'Make an impact.' : hits ? 'Keep making an impact.' : 'Make your entrance.'}</h1>
+      <p>{breaking ? 'Welcome to the community.' : `Click the logo ${5 - hits} ${5 - hits === 1 ? 'more time' : 'times'} to break through.`}</p>
       <div className="splashProgress" aria-hidden="true">{Array.from({ length: 5 }, (_, index) => <span key={index} className={index < hits ? 'complete' : ''} />)}</div>
     </div>
   </section>;

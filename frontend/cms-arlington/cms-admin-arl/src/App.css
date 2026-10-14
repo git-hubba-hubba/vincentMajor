@@ -1736,24 +1736,26 @@ body{
 .splashLogoButton { position: relative; width: min(760px,85vw); border: 0; padding: 0; background: transparent; cursor: pointer; filter: drop-shadow(0 12px 35px #0005); -webkit-tap-highlight-color: transparent; }
 .splashLogoButton:disabled { cursor: default; }
 .splashLogoButton:focus-visible { outline: 3px solid #93c5fd; outline-offset: 18px; border-radius: 4px; }
-.splashLogo { display: block; width: 100%; height: auto; }
-.splashLogoBounce { animation: splashPinataBounce .38s ease-out; }
-.splashConfettiBurst { position: absolute; inset: 0; pointer-events: none; }
-.splashConfetti { position: absolute; top: 50%; left: 50%; width: 9px; height: 16px; background: var(--confetti-color); border-radius: 2px; opacity: 0; animation: splashConfettiPop 1.8s ease-out var(--confetti-delay) both; }
-.splashConfettiRound { width: 10px; height: 10px; border-radius: 50%; }
+.splashBrickLogo { display: block; width: 100%; height: auto; overflow: visible; }
+.splashBrick { transform-box: view-box; }
+.splashMortar { fill: none; stroke: #475569; stroke-width: 3; transition: opacity .2s; }
+.splashBrickFalling { animation: splashBrickDrop 1.1s cubic-bezier(.4,0,1,1) var(--brick-delay) both; }
 .splashInstructions { position: relative; text-align: center; }
 .logoSplash .splashInstructions h1 { color: #f1f5f9; font-size: clamp(25px,4vw,42px); letter-spacing: -.03em; }
 .logoSplash .splashInstructions p { color: #b7c9df; margin-top: 12px; font-size: 14px; }
 .splashProgress { display: flex; justify-content: center; gap: 9px; margin-top: 24px; }
 .splashProgress span { width: 28px; height: 3px; border-radius: 4px; background: #475569; transition: background .2s; }
 .splashProgress span.complete { background: #60a5fa; box-shadow: 0 0 12px #60a5fa80; }
-.logoSplashCelebrating { animation: splashReveal .4s ease 1.7s both; }
-@keyframes splashPinataBounce { 0%,100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-3deg) scale(.96); } 55% { transform: rotate(3deg) scale(1.04); } 80% { transform: rotate(-1deg) scale(1.01); } }
-@keyframes splashConfettiPop {
-  0% { opacity: 1; transform: translate(-50%,-50%) rotate(0); }
-  35% { opacity: 1; transform: translate(var(--confetti-x),var(--confetti-y)) rotate(calc(var(--confetti-turn) * .4)); }
-  75% { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--confetti-x),var(--confetti-fall)) rotate(var(--confetti-turn)); }
+.logoSplashBreaking { animation: splashReveal .35s ease 1.35s both; }
+@keyframes splashBrickDrop {
+  0% { transform: translate(0,0) rotate(0); opacity: 1; }
+  20% { transform: translate(calc(var(--brick-drift) * .12),14px) rotate(calc(var(--brick-turn) * .15)); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--brick-drift),650px) rotate(var(--brick-turn)); opacity: 0; }
 }
 @keyframes splashReveal { to { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .splashConfettiBurst { display: none; } .logoSplashCelebrating { opacity: 0; } .splashGlow { filter: none; opacity: .03; } }
+@media (prefers-reduced-motion: reduce) { .splashBrickFalling { opacity: 0; } .logoSplashBreaking { opacity: 0; } .splashGlow { filter: none; opacity: .03; } }
+
+.notificationToggle { position: relative; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: var(--bg); color: var(--text); box-shadow: 0 2px 8px #0000000d; transition: background .2s, color .2s; }
+.notificationToggle:hover,.notificationToggle[aria-expanded="true"] { background: var(--brand-soft); color: var(--brand-blue-dark); }
+.notificationBadge { position: absolute; top: -3px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px; display: grid; place-items: center; border-radius: 10px; background: #32779e; color: white; font-size: 9px; line-height: 1; font-weight: 700; }

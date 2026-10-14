@@ -14,6 +14,14 @@ import JoinUs from "./components/JoinUs";
 import { api } from "./lib/api";
 
 function App() {
+  const [darkMode, setDarkMode] = useState(() => {
+    try { return localStorage.getItem("impact_darkMode") === "true"; } catch { return false; }
+  });
+  useEffect(() => {
+    document.documentElement.classList.toggle("darkMode", darkMode);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", darkMode ? "#1e293b" : "#ffffff");
+    try { localStorage.setItem("impact_darkMode", String(darkMode)); } catch { /* Theme works when storage is unavailable. */ }
+  }, [darkMode]);
   const [currentComponent, setCurrentComponent] = useState("Homepage")
   const [profileOpen, setProfileOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(()=>new URLSearchParams(window.location.search).has("incentive"));
@@ -27,7 +35,7 @@ function App() {
   return (
     <>
       {/* Nav */}
-      <Nav currentComponent={currentComponent} setCurrentComponent={setCurrentComponent} user={user} onProfileClick={() => setProfileOpen(true)} onRewardsClick={() => setRewardsOpen(true)}/>
+      <Nav darkMode={darkMode} onToggleDarkMode={()=>setDarkMode(current=>!current)} currentComponent={currentComponent} setCurrentComponent={setCurrentComponent} user={user} onProfileClick={() => setProfileOpen(true)} onRewardsClick={() => setRewardsOpen(true)}/>
       {user && <Notifications key={user.id} userId={user.id} onOpenInbox={()=>setProfileOpen(true)} onOpenEvents={()=>setCurrentComponent("Events")} />}
       <div id="main-content" tabIndex={-1}>
       {/* TopDisplay */}

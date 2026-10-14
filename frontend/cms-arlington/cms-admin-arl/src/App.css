@@ -1689,3 +1689,43 @@ body{
 .notificationToasts article { padding: 1rem; background: white; color: #182d32; border: 1px solid #d5dedb; border-radius: 12px; box-shadow: 0 8px 32px #0003; }
 .notificationToasts p { margin: 0 0 .5rem; }
 @media (max-width: 760px) { .notificationPanel ~ .notificationToasts { right: 0; } .notificationCenter:has(.notificationPanel) .notificationToasts { display: none; } }
+
+/* Slate surfaces and blue accents, toggled by the navigation logo. */
+:root.darkMode {
+  color-scheme: dark;
+  --bg: #1e293b;
+  --text: #cbd5e1;
+  --text-h: #f1f5f9;
+  --border: #475569;
+  --brand-blue: #60a5fa;
+  --brand-blue-dark: #93c5fd;
+  --brand-soft: #283b53;
+  background: #182231;
+  color: var(--text);
+}
+.darkMode body, .darkMode #root { background: var(--bg); color: var(--text); }
+.darkMode :is(.siteHeader,.siteFooter,.pathCard,.directoryHero,.directoryTools,.directorySearch,.spotlightSection,.allBusinesses,.spotlightBusiness,.businessCard,.eventsHero,.eventCard,.profileModal,.rewardsModal,.editorModal,.createPanel,.eventCreatePanel,.feedComposer,.feedCard,.siteTextAdmin,.notificationPanel,.notificationToasts article) {
+  background: var(--bg); color: var(--text); border-color: var(--border);
+}
+.darkMode :is(.pathCard:nth-child(2),.pathCard:nth-child(3),.earnPoints,.profileEmptyState,.profileTicket,.savedEventList>div,.socialInboxItem,.directoryMessage,.directoryEmpty,.rewardCard,.adminCard,.statCard,.adminPanel,.incentiveCodes,.rewardsGuide,.heroNote,.heroArtFrame) {
+  background: var(--brand-soft); color: var(--text); border-color: var(--border);
+}
+.darkMode :is(h1,h2,h3,h4,h5,h6,strong,label,th) { color: var(--text-h); }
+.darkMode :is(p,small,.eyebrow,.sectionKicker,.directoryKicker,.heroDescription,.heroFootnote,.valuesStrip>span,.categorySelect,.profileOccupation,.memOccupation) { color: var(--text); }
+.darkMode :is(input,textarea,select) { background: #172334; color: var(--text-h); border-color: var(--border); }
+.darkMode :is(input,textarea)::placeholder { color: #94a3b8; opacity: 1; }
+.darkMode :is(.primaryNav button,.siteFooter button,.textButton,.secondaryButton,.rewardsNavButton,.eventActions button,.businessCardActions a) { color: var(--brand-blue-dark); border-color: var(--border); }
+.darkMode :is(.secondaryButton,.rewardsNavButton,.eventActions button,.businessCardActions a) { background: var(--brand-soft); }
+.darkMode :is(.primaryButton,.profileButton,.eventCreateButton,.businessSiteButton) { background: #2563eb; border-color: #60a5fa; color: #fff; }
+.darkMode :is(.primaryButton,.profileButton,.eventCreateButton):hover { background: #1d4ed8; }
+.darkMode :is(.primaryNav button:hover,.primaryNav button[aria-current="page"],a,.sectionHeading h2 em,.directoryHero h1 span,.eventsHero h1 span) { color: var(--brand-blue-dark); }
+.darkMode :is(.editorModal .feedComposer,.editorModal .eventCreatePanel,.editorModal .createPanel,.editorModal .formActions) { background: var(--bg); }
+.darkMode :is(.profileSectionHeading>span,.businessMonogram,.profileButtonAvatar) { background: #334e70; color: #dbeafe; }
+.darkMode :is(table,td,th,.profileEventSection,.valuesStrip,.pathCard,.businessContact,.businessCardActions) { border-color: var(--border); }
+.darkMode .brand { background: #f1f5f9; border-radius: 8px; padding: 6px 10px; }
+.darkMode :is(button,a,input,textarea,select):focus-visible { outline-color: #93c5fd; }
+.darkMode ::selection { background: #2563eb; color: white; }
+.darkMode :is(.joinMajor.contentActive,.memberActionModal,.memberMaster,.ruleCard,.visionStep,.eventsToolbar,.rewardItem,.adminTable,.adminTableWrap) { background: var(--bg); color: var(--text); border-color: var(--border); }
+.darkMode :is(.membersHero,.visionHero,.rulesIntro,.feedHero,.adImg,.eventFilters button.active,.authTabs button.active) { background: var(--brand-soft); color: var(--text-h); }
+.darkMode :is(.eventsHeroCopy>p:not(.eventsEyebrow),.eventsHeroStats span,.directoryStats span,.feedHero>div>span,.eventCardBody p,.pathCard>p,.businessCardContent>p,.spotlightBusiness>small,.savedEventList small,.profileTicket small) { color: var(--text); }
+.darkMode :is(.eventsHeroStats strong,.directoryStats strong,.memName,.namespaceTitle,.heroNote>span,.heroNote>div,.heroNote small) { color: var(--text-h); }

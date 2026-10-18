@@ -220,6 +220,24 @@ test('free rewards and content edits', async () => {
     await request('/reward-video','POST',{...upload,points:90},admin.token);
     await request('/reward-video/start','POST',{},member.token,409);
     assert.equal((await request('/auth/me','GET',undefined,member.token)).user.points,beforeVideo+40);
+    // Member spotlights expose display fields and public activity, never private account data.
+    await request(`/members/user-${admin.user.id}/connect`,'POST',{member_name:'Admin'},member.token);
+    const spotlight=await request(`/community-members/${member.user.id}`);
+    assert.equal(spotlight.member.id,member.user.id);
+    assert.equal(spotlight.member.profile_theme,'forest');
+    assert.equal(spotlight.member.cover_url,image);
+    assert.ok(spotlight.earnedPoints>=100);
+    assert.equal(spotlight.connectionCount,1);
+    assert.ok(spotlight.connections.some(person=>person.id===admin.user.id));
+    assert.ok(spotlight.events.some(item=>item.id===event.id && item.attended===1));
+    for(const secret of ['email','password_hash','points','status','business_tier'])assert.equal(Object.hasOwn(spotlight.member,secret),false);
+    for(const item of spotlight.events)assert.equal(Object.hasOwn(item,'attendance_code'),false);
+    for(const person of spotlight.connections)assert.equal(Object.hasOwn(person,'email'),false);
+    await request(`/community-members/99999999`,'GET',undefined,undefined,404);
+    const hidden=await request('/auth/register','POST',{firstName:'Hidden',lastName:'Member',email:'hidden@example.com',password:'TestPassword123!'});
+    await request(`/users/${hidden.user.id}`,'PATCH',{status:'suspended'},admin.token);
+    await request(`/community-members/${hidden.user.id}`,'GET',undefined,undefined,404);
+    await request(`/members/user-${admin.user.id}/connect`,'POST',{member_name:'Admin'},member.token);
     const incentiveStatus=await request('/incentives','GET',undefined,member.token);
     assert.equal(incentiveStatus.length,7);assert.ok(incentiveStatus.every(item=>item.claimed));
     const textDefaults=JSON.parse(readFileSync(new URL('./siteText.json',import.meta.url),'utf8'));

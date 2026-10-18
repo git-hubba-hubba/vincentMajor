@@ -1,5 +1,5 @@
 import SiteText from "./SiteText";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import businessCategories from "../data/businessCategories";
 import PasswordRecovery from "./PasswordRecovery";
@@ -11,6 +11,8 @@ const emptyAuth = { firstName: "", lastName: "", email: "", password: "" };
 const emptyBusiness = { name: "", category: "", description: "", image_url: "", website: "", phone: "", address: "" };
 
 function ProfileModal({ open, onClose, user, onAuthChange }) {
+  const coverInputRef=useRef(null);
+  const editorRef=useRef(null);
   const [activePanel,setActivePanel]=useState("overview");
   const [networkView,setNetworkView]=useState("connections");
   const [recipient,setRecipient]=useState(null);
@@ -96,9 +98,19 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
     localStorage.removeItem("impact_token"); onAuthChange(null); setMessage(""); setMode("signin"); setEditing(false); setRecipient(null); setDraft(""); setActivePanel("overview"); setSocialInbox({invitations:[],messages:[],connections:[],followers:[],earnedPoints:0});
   };
 
-  const beginEdit = () => {
+  const startEditing = () => {
+    if(editing)return;
     setProfile({ first_name:user.first_name, last_name:user.last_name, email:user.email, bio:user.bio || "", occupation:user.occupation || "", avatar_url:user.avatar_url || "", profile_theme:user.profile_theme || "ocean", cover_url:user.cover_url || "", profile_gallery:profileGallery(user) });
     setMessage(""); setEditing(true);
+  };
+
+  const beginEdit = () => {
+    startEditing();
+    requestAnimationFrame(()=>{editorRef.current?.scrollIntoView({behavior:"smooth",block:"start"});editorRef.current?.querySelector("input")?.focus({preventScroll:true});});
+  };
+  const personalizeCover = () => {
+    startEditing();
+    if(coverInputRef.current){coverInputRef.current.value="";coverInputRef.current.click();}
   };
 
   const selectProfileImages = async (event,field) => {
@@ -142,17 +154,20 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
   const selectBusinessGallery=async(event)=>{const files=[...(event.target.files||[])].slice(0,5);if(files.some(file=>file.size>2*1024*1024)){setMessage("Each gallery image must be smaller than 2 MB.");return;}const images=await Promise.all(files.map(file=>new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve({image_url:reader.result});reader.readAsDataURL(file);})));setOwnedBusiness(current=>({...current,images}));};
   const saveBusiness=async(event)=>{event.preventDefault();setBusy(true);setMessage("");try{const result=await api("/profile/business",{method:"PATCH",body:JSON.stringify({...ownedBusiness,images:ownedBusiness.images||[]})});setEditingBusiness(false);setMessage(result.message);}catch(error){setMessage(error.message);}finally{setBusy(false);}};
 
+  const displayedProfile=user && editing?{...user,...profile,profile_gallery:JSON.stringify(profile.profile_gallery || [])}:user;
   return (
     <div className="modalBackdrop" onMouseDown={onClose} role="presentation">
-      <section className={`profileModal ${user ? "profileStudio" : ""}`} role="dialog" aria-modal="true" aria-labelledby="profile-title" onMouseDown={(event) => event.stopPropagation()}>
+      <section className={`profileModal ${user ? `profileStudio profile-theme-${displayedProfile.profile_theme || "ocean"}` : ""}`} role="dialog" aria-modal="true" aria-labelledby="profile-title" onMouseDown={(event) => event.stopPropagation()}>
         <button className="modalClose" type="button" onClick={onClose} aria-label="Close profile">×</button>
         {user && !["forgot","reset"].includes(mode) ? (
           <>
-            <ProfileShowcase user={user} social={socialInbox} onEdit={beginEdit} onInbox={()=>setActivePanel("inbox")} />
+            <input ref={coverInputRef} type="file" hidden accept="image/png,image/jpeg,image/webp,image/gif" aria-label="Choose profile cover image" onChange={event=>selectProfileImages(event,"cover_url")}/>
+            {editing&&<div className="profilePreviewBar" role="status"><span>Previewing your changes</span><div><button type="button" className="secondaryButton" disabled={busy} onClick={()=>setEditing(false)}>Cancel</button><button type="submit" form="edit-profile-form" className="primaryButton" disabled={busy}>{busy?"Saving…":"Save changes"}</button></div></div>}
+            <ProfileShowcase user={displayedProfile} social={socialInbox} onPersonalize={personalizeCover} onEdit={beginEdit} onInbox={()=>setActivePanel("inbox")} />
             <nav className="profilePanelNav" aria-label="Profile sections">{[["overview","compass","Overview"],["inbox","mail","Inbox"],["network","people","My network"]].map(([id,icon,label])=><button type="button" key={id} aria-current={activePanel===id?"page":undefined} onClick={()=>setActivePanel(id)}><ProfileIcon name={icon}/>{label}{id==="network"&&<span>{socialInbox.connections.length}</span>}</button>)}</nav>
             {editing ? (
-              <form className="profileForm editProfileForm" onSubmit={saveProfile}>
-                <h3>Make it yours</h3><p className="fieldHint">Choose a theme, a cover, and up to four favorite photos. Images up to 2 MB each.</p>
+              <form id="edit-profile-form" ref={editorRef} className="profileForm editProfileForm" onSubmit={saveProfile}>
+                <h3>Make it yours</h3><p className="fieldHint">Themes style your entire profile. Preview your changes as you go, then save to keep them. Images up to 2 MB each.</p>
                 <fieldset className="profileThemePicker"><legend>Profile theme</legend>{profileThemes.map(theme=><label key={theme} className={`theme-${theme}`}><input type="radio" name="profile-theme" value={theme} checked={profile.profile_theme===theme} onChange={()=>setProfile({...profile,profile_theme:theme})}/>{theme}</label>)}</fieldset>
                 <div className="profileMediaEditor"><label className="uploadButton"><ProfileIcon name="photo"/> Upload cover<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={event=>selectProfileImages(event,"cover_url")}/></label>{profile.cover_url&&<button type="button" className="textButton" onClick={()=>setProfile({...profile,cover_url:""})}>Remove cover</button>}<label className="uploadButton">Add gallery photos<input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" onChange={event=>selectProfileImages(event,"profile_gallery")}/></label></div>
                 {profile.cover_url&&<img className="profileCoverPreview" src={profile.cover_url} alt="Cover preview"/>}
@@ -167,7 +182,7 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
                 <label><SiteText contentKey="ProfileModal.04eb246f6e46">{"Occupation (optional)"}</SiteText><input maxLength={100} value={profile.occupation} placeholder="e.g. Teacher, Electrician, Small business owner" onChange={e=>setProfile({...profile,occupation:e.target.value})} /><span className="fieldHint"><SiteText contentKey="ProfileModal.4a05e159e9e5">{"Visible on your member card"}</SiteText></span></label>
                 <label><SiteText contentKey="ProfileModal.1359ec883b21">{"About me"}</SiteText><textarea maxLength="500" value={profile.bio} onChange={(e)=>setProfile({...profile,bio:e.target.value})} /><span className="fieldHint">{profile.bio.length}<SiteText contentKey="ProfileModal.cff989c347d3">{"/500 characters"}</SiteText></span></label>
                 {message && <p className="formMessage" role="alert">{message}</p>}
-                <div className="formActions"><button type="button" className="secondaryButton" onClick={()=>setEditing(false)}><SiteText contentKey="ProfileModal.19766ed6ccb2">{"Cancel"}</SiteText></button><button className="primaryButton" disabled={busy}><SiteText section="ProfileModal">{busy?"Saving…":"Save profile"}</SiteText></button></div>
+                <div className="formActions"><button type="button" className="secondaryButton" disabled={busy} onClick={()=>setEditing(false)}><SiteText contentKey="ProfileModal.19766ed6ccb2">{"Cancel"}</SiteText></button><button className="primaryButton" disabled={busy}><SiteText section="ProfileModal">{busy?"Saving…":"Save profile"}</SiteText></button></div>
               </form>
             ) : null}
             {activePanel === "overview" && <>

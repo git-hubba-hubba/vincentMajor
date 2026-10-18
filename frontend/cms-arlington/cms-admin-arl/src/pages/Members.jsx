@@ -1,10 +1,12 @@
 import SiteText from "../components/SiteText";
 import { useEffect, useMemo, useState } from "react";
 import Namespace from "../components/Namespace";
+import MemberProfileModal from "../components/MemberProfileModal";
 import ActiveUser from "../components/ActiveUser";
 import { api } from "../lib/api";
 
 function Members({ user, onProfileClick }) {
+  const [selectedMember,setSelectedMember]=useState(null);
   const [search,setSearch]=useState(""); const [connections,setConnections]=useState([]); const [realMembers,setRealMembers]=useState([]); const [dialog,setDialog]=useState(null);
   const [events,setEvents]=useState([]); const [eventId,setEventId]=useState(""); const [message,setMessage]=useState(""); const [notice,setNotice]=useState(""); const [busy,setBusy]=useState(false);
   const profiles=useMemo(()=>realMembers.filter(member=>member.id!==user?.id),[realMembers,user]);
@@ -20,8 +22,9 @@ function Members({ user, onProfileClick }) {
     <Namespace title="Impact Members" />
     <div className="memberSearchWrap"><label><span>⌕</span><input type="search" value={search} onChange={event=>setSearch(event.target.value)} placeholder="Search by name, business, role, or occupation"/></label><p><strong>{visible.length}</strong><SiteText contentKey="Members.7391c427b44f">{" members found"}</SiteText></p></div>
     {notice&&<p className="memberNotice" role="status">{notice}</p>}
-    <div className="memOrganizer">{visible.map(person=><ActiveUser key={person.ref} personObj={person} connected={Boolean(user)&&connections.includes(person.ref)} onConnect={()=>connect(person)} onInvite={()=>openAction("invite",person)} onMessage={()=>openAction("message",person)}/>)}</div>
+    <div className="memOrganizer">{visible.map(person=><ActiveUser key={person.ref} personObj={person} onViewProfile={()=>setSelectedMember(person.id)} connected={Boolean(user)&&connections.includes(person.ref)} onConnect={()=>connect(person)} onInvite={()=>openAction("invite",person)} onMessage={()=>openAction("message",person)}/>)}</div>
     {!visible.length&&<div className="memberEmpty"><span>⌕</span><h2><SiteText contentKey="Members.a4e937d25742">{"No members found"}</SiteText></h2><p><SiteText contentKey="Members.04c0fcb6326f">{"Try searching with a broader name, company, or position."}</SiteText></p></div>}
+    {selectedMember&&<MemberProfileModal key={selectedMember} memberId={selectedMember} currentUserId={user?.id} connected={Boolean(user)&&connections.includes(`user-${selectedMember}`)} onClose={()=>setSelectedMember(null)} onViewMember={setSelectedMember} onConnect={person=>{if(!user)setSelectedMember(null);return connect(person);}} onMessage={person=>{setSelectedMember(null);openAction("message",person);}}/>}
     {dialog&&<div className="modalBackdrop" onMouseDown={()=>setDialog(null)}><form className="memberActionModal" onSubmit={submitAction} onMouseDown={event=>event.stopPropagation()}><button type="button" className="modalClose" onClick={()=>setDialog(null)}>×</button><p className="eyebrow"><SiteText section="Members">{dialog.type==="invite"?"Event invitation":"Direct message"}</SiteText></p><h2>{dialog.type==="invite"?`Invite ${dialog.person.name}`:`Message ${dialog.person.name}`}</h2>{dialog.type==="invite"?<label><SiteText contentKey="Members.4349a7b25a72">{"Choose an event"}</SiteText><select required value={eventId} onChange={event=>setEventId(event.target.value)}><option value=""><SiteText contentKey="Members.c992ad297948">{"Select an upcoming event"}</SiteText></option>{events.map(item=><option key={item.id} value={item.id}>{item.title} · {new Date(item.starts_at).toLocaleDateString()}</option>)}</select></label>:<label><SiteText contentKey="Members.7a057bd996a3">{"Your message"}</SiteText><textarea required maxLength="1000" autoFocus value={message} onChange={event=>setMessage(event.target.value)} placeholder="Write a friendly message…"/></label>}<div className="formActions"><button type="button" className="secondaryButton" onClick={()=>setDialog(null)}><SiteText contentKey="Members.19766ed6ccb2">{"Cancel"}</SiteText></button><button className="primaryButton" disabled={busy}><SiteText section="Members">{busy?"Sending…":dialog.type==="invite"?"Send invitation":"Send message"}</SiteText></button></div></form></div>}
   </main>;
 }

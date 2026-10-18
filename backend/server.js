@@ -250,6 +250,21 @@ const server = http.createServer(async (req,res) => {
       const members=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url,users.bio,users.occupation,users.role,users.business_tier,companies.name company,employees.title position FROM users LEFT JOIN companies ON companies.id=(SELECT id FROM companies WHERE owner_id=users.id AND status='approved' ORDER BY id LIMIT 1) LEFT JOIN employees ON employees.user_id=users.id AND employees.status='approved' WHERE users.status='active' ORDER BY users.first_name,users.last_name,users.id`).all();
       return send(res,200,members.map(member=>({...member,ref:`user-${member.id}`,name:`${member.first_name} ${member.last_name}`,img:member.avatar_url||`https://i.pravatar.cc/300?u=impact-${member.id}`,company:member.company||'Impact Arlington Community',position:member.position||`${member.role} member`})));
     }
+    const memberProfile=path.match(/^\/api\/community-members\/(\d+)$/);
+    if(memberProfile && req.method==='GET') {
+      const id=Number(memberProfile[1]);
+      const member=db.prepare(`SELECT id,first_name,last_name,avatar_url,bio,occupation,profile_theme,cover_url,profile_gallery,sponsor_badge,created_at,
+        (SELECT name FROM companies WHERE owner_id=users.id AND status='approved' ORDER BY id LIMIT 1) company
+        FROM users WHERE id=? AND status='active'`).get(id);
+      if(!member)return send(res,404,{error:'This member profile is no longer available.'});
+      const connections=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url FROM member_connections JOIN users ON member_ref='user-'||users.id WHERE user_id=? AND users.status='active' ORDER BY member_connections.created_at DESC,users.id DESC LIMIT 6`).all(id);
+      const connectionCount=db.prepare(`SELECT COUNT(*) total FROM member_connections JOIN users ON member_ref='user-'||users.id WHERE user_id=? AND users.status='active'`).get(id).total;
+      const followerCount=db.prepare(`SELECT COUNT(*) total FROM member_connections JOIN users ON users.id=user_id WHERE member_ref=? AND users.status='active'`).get(`user-${id}`).total;
+      const events=db.prepare(`SELECT events.id,events.title,events.starts_at,events.location,event_registrations.attended FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND events.status='approved' AND (attended=1 OR datetime(events.starts_at)>=datetime('now')) ORDER BY attended ASC,events.starts_at DESC LIMIT 3`).all(id);
+      const earned=db.prepare('SELECT COALESCE(SUM(points_awarded),0) total FROM incentive_claims WHERE user_id=?').get(id).total;
+      const attendance=db.prepare('SELECT COALESCE(SUM(events.points_awarded),0) total FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND attended=1').get(id).total;
+      return send(res,200,{member,connections,connectionCount,followerCount,events,earnedPoints:earned+attendance});
+    }
     const notificationRoute=path.match(/^\/api\/notifications(?:\/(\d+))?$/);
     if(notificationRoute) {
       if(!user)return send(res,401,{error:'Sign in to view notifications.'});

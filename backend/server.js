@@ -6,6 +6,8 @@ import { persistImage } from './storage.js';
 import { scheduleBackups } from './backup.js';
 import { parseAllowedOrigins } from './cors.js';
 import { incentives } from './incentives.js';
+import { handleRewardVideo } from './reward-video.js';
+import { handlePasswordReset } from './password-reset.js';
 
 const PORT = Number(process.env.PORT || 4000);
 const siteTextKeys = new Set(JSON.parse(readFileSync(new URL('./siteText.json',import.meta.url),'utf8')).map(entry=>entry.key));
@@ -19,7 +21,7 @@ const editable = {
   users: ['first_name','last_name','email','role','status','avatar_url','bio','occupation','points','business_tier'],
   employees: ['user_id','company_id','title','status','admin_feedback']
 };
-const publicUser = `id,first_name,last_name,email,role,status,avatar_url,bio,occupation,points,sponsor_badge,business_tier,created_at,updated_at`;
+const publicUser = `id,first_name,last_name,email,role,status,avatar_url,bio,occupation,profile_theme,cover_url,profile_gallery,points,sponsor_badge,business_tier,created_at,updated_at`;
 const send = (res, status, data) => { res.writeHead(status, {'Content-Type':'application/json'}); res.end(JSON.stringify(data)); };
 const tokenHash = (token) => createHash('sha256').update(token).digest('hex');
 const log = (actor, action, type, id, details='') => db.prepare('INSERT INTO activity_log(actor_id,action,entity_type,entity_id,details) VALUES(?,?,?,?,?)').run(actor,action,type,id,details);
@@ -30,15 +32,15 @@ function notifyEvent(id) {
 function auth(req) {
   const token = (req.headers.authorization || '').replace(/^Bearer /, '');
   if (!token) return null;
-  return db.prepare(`SELECT users.id,users.first_name,users.last_name,users.email,users.role,users.status,users.avatar_url,users.bio,users.occupation,users.points,users.sponsor_badge,users.business_tier,users.created_at,users.updated_at FROM users JOIN sessions ON users.id=sessions.user_id WHERE sessions.token_hash=? AND sessions.expires_at > datetime('now')`).get(tokenHash(token));
+  return db.prepare(`SELECT users.id,users.first_name,users.last_name,users.email,users.role,users.status,users.avatar_url,users.bio,users.occupation,users.profile_theme,users.cover_url,users.profile_gallery,users.points,users.sponsor_badge,users.business_tier,users.created_at,users.updated_at FROM users JOIN sessions ON users.id=sessions.user_id WHERE sessions.token_hash=? AND sessions.expires_at > datetime('now')`).get(tokenHash(token));
 }
 function verify(password, encoded) {
   const [salt, saved] = encoded.split(':');
   const actual = scryptSync(password, salt, 64);
   return timingSafeEqual(actual, Buffer.from(saved, 'hex'));
 }
-async function body(req) {
-  let raw=''; for await (const chunk of req) { raw += chunk; if (raw.length > 16e6) throw new Error('Request too large'); }
+async function body(req, limit=20e6) {
+  let raw=''; for await (const chunk of req) { raw += chunk; if (raw.length > limit) throw new Error('Request too large'); }
   return raw ? JSON.parse(raw) : {};
 }
 function fields(table, payload) { return Object.fromEntries(Object.entries(payload).filter(([key,value]) => editable[table].includes(key) && value !== undefined)); }
@@ -93,6 +95,7 @@ const server = http.createServer(async (req,res) => {
       return send(res,200,{service:'Impact Arlington API',health:'/api/health',message:'Open the frontend static site to use the application. Set CLIENT_ORIGIN to its URL to enable the homepage redirect.'});
     }
     if (path === '/api/health') return send(res,200,{status:'ok'});
+    if(await handlePasswordReset(req,res,path,{send,body})) return;
     if (path === '/api/auth/register' && req.method === 'POST') {
       const data=await body(req); if (!data.firstName || !data.lastName || !data.email || String(data.password||'').length < 8) return send(res,400,{error:'Name, email, and an 8-character password are required.'});
       const passwordHash=hashPassword(data.password); let userId;
@@ -114,10 +117,11 @@ const server = http.createServer(async (req,res) => {
     }
     if (path === '/api/auth/me' && req.method === 'GET') return user ? send(res,200,{user}) : send(res,401,{error:'Not signed in.'});
     if (path === '/api/auth/logout' && req.method === 'POST') { const token=(req.headers.authorization||'').replace(/^Bearer /,''); if(token) db.prepare('DELETE FROM sessions WHERE token_hash=?').run(tokenHash(token)); return send(res,200,{ok:true}); }
+    if(await handleRewardVideo(req,res,path,user,{send,body,publicUser})) return;
     if(path==='/api/incentives' && req.method==='GET') {
       const claims=user?db.prepare('SELECT incentive_id,points_awarded,created_at FROM incentive_claims WHERE user_id=?').all(user.id):[];
       const attended=user?db.prepare('SELECT 1 FROM event_registrations WHERE user_id=? AND attended=1 LIMIT 1').get(user.id):null;
-      return send(res,200,incentives.map(item=>({...item,claimed:item.id==='event'?Boolean(attended):claims.some(claim=>claim.incentive_id===item.id)})));
+      return send(res,200,incentives.map(item=>({...item,...(item.id==='video'?{points:db.prepare('SELECT points FROM reward_video WHERE id=1').get()?.points || item.points}:{}),claimed:item.id==='event'?Boolean(attended):claims.some(claim=>claim.incentive_id===item.id)})));
     }
     if(path==='/api/incentives/website' && req.method==='POST') {
       if(!user) return send(res,401,{error:'Sign in to earn website visit points.'});
@@ -172,9 +176,19 @@ const server = http.createServer(async (req,res) => {
       const occupation=data.occupation===undefined?user.occupation:data.occupation.trim();
       if(occupation.length>100) return send(res,400,{error:'Occupation must be 100 characters or fewer.'});
       if (bio.length > 500) return send(res,400,{error:'Bio must be 500 characters or fewer.'});
-      if (avatar && (!String(avatar).startsWith('data:image/') || String(avatar).length > 3e6)) return send(res,400,{error:'Profile image must be a supported image under 2 MB.'});
+      if (avatar && avatar !== user.avatar_url && (!/^data:image\/(png|jpeg|webp|gif);base64,/.test(String(avatar)) || String(avatar).length > 3e6)) return send(res,400,{error:'Profile image must be a supported image under 2 MB.'});
+      const theme=data.profile_theme ?? user.profile_theme;
+      if (!['ocean','sunset','forest','midnight'].includes(theme)) return send(res,400,{error:'Choose an available profile theme.'});
+      let cover=data.cover_url ?? user.cover_url;
+      const oldGallery=JSON.parse(user.profile_gallery || '[]');
+      let gallery=data.profile_gallery ?? oldGallery;
+      if (!Array.isArray(gallery) || gallery.length>4) return send(res,400,{error:'Choose up to four profile photos.'});
+      const validImage=(image,existing)=>typeof image==='string' && (existing.includes(image) || (/^data:image\/(png|jpeg|webp|gif);base64,/.test(image) && image.length<=3e6));
+      if (!validImage(cover,[user.cover_url,'']) || gallery.some(image=>!validImage(image,oldGallery))) return send(res,400,{error:'Choose supported images smaller than 2 MB.'});
+      cover=await persistImage(cover,'impact-arlington/profiles');
+      gallery=await Promise.all(gallery.map(image=>persistImage(image,'impact-arlington/profiles')));
       avatar=await persistImage(avatar,'impact-arlington/profiles');
-      db.prepare('UPDATE users SET first_name=?,last_name=?,email=?,bio=?,occupation=?,avatar_url=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(firstName,lastName,email,bio,occupation,avatar,user.id);
+      db.prepare('UPDATE users SET first_name=?,last_name=?,email=?,bio=?,occupation=?,avatar_url=?,profile_theme=?,cover_url=?,profile_gallery=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(firstName,lastName,email,bio,occupation,avatar,theme,cover,JSON.stringify(gallery),user.id);
       log(user.id,'updated','profile',user.id); const updated=db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id); return send(res,200,{user:updated});
     }
     if (path === '/api/profile/business-application' && req.method === 'POST') {
@@ -215,7 +229,7 @@ const server = http.createServer(async (req,res) => {
         EXISTS(SELECT 1 FROM event_likes WHERE event_id=events.id AND user_id=?) liked,
         EXISTS(SELECT 1 FROM event_registrations WHERE event_id=events.id AND user_id=? AND attended=1) attended
         FROM events WHERE status='approved' ORDER BY featured DESC,starts_at`).all(viewer,viewer,viewer,viewer);
-      const comments=db.prepare(`SELECT event_comments.id,event_comments.body,event_comments.created_at,users.first_name,users.last_name,users.avatar_url FROM event_comments JOIN users ON users.id=event_comments.user_id WHERE event_comments.event_id=? ORDER BY event_comments.id DESC LIMIT 6`);
+      const comments=db.prepare(`SELECT event_comments.id,event_comments.user_id,event_comments.body,event_comments.created_at,users.first_name,users.last_name,users.avatar_url FROM event_comments JOIN users ON users.id=event_comments.user_id WHERE event_comments.event_id=? ORDER BY event_comments.id DESC LIMIT 6`);
       return send(res,200,events.map((event)=>({...event,comments:comments.all(event.id)})));
     }
     if (path === '/api/community-events' && req.method === 'POST') {
@@ -258,7 +272,11 @@ const server = http.createServer(async (req,res) => {
       if(!user)return send(res,401,{error:'Sign in to view your community inbox.'});
       const invitations=db.prepare(`SELECT event_invitations.id,event_invitations.created_at,events.title,events.starts_at,users.first_name,users.last_name FROM event_invitations JOIN events ON events.id=event_invitations.event_id JOIN users ON users.id=event_invitations.sender_id WHERE event_invitations.recipient_id=? ORDER BY event_invitations.id DESC LIMIT 10`).all(user.id);
       const messages=db.prepare(`SELECT direct_messages.id,direct_messages.body,direct_messages.created_at,users.first_name,users.last_name FROM direct_messages JOIN users ON users.id=direct_messages.sender_id WHERE direct_messages.recipient_id=? ORDER BY direct_messages.id DESC LIMIT 10`).all(user.id);
-      return send(res,200,{invitations,messages});
+      const connections=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url FROM member_connections JOIN users ON member_connections.member_ref='user-'||users.id WHERE member_connections.user_id=? AND users.status='active'`).all(user.id);
+      const followers=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url FROM member_connections JOIN users ON users.id=member_connections.user_id WHERE member_connections.member_ref=? AND users.status='active'`).all(`user-${user.id}`);
+      const earned=db.prepare('SELECT COALESCE(SUM(points_awarded),0) total FROM incentive_claims WHERE user_id=?').get(user.id).total;
+      const attendance=db.prepare('SELECT COALESCE(SUM(events.points_awarded),0) total FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND attended=1').get(user.id).total;
+      return send(res,200,{invitations,messages,connections,followers,earnedPoints:earned+attendance});
     }
     const messageReply=path.match(/^\/api\/messages\/(\d+)\/reply$/);
     if(messageReply&&req.method==='POST') {
@@ -301,8 +319,30 @@ const server = http.createServer(async (req,res) => {
         (SELECT COUNT(*) FROM post_likes WHERE post_id=posts.id) like_count,(SELECT COUNT(*) FROM post_shares WHERE post_id=posts.id) share_count,
         EXISTS(SELECT 1 FROM post_likes WHERE post_id=posts.id AND user_id=?) liked
         FROM posts JOIN users ON users.id=posts.author_id WHERE posts.status='approved' ORDER BY posts.featured DESC,posts.id DESC`).all(viewer);
-      const comments=db.prepare(`SELECT post_comments.id,post_comments.body,post_comments.created_at,users.first_name,users.last_name,users.avatar_url FROM post_comments JOIN users ON users.id=post_comments.user_id WHERE post_comments.post_id=? ORDER BY post_comments.id DESC LIMIT 8`);
+      const comments=db.prepare(`SELECT post_comments.id,post_comments.user_id,post_comments.body,post_comments.created_at,users.first_name,users.last_name,users.avatar_url FROM post_comments JOIN users ON users.id=post_comments.user_id WHERE post_comments.post_id=? ORDER BY post_comments.id DESC LIMIT 8`);
       return send(res,200,posts.map(post=>({...post,comments:comments.all(post.id)})));
+    }
+    const commentAction=path.match(/^\/api\/(posts|events)\/(\d+)\/comments\/(\d+)$/);
+    if(commentAction && ['PATCH','DELETE'].includes(req.method)) {
+      if(!user) return send(res,401,{error:'Sign in to manage your comments.'});
+      const table=commentAction[1]==='posts'?'post_comments':'event_comments';
+      const parentColumn=commentAction[1]==='posts'?'post_id':'event_id';
+      const parentId=Number(commentAction[2]);const commentId=Number(commentAction[3]);
+      const comment=db.prepare(`SELECT id,user_id FROM ${table} WHERE id=? AND ${parentColumn}=?`).get(commentId,parentId);
+      if(!comment)return send(res,404,{error:'Comment not found.'});
+      if(comment.user_id!==user.id)return send(res,403,{error:'You can only edit or delete your own comments.'});
+      if(req.method==='DELETE') {
+        db.prepare(`DELETE FROM ${table} WHERE id=? AND user_id=? AND ${parentColumn}=?`).run(commentId,user.id,parentId);
+        log(user.id,'deleted comment',commentAction[1]==='posts'?'post':'event',parentId);
+        return send(res,200,{id:commentId,message:'Comment deleted.'});
+      }
+      const data=await body(req);
+      const text=typeof data.body==='string'?data.body.trim():'';
+      if(!text || text.length>500)return send(res,400,{error:'Comment must be between 1 and 500 characters.'});
+      const result=db.prepare(`UPDATE ${table} SET body=? WHERE id=? AND user_id=? AND ${parentColumn}=?`).run(text,commentId,user.id,parentId);
+      if(!result.changes)return send(res,404,{error:'Comment not found.'});
+      log(user.id,'edited comment',commentAction[1]==='posts'?'post':'event',parentId);
+      return send(res,200,{id:commentId,body:text,message:'Comment updated.'});
     }
     const postAction=path.match(/^\/api\/posts\/(\d+)\/(like|comment|share)$/);
     if(postAction&&req.method==='POST'){

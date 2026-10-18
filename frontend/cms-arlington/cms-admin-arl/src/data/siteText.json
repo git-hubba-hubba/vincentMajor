@@ -702,7 +702,7 @@
   {
     "key": "EarnPoints.42f2cbfa0001",
     "section": "EarnPoints",
-    "text": "Scan an incentive QR link with your phone camera or enter the code provided by the business, video organizer, or Vincent. Each new-user bonus can be earned once. Event points are earned once per event using its attendance code."
+    "text": "Scan an incentive QR link with your phone camera or enter the code provided by the business or Vincent. Each new-user bonus can be earned once. Event points are earned once per event using its attendance code."
   },
   {
     "key": "EarnPoints.79bc8de47776",
@@ -1387,7 +1387,7 @@
   {
     "key": "IncentiveAdmin.bfd8bc966ef7",
     "section": "IncentiveAdmin",
-    "text": "Create codes for verified business visits, purchases, videos, and finding Vincent. Share the code or downloaded QR image after the activity. Each member can earn each new-user incentive once, even with different codes. Event attendance uses the event’s own code."
+    "text": "Create codes for verified business visits, purchases, and finding Vincent. Share the code or downloaded QR image after the activity. Each member can earn each new-user incentive once, even with different codes. Event attendance uses the event’s own code."
   },
   {
     "key": "IncentiveAdmin.f1c5165ba063",

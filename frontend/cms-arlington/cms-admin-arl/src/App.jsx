@@ -23,7 +23,8 @@ function App() {
     try { localStorage.setItem("impact_darkMode", String(darkMode)); } catch { /* Theme works when storage is unavailable. */ }
   }, [darkMode]);
   const [currentComponent, setCurrentComponent] = useState("Homepage")
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(()=>new URLSearchParams(window.location.hash.slice(1)).has("reset-password"));
+  useEffect(()=>{const followResetLink=()=>{if(new URLSearchParams(window.location.hash.slice(1)).has("reset-password"))setProfileOpen(true);};window.addEventListener("hashchange",followResetLink);return()=>window.removeEventListener("hashchange",followResetLink);},[]);
   const [rewardsOpen, setRewardsOpen] = useState(()=>new URLSearchParams(window.location.search).has("incentive"));
   const [user, setUser] = useState(null);
   useEffect(() => {

@@ -1,4 +1,5 @@
 import SiteText from "./SiteText";
+import ImageLightbox from "./ImageLightbox";
 import EarnPoints from "./EarnPoints";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api";
@@ -7,10 +8,11 @@ const emptyDonation = { name:"", description:"", points_cost:500, inventory:1, s
 
 function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick, onEvents }) {
   const [rewards,setRewards]=useState([]); const [loading,setLoading]=useState(false); const [message,setMessage]=useState("");
+  const [enlargedReward,setEnlargedReward]=useState(null);
   const [showHowItWorks,setShowHowItWorks]=useState(false);
   const [donating,setDonating]=useState(false); const [donation,setDonation]=useState(emptyDonation); const [busyId,setBusyId]=useState(null);
   const load=useCallback(async()=>{setLoading(true);try{setRewards(await api("/community-rewards"));setMessage("");}catch(error){setMessage(error.message);}finally{setLoading(false);}},[]);
-  useEffect(()=>{if(!open)return;const request=window.setTimeout(load,0);const escape=(event)=>event.key==="Escape"&&onClose();document.addEventListener("keydown",escape);return()=>{window.clearTimeout(request);document.removeEventListener("keydown",escape);};},[open,load,onClose]);
+  useEffect(()=>{if(!open)return;const request=window.setTimeout(load,0);const escape=(event)=>{if(event.key==="Escape"&&!document.querySelector("dialog[open]"))onClose();};document.addEventListener("keydown",escape);return()=>{window.clearTimeout(request);document.removeEventListener("keydown",escape);};},[open,load,onClose]);
   if(!open)return null;
 
   const redeem=async(reward)=>{
@@ -50,10 +52,11 @@ function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick, onEve
       </form>}
       {message&&<p className="rewardMessage" role="status">{message}</p>}
       {loading?<div className="rewardsLoading"><SiteText contentKey="RewardsModal.48c576db2910">{"Opening the reward vault…"}</SiteText></div>:<div className="rewardGrid">{rewards.map(reward=>{const soldOut=reward.inventory<=0;const short=user&&user.points<reward.points_cost;return <article className={`rewardCard ${soldOut||reward.redeemed?"rewardLocked":""}`} key={reward.id}>
-        <div className="rewardImage" style={{backgroundImage:`linear-gradient(180deg,transparent 35%,rgba(13,42,56,.78)),url(${reward.image_url||'/images/banner.png'})`}}><span className="rewardCost"><SiteText section="RewardsModal">{reward.points_cost===0?"Free":`${reward.points_cost.toLocaleString()} pts`}</SiteText></span>{reward.redeemed&&<span className="claimedStamp"><SiteText contentKey="RewardsModal.ddcd2779294a">{"Claimed"}</SiteText></span>}</div>
+        <div className="rewardImage" style={{backgroundImage:`linear-gradient(180deg,transparent 35%,rgba(13,42,56,.78)),url(${reward.image_url||'/images/banner.png'})`}}><button type="button" className="rewardImageEnlarge" onClick={()=>setEnlargedReward(reward)} aria-label={`Enlarge image of ${reward.name}`}><span>View image ⤢</span></button><span className="rewardCost"><SiteText section="RewardsModal">{reward.points_cost===0?"Free":`${reward.points_cost.toLocaleString()} pts`}</SiteText></span>{reward.redeemed&&<span className="claimedStamp"><SiteText contentKey="RewardsModal.ddcd2779294a">{"Claimed"}</SiteText></span>}</div>
         <div className="rewardBody"><p className="rewardSponsor"><SiteText contentKey="RewardsModal.d3965f8691a5">{"Gifted by "}</SiteText><SiteText section="RewardsModal">{reward.sponsor_name||"Impact Arlington"}</SiteText></p><h3>{reward.name}</h3><p>{reward.description}</p><div className="rewardAvailability"><span><i style={{width:`${Math.min(100,Math.max(0,reward.inventory)*12)}%`}}></i></span><strong><SiteText section="RewardsModal">{soldOut?"Fully claimed":`${reward.inventory} available`}</SiteText></strong></div><button disabled={soldOut||reward.redeemed||busyId===reward.id} onClick={()=>redeem(reward)}><SiteText section="RewardsModal">{busyId===reward.id?"Claiming…":reward.redeemed?"In my rewards":soldOut?"No longer available":!user?"Sign in to redeem":short?`Need ${(reward.points_cost-user.points).toLocaleString()} more points`:reward.points_cost===0?"Claim free reward":"Redeem reward"}</SiteText></button></div>
       </article>;})}</div>}
       {!loading&&!rewards.length&&<div className="rewardsEmpty"><span>◇</span><h3><SiteText contentKey="RewardsModal.4761a83dade2">{"New rewards are on the way"}</SiteText></h3><p><SiteText contentKey="RewardsModal.a125e12f7c02">{"Keep earning points while our community sponsors prepare the next collection."}</SiteText></p></div>}
+    {enlargedReward&&<ImageLightbox src={enlargedReward.image_url||"/images/banner.png"} title={enlargedReward.name} onClose={()=>setEnlargedReward(null)}/>}
     </section>
   </div>;
 }

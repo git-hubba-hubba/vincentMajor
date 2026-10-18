@@ -67,6 +67,34 @@ test('free rewards and content edits', async () => {
     assert.equal(updated.image_url,'data:image/png;base64,test');
     await request(`/events/${event.id}`,'PATCH',{description:'Unauthorized'},member.token,403);
     await request(`/events/${event.id}`,'PATCH',{title:''},admin.token,400);
+    // Both conversation types enforce comment ownership and preserve other comments.
+    for(const [kind,parent,feed] of [['posts',post.id,'/community-posts'],['events',event.id,'/community-events']]) {
+      const own=await request(`/${kind}/${parent}/comment`,'POST',{body:'My original comment'},member.token,201);
+      const other=await request(`/${kind}/${parent}/comment`,'POST',{body:'Another member comment'},admin.token,201);
+      const path=`/${kind}/${parent}/comments/${own.id}`;
+      const records=await request(feed,'GET',undefined,member.token);
+      assert.equal(records.find(item=>item.id===parent).comments.find(item=>item.id===own.id).user_id,member.user.id);
+      await request(path,'PATCH',{body:'Unauthorized'},undefined,401);
+      await request(path,'DELETE',undefined,undefined,401);
+      await request(path,'PATCH',{body:'Unauthorized'},admin.token,403);
+      await request(path,'DELETE',undefined,admin.token,403);
+      await request(`/${kind}/${parent}/comments/${other.id}`,'PATCH',{body:'Unauthorized'},member.token,403);
+      await request(`/${kind}/${parent+1000}/comments/${own.id}`,'PATCH',{body:'Wrong parent'},member.token,404);
+      await request(`/${kind}/${parent+1000}/comments/${own.id}`,'DELETE',undefined,member.token,404);
+      for(const body of ['', '   ', 'x'.repeat(501), 123, null])await request(path,'PATCH',{body},member.token,400);
+      const edited=await request(path,'PATCH',{body:'  Updated comment\nwith a second line.  ',user_id:admin.user.id},member.token);
+      assert.equal(edited.body,'Updated comment\nwith a second line.');
+      let comments=(await request(feed)).find(item=>item.id===parent).comments;
+      assert.equal(comments.find(item=>item.id===own.id).body,edited.body);
+      assert.equal(comments.find(item=>item.id===own.id).user_id,member.user.id);
+      await request(path,'DELETE',undefined,member.token);
+      comments=(await request(feed)).find(item=>item.id===parent).comments;
+      assert.ok(!comments.some(item=>item.id===own.id));
+      assert.equal(comments.find(item=>item.id===other.id).body,'Another member comment');
+      await request(path,'DELETE',undefined,member.token,404);
+      await request(path,'PATCH',{body:'Gone'},member.token,404);
+      await request(`/${kind}/${parent}/comments/${other.id}`,'DELETE',undefined,admin.token);
+    }
     // Inbox replies must reach the original sender and stay private to the recipient.
     await request(`/members/user-${member.user.id}/message`,'POST',{body:'Can you help?',member_name:'Test Member'},admin.token,201);
     const inbox = await request('/profile/social','GET',undefined,member.token);
@@ -119,11 +147,30 @@ test('free rewards and content edits', async () => {
     await request('/profile','PATCH',{...profile,occupation:'x'.repeat(101)},member.token,400);
     await request('/profile','PATCH',{...profile,occupation:123},member.token,400);
     assert.equal((await request('/profile','PATCH',{...profile,occupation:''},member.token)).user.occupation,'');
+    const image='data:image/png;base64,iVBORw0KGgo=';
+    const personalized=await request('/profile','PATCH',{...profile,profile_theme:'forest',cover_url:image,profile_gallery:[image]},member.token);
+    assert.equal(personalized.user.profile_theme,'forest');
+    assert.equal(personalized.user.cover_url,image);
+    assert.deepEqual(JSON.parse(personalized.user.profile_gallery),[image]);
+    const preserved=await request('/profile','PATCH',profile,member.token);
+    assert.equal(preserved.user.profile_theme,'forest');
+    assert.equal(preserved.user.cover_url,image);
+    await request('/profile','PATCH',{...profile,profile_theme:'invalid'},member.token,400);
+    await request('/profile','PATCH',{...profile,profile_gallery:Array(5).fill(image)},member.token,400);
+    await request('/profile','PATCH',{...profile,cover_url:'javascript:alert(1)'},member.token,400);
+    await request(`/members/user-${admin.user.id}/connect`,'POST',{member_name:'Admin'},member.token);
+    const network=await request('/profile/social','GET',undefined,member.token);
+    assert.ok(network.connections.some(person=>person.id===admin.user.id));
+    assert.ok((await request('/profile/social','GET',undefined,admin.token)).followers.some(person=>person.id===member.user.id));
+    assert.equal(typeof network.earnedPoints,'number');
+    await request(`/members/user-${admin.user.id}/connect`,'POST',{member_name:'Admin'},member.token);
+    assert.ok(!(await request('/profile/social','GET',undefined,member.token)).connections.some(person=>person.id===admin.user.id));
+
     // Point amounts are server-controlled and every new-user bonus is awarded once.
     const website=await request('/incentives/website','POST',{},member.token);
     assert.equal(website.awarded,true);assert.equal(website.user.points,25);
     assert.equal((await request('/incentives/website','POST',{},member.token)).awarded,false);
-    for(const [incentive_id,points] of [['business-visit',50],['purchase',100],['video',25],['vincent',75]]) {
+    for(const [incentive_id,points] of [['business-visit',50],['purchase',100],['vincent',75]]) {
       await request('/incentive-codes','POST',{incentive_id,label:'Test'},member.token,403);
       const code=await request('/incentive-codes','POST',{incentive_id,label:'Test'},admin.token,201);
       await request('/incentives/claim','POST',{code:code.code},undefined,401);
@@ -134,7 +181,7 @@ test('free rewards and content edits', async () => {
       const other=await request('/incentive-codes','POST',{incentive_id,label:'Other'},admin.token,201);
       await request('/incentives/claim','POST',{code:other.code},member.token,409);
     }
-    const disabled=await request('/incentive-codes','POST',{incentive_id:'video',label:'Inactive'},admin.token,201);
+    const disabled=await request('/incentive-codes','POST',{incentive_id:'business-visit',label:'Inactive'},admin.token,201);
     await request('/incentive-codes','PATCH',{id:disabled.id,active:false},admin.token);
     await request('/incentives/claim','POST',{code:disabled.code},member.token,404);
     await request('/incentive-codes','POST',{incentive_id:'registration',label:'Invalid'},admin.token,400);
@@ -142,6 +189,37 @@ test('free rewards and content edits', async () => {
     await request(`/events/${event.id}/attendance`,'POST',{code:'TEST'},member.token);
     assert.equal((await request('/auth/me','GET',undefined,member.token)).user.points,beforeAttendance+100);
     await request(`/events/${event.id}/attendance`,'POST',{code:'TEST'},member.token,409);
+    // Video upload is admin-only; completion is checked by the server and paid once per profile.
+    assert.equal((await request('/reward-video')).video,null);
+    await request('/reward-video/start','POST',{},undefined,401);
+    await request('/reward-video/start','POST',{},member.token,404);
+    const upload={title:'Meet Arlington',points:40,duration:2,video:'data:video/mp4;base64,AAAA'};
+    await request('/reward-video','POST',upload,member.token,403);
+    await request('/reward-video','POST',{...upload,points:0},admin.token,400);
+    await request('/reward-video','POST',{...upload,video:'data:text/html;base64,AAAA'},admin.token,400);
+    await request('/reward-video','POST',upload,admin.token);
+    assert.equal((await request('/reward-video')).video.title,upload.title);
+    assert.equal((await request('/incentives')).find(item=>item.id==='video').points,40);
+    await request('/incentive-codes','POST',{incentive_id:'video',label:'Bypass'},admin.token,400);
+    let viewing=await request('/reward-video/start','POST',{},member.token);
+    await request('/reward-video/progress','POST',{token:viewing.token,position:0,complete:true},member.token,409);
+    await request('/reward-video/progress','POST',{token:viewing.token,position:2,complete:true},member.token,409);
+    await request('/reward-video/progress','POST',{token:'invalid',position:0},member.token,409);
+    await request('/reward-video/progress','POST',{token:viewing.token,position:0},admin.token,409);
+    await request('/reward-video','POST',upload,admin.token);
+    await request('/reward-video/progress','POST',{token:viewing.token,position:0},member.token,409);
+    viewing=await request('/reward-video/start','POST',{},member.token);
+    const beforeVideo=(await request('/auth/me','GET',undefined,member.token)).user.points;
+    await new Promise(resolve=>setTimeout(resolve,2100));
+    const finished=await request('/reward-video/progress','POST',{token:viewing.token,position:2,complete:true,points:9999},member.token);
+    assert.equal(finished.awarded,true);
+    assert.equal(finished.user.points,beforeVideo+40);
+    assert.equal((await request('/reward-video','GET',undefined,member.token)).claimed,true);
+    await request('/reward-video/progress','POST',{token:viewing.token,position:2,complete:true},member.token,409);
+    await request('/reward-video/start','POST',{},member.token,409);
+    await request('/reward-video','POST',{...upload,points:90},admin.token);
+    await request('/reward-video/start','POST',{},member.token,409);
+    assert.equal((await request('/auth/me','GET',undefined,member.token)).user.points,beforeVideo+40);
     const incentiveStatus=await request('/incentives','GET',undefined,member.token);
     assert.equal(incentiveStatus.length,7);assert.ok(incentiveStatus.every(item=>item.claimed));
     const textDefaults=JSON.parse(readFileSync(new URL('./siteText.json',import.meta.url),'utf8'));

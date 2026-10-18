@@ -24,6 +24,9 @@ db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_company_spotlight ON companies(ca
 const userColumns = new Set(db.prepare('PRAGMA table_info(users)').all().map((column) => column.name));
 if (!userColumns.has('occupation')) db.exec("ALTER TABLE users ADD COLUMN occupation TEXT NOT NULL DEFAULT ''");
 if (!userColumns.has('sponsor_badge')) db.exec('ALTER TABLE users ADD COLUMN sponsor_badge INTEGER NOT NULL DEFAULT 0');
+for (const [column, fallback] of [['profile_theme','ocean'],['cover_url',''],['profile_gallery','[]']]) {
+  if (!userColumns.has(column)) db.exec(`ALTER TABLE users ADD COLUMN ${column} TEXT NOT NULL DEFAULT '${fallback}'`);
+}
 const rewardColumns = new Set(db.prepare('PRAGMA table_info(rewards)').all().map((column) => column.name));
 if (!rewardColumns.has('image_url')) db.exec('ALTER TABLE rewards ADD COLUMN image_url TEXT');
 if (!rewardColumns.has('sponsor_name')) db.exec("ALTER TABLE rewards ADD COLUMN sponsor_name TEXT NOT NULL DEFAULT 'Impact Arlington'");

@@ -25,3 +25,18 @@ export async function persistImage(value, folder) {
   if (!response.ok || !result.secure_url) throw new Error(result.error?.message || 'Image upload failed.');
   return result.secure_url;
 }
+
+export async function persistVideo(value, duration) {
+  if (!cloudName || !uploadPreset) {
+    if (process.env.NODE_ENV === 'production') throw new Error('Video storage requires CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET.');
+    return { url:value, duration };
+  }
+  const form = new FormData();
+  form.append('file',value);
+  form.append('upload_preset',uploadPreset);
+  form.append('folder','impact-arlington/reward-videos');
+  const response=await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/video/upload`,{method:'POST',body:form});
+  const result=await response.json();
+  if(!response.ok || !result.secure_url || !Number.isFinite(result.duration) || result.duration<=0) throw new Error(result.error?.message || 'Video upload failed.');
+  return { url:result.secure_url, duration:result.duration };
+}

@@ -146,3 +146,33 @@ CREATE TABLE IF NOT EXISTS incentive_claims (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id,incentive_id)
 );
+
+CREATE TABLE IF NOT EXISTS reward_video (
+  id INTEGER PRIMARY KEY CHECK(id=1),
+  version TEXT NOT NULL,
+  title TEXT NOT NULL,
+  video_url TEXT NOT NULL,
+  duration REAL NOT NULL,
+  points INTEGER NOT NULL CHECK(points BETWEEN 1 AND 10000)
+);
+CREATE TABLE IF NOT EXISTS reward_video_sessions (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  token TEXT NOT NULL,
+  version TEXT NOT NULL,
+  started_at REAL NOT NULL,
+  last_at REAL NOT NULL,
+  position REAL NOT NULL DEFAULT 0,
+  watched REAL NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  token_hash TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets(user_id);
+CREATE TABLE IF NOT EXISTS auth_rate_limits (
+  key TEXT PRIMARY KEY,
+  window_start INTEGER NOT NULL,
+  attempts INTEGER NOT NULL
+);

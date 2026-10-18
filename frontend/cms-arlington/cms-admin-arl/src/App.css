@@ -1690,17 +1690,17 @@ body{
 .notificationToasts p { margin: 0 0 .5rem; }
 @media (max-width: 760px) { .notificationPanel ~ .notificationToasts { right: 0; } .notificationCenter:has(.notificationPanel) .notificationToasts { display: none; } }
 
-/* Soft grey surfaces and sky-blue accents, toggled by the navigation logo. */
+/* Original dark palette, toggled by the navigation logo. */
 :root.darkMode {
-  color-scheme: light;
-  --bg: #e9eef2;
-  --text: #465968;
-  --text-h: #243e50;
-  --border: #c4d3de;
-  --brand-blue: #87c5e5;
-  --brand-blue-dark: #286588;
-  --brand-soft: #dcecf5;
-  background: #dfe7ed;
+  color-scheme: dark;
+  --bg: #1e293b;
+  --text: #cbd5e1;
+  --text-h: #f1f5f9;
+  --border: #475569;
+  --brand-blue: #60a5fa;
+  --brand-blue-dark: #93c5fd;
+  --brand-soft: #283b53;
+  background: #182231;
   color: var(--text);
 }
 .darkMode body, .darkMode #root { background: var(--bg); color: var(--text); }
@@ -1712,19 +1712,19 @@ body{
 }
 .darkMode :is(h1,h2,h3,h4,h5,h6,strong,label,th) { color: var(--text-h); }
 .darkMode :is(p,small,.eyebrow,.sectionKicker,.directoryKicker,.heroDescription,.heroFootnote,.valuesStrip>span,.categorySelect,.profileOccupation,.memOccupation) { color: var(--text); }
-.darkMode :is(input,textarea,select) { background: #f2f5f7; color: var(--text-h); border-color: var(--border); }
-.darkMode :is(input,textarea)::placeholder { color: #607789; opacity: 1; }
+.darkMode :is(input,textarea,select) { background: #172334; color: var(--text-h); border-color: var(--border); }
+.darkMode :is(input,textarea)::placeholder { color: #94a3b8; opacity: 1; }
 .darkMode :is(.primaryNav button,.siteFooter button,.textButton,.secondaryButton,.rewardsNavButton,.eventActions button,.businessCardActions a) { color: var(--brand-blue-dark); border-color: var(--border); }
 .darkMode :is(.secondaryButton,.rewardsNavButton,.eventActions button,.businessCardActions a) { background: var(--brand-soft); }
-.darkMode :is(.primaryButton,.profileButton,.eventCreateButton,.businessSiteButton) { background: #32779e; border-color: #32779e; color: #fff; }
-.darkMode :is(.primaryButton,.profileButton,.eventCreateButton):hover { background: #286588; }
+.darkMode :is(.primaryButton,.profileButton,.eventCreateButton,.businessSiteButton) { background: #2563eb; border-color: #60a5fa; color: #fff; }
+.darkMode :is(.primaryButton,.profileButton,.eventCreateButton):hover { background: #1d4ed8; }
 .darkMode :is(.primaryNav button:hover,.primaryNav button[aria-current="page"],a,.sectionHeading h2 em,.directoryHero h1 span,.eventsHero h1 span) { color: var(--brand-blue-dark); }
 .darkMode :is(.editorModal .feedComposer,.editorModal .eventCreatePanel,.editorModal .createPanel,.editorModal .formActions) { background: var(--bg); }
-.darkMode :is(.profileSectionHeading>span,.businessMonogram,.profileButtonAvatar) { background: #c7e1ef; color: #285b78; }
+.darkMode :is(.profileSectionHeading>span,.businessMonogram,.profileButtonAvatar) { background: #334e70; color: #dbeafe; }
 .darkMode :is(table,td,th,.profileEventSection,.valuesStrip,.pathCard,.businessContact,.businessCardActions) { border-color: var(--border); }
 .darkMode .brand { background: #f1f5f9; border-radius: 8px; padding: 6px 10px; }
-.darkMode :is(button,a,input,textarea,select):focus-visible { outline-color: #32779e; }
-.darkMode ::selection { background: #b7daed; color: #243e50; }
+.darkMode :is(button,a,input,textarea,select):focus-visible { outline-color: #93c5fd; }
+.darkMode ::selection { background: #2563eb; color: white; }
 .darkMode :is(.joinMajor.contentActive,.memberActionModal,.memberMaster,.ruleCard,.visionStep,.eventsToolbar,.rewardItem,.adminTable,.adminTableWrap) { background: var(--bg); color: var(--text); border-color: var(--border); }
 .darkMode :is(.membersHero,.visionHero,.rulesIntro,.feedHero,.adImg,.eventFilters button.active,.authTabs button.active) { background: var(--brand-soft); color: var(--text-h); }
 .darkMode :is(.eventsHeroCopy>p:not(.eventsEyebrow),.eventsHeroStats span,.directoryStats span,.feedHero>div>span,.eventCardBody p,.pathCard>p,.businessCardContent>p,.spotlightBusiness>small,.savedEventList small,.profileTicket small) { color: var(--text); }

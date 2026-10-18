@@ -19,7 +19,7 @@ function App() {
   });
   useEffect(() => {
     document.documentElement.classList.toggle("darkMode", darkMode);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", darkMode ? "#e9eef2" : "#ffffff");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", darkMode ? "#1e293b" : "#ffffff");
     try { localStorage.setItem("impact_darkMode", String(darkMode)); } catch { /* Theme works when storage is unavailable. */ }
   }, [darkMode]);
   const [currentComponent, setCurrentComponent] = useState("Homepage")

@@ -38,7 +38,7 @@ export default function RewardVideo({user,onAuthChange,onSignIn,onEarned}) {
     try{const result=await api('/reward-video/start',{method:'POST'});if(result.version!==state.video.version){setState(await api('/reward-video'));throw new Error('A new video is available. Start again to watch it.');}videoRef.current.pause();validPosition.current=0;videoRef.current.currentTime=0;setSession(result);}
     catch(err){setError(err.message);}finally{setBusy(false);}
   };
-  return <section className="rewardVideo" aria-labelledby="reward-video-title"><div><p className="eyebrow">WATCH & EARN</p><h4 id="reward-video-title">{state?.video?.title || 'Community video'}</h4><p>Watch from start to finish at normal speed to earn {state?.video?.points || 25} points. One video bonus per profile.</p></div>
+  return <section className="rewardVideo" aria-labelledby="reward-video-title"><div><p className="eyebrow">WATCH & EARN</p><h4 id="reward-video-title">{state?.video?.title || 'Community video'}</h4><p>Watch from start to finish at normal speed to earn {state?.video?.points || 12} points. One video bonus per profile.</p></div>
     {state?.video?<><video key={state.video.version} ref={videoRef} src={state.video.video_url} controls={Boolean(session)||state.claimed} preload="metadata" playsInline controlsList="nodownload noplaybackrate" disablePictureInPicture
       onPlay={event=>{if(!session&&!state.claimed)event.currentTarget.pause();}}
       onTimeUpdate={event=>{if(!event.currentTarget.seeking)validPosition.current=event.currentTarget.currentTime;}}

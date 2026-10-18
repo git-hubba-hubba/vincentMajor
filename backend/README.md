@@ -27,3 +27,72 @@ after a successful reset. Password resets invalidate all of the account’s sess
 and other outstanding reset links. Requests are limited per email and IP address.
 Links carry the token in the URL fragment so it is not sent in HTTP requests or
 referrer headers. A completed reset returns to sign-in.
+
+## Store and Stripe Checkout
+
+Admins manage products and orders in **Admin → Products & orders**. The **Store**
+navigation item is the public catalog. Purchases require a signed-in account.
+Products are priced in USD, with a $0.50 minimum, up to 10 units per checkout.
+Archiving removes a product from sale without deleting order history. Products
+have unlimited inventory; add only products that can be fulfilled. Shipping items
+collect a US address; include shipping costs in the price and describe fulfillment
+in the product description. Tax calculation, stock tracking, refunds, and shipping
+labels are not automated by this implementation. Refunds can be managed in Stripe.
+
+Configure these **backend-only** environment variables and restart the server:
+
+```dotenv
+STRIPE_SECRET_KEY=sk_test_replace_with_your_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_replace_with_your_endpoint_signing_secret
+STORE_URL=https://your-frontend.example
+```
+
+Use sandbox/test keys first. `STORE_URL` falls back to the first `CLIENT_ORIGIN`
+entry; production requires HTTPS. Never put secret keys in `VITE_*` variables or
+commit `.env`. Hosted Checkout redirects to the URL created by the server, so a
+frontend publishable key is not required. The official Stripe Node SDK handles
+Checkout and webhook signature verification.
+
+Create a Stripe webhook destination pointing to:
+
+```
+https://your-backend.example/api/stripe/webhook
+```
+
+Subscribe to `checkout.session.completed`, `checkout.session.expired`,
+`checkout.session.async_payment_succeeded`, and `checkout.session.async_payment_failed`.
+Copy that endpoint's signing secret into `STRIPE_WEBHOOK_SECRET`. Checkout stays
+disabled until both secrets are set. The server verifies the raw request body,
+checks the order's session, amount and currency, and records payment once. A
+success-page visit alone never marks an order paid. Only paid orders can be marked
+fulfilled by an administrator. Customer order histories are scoped to their account.
+
+For local testing with the Stripe CLI:
+
+```bash
+stripe listen --forward-to localhost:4000/api/stripe/webhook
+```
+
+Use the signing secret printed by that command for local testing, set
+`STORE_URL=http://localhost:5173`, and complete a test-mode purchase from the Store.
+Confirm the order becomes paid once and appears in the admin order list. Test
+cancellation and webhook retries before switching to live credentials. Configure
+a separate live webhook destination and live signing secret when going live.
+
+Official references: [Checkout Sessions](https://docs.stripe.com/api/checkout/sessions/create),
+[fulfilling orders](https://docs.stripe.com/checkout/fulfillment), and
+[webhook signatures](https://docs.stripe.com/events/manage-webhook-endpoints#signature-errors).
+
+Run the isolated mock Stripe integration tests with `node --test store.test.js`.
+These tests do not charge cards or call Stripe's live service.
+
+## Reduced point awards
+
+New registration and the default event award are 50 points. Website visits and
+video defaults are 12, business visits 25, purchases 50, and finding Vincent stays at 75.
+Odd values round down. On the first backend start after this update, a versioned
+migration halves existing event awards and the published video award once. A
+video configured for 1 point remains at the 1-point minimum. Administrators can
+still set custom event and video awards. Existing account balances, incentive
+claims, reward costs, and badge thresholds are preserved. Past event attendance
+stores its original award so historical points and badges remain accurate.

@@ -1,6 +1,6 @@
 import SiteText from "./SiteText";
 function Nav({ currentComponent, setCurrentComponent, user, onProfileClick, onRewardsClick, darkMode, onToggleDarkMode }) {
-  const links = [["Homepage", "Home"], ["Community", "Community"], ["Directory", "Directory"], ["Events", "Events"], ["Members", "Members"]];
+  const links = [["Homepage", "Home"], ["Community", "Community"], ["Directory", "Directory"], ["Events", "Events"], ["Members", "Members"], ["Store", "Store"]];
   return <header className="siteHeader">
     <a className="skipLink" href="#main-content"><SiteText contentKey="Nav.ac576a66d456">{"Skip to content"}</SiteText></a>
     <button className="brand" type="button" onClick={onToggleDarkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} aria-pressed={darkMode} title={darkMode ? "Switch to light mode" : "Switch to dark mode"}><img className="brandLogo" src="/images/impact-official-logo.png" alt="IMPACT — Walk With Us" width="2062" height="778" /></button>

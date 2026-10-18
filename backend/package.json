@@ -10,5 +10,10 @@
     "backup": "node --env-file-if-exists=.env backup-db.js",
     "delete-non-admin-members": "node --env-file-if-exists=.env delete-non-admin-members.js"
   },
-  "engines": { "node": ">=22.5" }
+  "engines": {
+    "node": ">=22.5"
+  },
+  "dependencies": {
+    "stripe": "^23.0.0"
+  }
 }

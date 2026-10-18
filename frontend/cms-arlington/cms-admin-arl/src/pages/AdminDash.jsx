@@ -1,3 +1,4 @@
+import StoreAdmin from '../components/StoreAdmin'
 import Namespace from '../components/Namespace'
 import AdminCMS from '../components/AdminCMS'
 import SiteTextAdmin from '../components/SiteTextAdmin'
@@ -9,6 +10,7 @@ function AdminDash({ user }) {
     <img src="/images/adminDash.png" alt="" className="adImg" />
     <Namespace title={"Admin Dashboard"}/>
     <AdminCMS user={user} />
+    {user?.role==="admin"&&<StoreAdmin />}
     {user?.role==="admin"&&<IncentiveAdmin />}
     {user?.role==="admin"&&<SiteTextAdmin user={user} />}
     

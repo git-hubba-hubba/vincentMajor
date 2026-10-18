@@ -1,3 +1,4 @@
+import { applyReducedPointAwards } from './points-policy.js';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +15,7 @@ db.exec(readFileSync(join(here, 'schema.sql'), 'utf8'));
 const eventColumns = new Set(db.prepare('PRAGMA table_info(events)').all().map((column) => column.name));
 if (!eventColumns.has('category')) db.exec("ALTER TABLE events ADD COLUMN category TEXT NOT NULL DEFAULT 'Community'");
 if (!eventColumns.has('image_url')) db.exec('ALTER TABLE events ADD COLUMN image_url TEXT');
-if (!eventColumns.has('points_awarded')) db.exec('ALTER TABLE events ADD COLUMN points_awarded INTEGER NOT NULL DEFAULT 100');
+if (!eventColumns.has('points_awarded')) db.exec('ALTER TABLE events ADD COLUMN points_awarded INTEGER NOT NULL DEFAULT 50');
 const companyColumns = new Set(db.prepare('PRAGMA table_info(companies)').all().map((column) => column.name));
 if (!companyColumns.has('spotlight_position')) db.exec('ALTER TABLE companies ADD COLUMN spotlight_position INTEGER CHECK(spotlight_position BETWEEN 1 AND 5)');
 if (!companyColumns.has('verified')) db.exec('ALTER TABLE companies ADD COLUMN verified INTEGER NOT NULL DEFAULT 0');
@@ -44,6 +45,10 @@ export function hashPassword(password) {
   return `${salt}:${scryptSync(password, salt, 64).toString('hex')}`;
 }
 
+const registrationColumns=new Set(db.prepare('PRAGMA table_info(event_registrations)').all().map(column=>column.name));
+if(!registrationColumns.has('points_earned'))db.exec('ALTER TABLE event_registrations ADD COLUMN points_earned INTEGER');
+applyReducedPointAwards(db);
+
 const isProduction = process.env.NODE_ENV === 'production';
 const adminEmail = process.env.ADMIN_EMAIL || (isProduction ? '' : 'admin@impactarlington.org');
 const adminPassword = process.env.ADMIN_PASSWORD || (isProduction ? '' : 'ImpactAdmin123!');
@@ -68,7 +73,7 @@ if (shouldSeedDemo && db.prepare('SELECT COUNT(*) count FROM events').get().coun
     ['Neighbors Who Serve Day','Team up for park cleanup, care-kit assembly, and nonprofit projects. Supplies, lunch, and good energy are provided.','Volunteer','https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&auto=format&fit=crop','Bob Cooke Park','2026-09-12T09:00:00','2026-09-12T13:00:00',200,'SERVE50',175,'approved',0],
     ['Family Game Night Under the Stars','Challenge friends to giant games, trivia, and family competitions with prizes and a movie finale after sunset.','Family','https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&auto=format&fit=crop','Tierra Verde Golf Club Lawn','2026-09-19T17:30:00','2026-09-19T21:00:00',250,'PLAY2026',100,'approved',0]
   ];
-  for (const event of demoEvents) addEvent.run(admin.id,...event);
+  for (const event of demoEvents) {event[9]=Math.floor(event[9]/2);addEvent.run(admin.id,...event);}
 }
 
 const demoCompanies = [

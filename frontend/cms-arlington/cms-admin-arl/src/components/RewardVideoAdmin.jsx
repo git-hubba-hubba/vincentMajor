@@ -5,7 +5,7 @@ export default function RewardVideoAdmin() {
   const [current,setCurrent]=useState(null);
   const [file,setFile]=useState(null);
   const [title,setTitle]=useState('');
-  const [points,setPoints]=useState(25);
+  const [points,setPoints]=useState(12);
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
   const [notice,setNotice]=useState('');

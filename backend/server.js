@@ -8,6 +8,7 @@ import { parseAllowedOrigins } from './cors.js';
 import { incentives } from './incentives.js';
 import { handleRewardVideo } from './reward-video.js';
 import { handlePasswordReset } from './password-reset.js';
+import { handleStore } from './store.js';
 
 const PORT = Number(process.env.PORT || 4000);
 const siteTextKeys = new Set(JSON.parse(readFileSync(new URL('./siteText.json',import.meta.url),'utf8')).map(entry=>entry.key));
@@ -58,6 +59,7 @@ const server = http.createServer(async (req,res) => {
   if (req.method === 'OPTIONS') return send(res,204,{});
   const url = new URL(req.url, `http://${req.headers.host}`); const path = url.pathname; const user = auth(req);
   try {
+    if(await handleStore(req,res,path,user,{send,body})) return;
     if(path==='/api/site-text' && req.method==='GET') {
       return send(res,200,Object.fromEntries(db.prepare('SELECT key,value FROM site_text').all().filter(row=>siteTextKeys.has(row.key)).map(row=>[row.key,row.value])));
     }
@@ -101,10 +103,10 @@ const server = http.createServer(async (req,res) => {
       const passwordHash=hashPassword(data.password); let userId;
       db.exec('BEGIN IMMEDIATE');
       try {
-        const result=db.prepare('INSERT INTO users(first_name,last_name,email,password_hash,points) VALUES(?,?,?,?,100)').run(data.firstName.trim(),data.lastName.trim(),data.email.trim().toLowerCase(),passwordHash);
+        const result=db.prepare('INSERT INTO users(first_name,last_name,email,password_hash,points) VALUES(?,?,?,?,50)').run(data.firstName.trim(),data.lastName.trim(),data.email.trim().toLowerCase(),passwordHash);
         userId=Number(result.lastInsertRowid);
-        db.prepare('INSERT INTO incentive_claims(user_id,incentive_id,points_awarded) VALUES(?,?,100)').run(userId,'registration');
-        db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(userId,'reward','Welcome! You earned 100 points for registering on the site.');
+        db.prepare('INSERT INTO incentive_claims(user_id,incentive_id,points_awarded) VALUES(?,?,50)').run(userId,'registration');
+        db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(userId,'reward','Welcome! You earned 50 points for registering on the site.');
         log(userId,'registered','user',userId);db.exec('COMMIT');
       } catch(error) {db.exec('ROLLBACK');throw error;}
       return createSession(res,userId);
@@ -127,9 +129,9 @@ const server = http.createServer(async (req,res) => {
       if(!user) return send(res,401,{error:'Sign in to earn website visit points.'});
       db.exec('BEGIN IMMEDIATE');let awarded=false;
       try {
-        const result=db.prepare("INSERT OR IGNORE INTO incentive_claims(user_id,incentive_id,points_awarded) VALUES(?,'website',25)").run(user.id);
+        const result=db.prepare("INSERT OR IGNORE INTO incentive_claims(user_id,incentive_id,points_awarded) VALUES(?,'website',12)").run(user.id);
         awarded=Boolean(result.changes);
-        if(awarded){db.prepare('UPDATE users SET points=points+25,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(user.id);db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(user.id,'reward','You earned 25 points for visiting the website.');log(user.id,'earned incentive','website',null,'25 points');}
+        if(awarded){db.prepare('UPDATE users SET points=points+12,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(user.id);db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(user.id,'reward','You earned 12 points for visiting the website.');log(user.id,'earned incentive','website',null,'12 points');}
         db.exec('COMMIT');
       } catch(error){db.exec('ROLLBACK');throw error;}
       return send(res,200,{awarded,user:db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id)});
@@ -216,7 +218,7 @@ const server = http.createServer(async (req,res) => {
     if (path === '/api/profile/events' && req.method === 'GET') {
       if (!user) return send(res,401,{error:'Sign in first.'});
       const saved=db.prepare(`SELECT events.id,events.title,events.starts_at,events.location FROM saved_events JOIN events ON events.id=saved_events.event_id WHERE saved_events.user_id=? ORDER BY events.starts_at`).all(user.id);
-      const attended=db.prepare(`SELECT events.id,events.title,events.starts_at,events.points_awarded FROM event_registrations JOIN events ON events.id=event_registrations.event_id WHERE event_registrations.user_id=? AND event_registrations.attended=1 ORDER BY events.starts_at DESC`).all(user.id);
+      const attended=db.prepare(`SELECT events.id,events.title,events.starts_at,COALESCE(event_registrations.points_earned,events.points_awarded) points_awarded FROM event_registrations JOIN events ON events.id=event_registrations.event_id WHERE event_registrations.user_id=? AND event_registrations.attended=1 ORDER BY events.starts_at DESC`).all(user.id);
       return send(res,200,{saved,attended});
     }
     if (path === '/api/community-events' && req.method === 'GET') {
@@ -227,8 +229,9 @@ const server = http.createServer(async (req,res) => {
         EXISTS(SELECT 1 FROM event_registrations WHERE event_id=events.id AND user_id=?) registered,
         EXISTS(SELECT 1 FROM saved_events WHERE event_id=events.id AND user_id=?) saved,
         EXISTS(SELECT 1 FROM event_likes WHERE event_id=events.id AND user_id=?) liked,
-        EXISTS(SELECT 1 FROM event_registrations WHERE event_id=events.id AND user_id=? AND attended=1) attended
-        FROM events WHERE status='approved' ORDER BY featured DESC,starts_at`).all(viewer,viewer,viewer,viewer);
+        EXISTS(SELECT 1 FROM event_registrations WHERE event_id=events.id AND user_id=? AND attended=1) attended,
+        (SELECT points_earned FROM event_registrations WHERE event_id=events.id AND user_id=? AND attended=1) earned_points
+        FROM events WHERE status='approved' ORDER BY featured DESC,starts_at`).all(viewer,viewer,viewer,viewer,viewer);
       const comments=db.prepare(`SELECT event_comments.id,event_comments.user_id,event_comments.body,event_comments.created_at,users.first_name,users.last_name,users.avatar_url FROM event_comments JOIN users ON users.id=event_comments.user_id WHERE event_comments.event_id=? ORDER BY event_comments.id DESC LIMIT 6`);
       return send(res,200,events.map((event)=>({...event,comments:comments.all(event.id)})));
     }
@@ -238,7 +241,7 @@ const server = http.createServer(async (req,res) => {
       const data=await body(req); if(!data.title || !data.description || !data.location || !data.starts_at) return send(res,400,{error:'Title, description, location, and start date are required.'});
       const status=['admin','board'].includes(user.role)?'approved':'pending'; const code=String(data.attendance_code||randomBytes(4).toString('hex')).trim().toUpperCase(); let image=String(data.image_url||'');
       if(image.startsWith('data:')) image=await persistImage(image,'impact-arlington/events');
-      const result=db.prepare(`INSERT INTO events(creator_id,title,description,category,image_url,location,starts_at,ends_at,capacity,attendance_code,points_awarded,status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).run(user.id,data.title,data.description,data.category||'Community',image,data.location,data.starts_at,data.ends_at||null,data.capacity||null,code,Number(data.points_awarded)||100,status);
+      const result=db.prepare(`INSERT INTO events(creator_id,title,description,category,image_url,location,starts_at,ends_at,capacity,attendance_code,points_awarded,status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).run(user.id,data.title,data.description,data.category||'Community',image,data.location,data.starts_at,data.ends_at||null,data.capacity||null,code,Number(data.points_awarded)||50,status);
       if(status==='approved')notifyEvent(Number(result.lastInsertRowid));
       log(user.id,'created','event',Number(result.lastInsertRowid),status); return send(res,201,{id:Number(result.lastInsertRowid),status,attendance_code:code});
     }
@@ -262,7 +265,7 @@ const server = http.createServer(async (req,res) => {
       const followerCount=db.prepare(`SELECT COUNT(*) total FROM member_connections JOIN users ON users.id=user_id WHERE member_ref=? AND users.status='active'`).get(`user-${id}`).total;
       const events=db.prepare(`SELECT events.id,events.title,events.starts_at,events.location,event_registrations.attended FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND events.status='approved' AND (attended=1 OR datetime(events.starts_at)>=datetime('now')) ORDER BY attended ASC,events.starts_at DESC LIMIT 3`).all(id);
       const earned=db.prepare('SELECT COALESCE(SUM(points_awarded),0) total FROM incentive_claims WHERE user_id=?').get(id).total;
-      const attendance=db.prepare('SELECT COALESCE(SUM(events.points_awarded),0) total FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND attended=1').get(id).total;
+      const attendance=db.prepare('SELECT COALESCE(SUM(COALESCE(event_registrations.points_earned,events.points_awarded)),0) total FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND attended=1').get(id).total;
       return send(res,200,{member,connections,connectionCount,followerCount,events,earnedPoints:earned+attendance});
     }
     const notificationRoute=path.match(/^\/api\/notifications(?:\/(\d+))?$/);
@@ -290,7 +293,7 @@ const server = http.createServer(async (req,res) => {
       const connections=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url FROM member_connections JOIN users ON member_connections.member_ref='user-'||users.id WHERE member_connections.user_id=? AND users.status='active'`).all(user.id);
       const followers=db.prepare(`SELECT users.id,users.first_name,users.last_name,users.avatar_url FROM member_connections JOIN users ON users.id=member_connections.user_id WHERE member_connections.member_ref=? AND users.status='active'`).all(`user-${user.id}`);
       const earned=db.prepare('SELECT COALESCE(SUM(points_awarded),0) total FROM incentive_claims WHERE user_id=?').get(user.id).total;
-      const attendance=db.prepare('SELECT COALESCE(SUM(events.points_awarded),0) total FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND attended=1').get(user.id).total;
+      const attendance=db.prepare('SELECT COALESCE(SUM(COALESCE(event_registrations.points_earned,events.points_awarded)),0) total FROM event_registrations JOIN events ON events.id=event_id WHERE user_id=? AND attended=1').get(user.id).total;
       return send(res,200,{invitations,messages,connections,followers,earnedPoints:earned+attendance});
     }
     const messageReply=path.match(/^\/api\/messages\/(\d+)\/reply$/);
@@ -426,7 +429,7 @@ const server = http.createServer(async (req,res) => {
         const prior=db.prepare('SELECT attended FROM event_registrations WHERE user_id=? AND event_id=?').get(user.id,eventId); if(prior?.attended) return send(res,409,{error:'You already earned points for this event.'});
         db.exec('BEGIN');
         try {
-          db.prepare(`INSERT INTO event_registrations(user_id,event_id,attended) VALUES(?,?,1) ON CONFLICT(user_id,event_id) DO UPDATE SET attended=1`).run(user.id,eventId);
+          db.prepare(`INSERT INTO event_registrations(user_id,event_id,attended,points_earned) VALUES(?,?,1,?) ON CONFLICT(user_id,event_id) DO UPDATE SET attended=1,points_earned=excluded.points_earned`).run(user.id,eventId,event.points_awarded);
           db.prepare('UPDATE users SET points=points+?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(event.points_awarded,user.id);
           db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(user.id,'reward',`You earned ${event.points_awarded} points at ${event.title}.`);
           log(user.id,'attended','event',eventId,`${event.points_awarded} points`); db.exec('COMMIT');
@@ -451,7 +454,7 @@ const server = http.createServer(async (req,res) => {
         const result=id?db.prepare(query).get(Number(id)):db.prepare(query).all(); return result ? send(res,200,result) : send(res,404,{error:'Not found.'});
       }
       if (!user || !['admin','board'].includes(user.role)) return send(res,403,{error:'Admin access required.'});
-      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'}); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'}); if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); if(table==='events')notifyEvent(Number(result.lastInsertRowid)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
+      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='events' && data.points_awarded===undefined)data.points_awarded=50; if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'}); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'}); if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); if(table==='events')notifyEvent(Number(result.lastInsertRowid)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
       if (req.method === 'PATCH' && id) {
         if (table === 'posts' && !db.prepare('SELECT id FROM posts WHERE id=?').get(Number(id))) return send(res,404,{error:'Post not found.'});
         const previousEvent=table==='events'?db.prepare('SELECT status FROM events WHERE id=?').get(Number(id)):null;

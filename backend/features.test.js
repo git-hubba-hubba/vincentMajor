@@ -36,9 +36,9 @@ test('free rewards and content edits', async () => {
     };
     const admin = await request('/auth/login','POST',{email:'test@example.com',password:'TestPassword123!'});
     const member = await request('/auth/register','POST',{firstName:'Test',lastName:'Member',email:'member@example.com',password:'TestPassword123!'},undefined,200);
-    assert.equal(member.user.points,100);
-    assert.equal((await request('/auth/login','POST',{email:'member@example.com',password:'TestPassword123!'})).user.points,100);
-    const welcomeReward=await request('/rewards','POST',{name:'Welcome purchase',description:'Spend registration points',points_cost:100,inventory:1},admin.token,201);
+    assert.equal(member.user.points,50);
+    assert.equal((await request('/auth/login','POST',{email:'member@example.com',password:'TestPassword123!'})).user.points,50);
+    const welcomeReward=await request('/rewards','POST',{name:'Welcome purchase',description:'Spend registration points',points_cost:50,inventory:1},admin.token,201);
     await request(`/rewards/${welcomeReward.id}/redeem`,'POST',{},member.token);
     const reward = await request('/rewards','POST',{name:'Free perk',description:'No points needed',points_cost:0,inventory:2},admin.token,201);
     const claimed = await request(`/rewards/${reward.id}/redeem`,'POST',{},member.token);
@@ -176,9 +176,9 @@ test('free rewards and content edits', async () => {
 
     // Point amounts are server-controlled and every new-user bonus is awarded once.
     const website=await request('/incentives/website','POST',{},member.token);
-    assert.equal(website.awarded,true);assert.equal(website.user.points,25);
+    assert.equal(website.awarded,true);assert.equal(website.user.points,12);
     assert.equal((await request('/incentives/website','POST',{},member.token)).awarded,false);
-    for(const [incentive_id,points] of [['business-visit',50],['purchase',100],['vincent',75]]) {
+    for(const [incentive_id,points] of [['business-visit',25],['purchase',50],['vincent',75]]) {
       await request('/incentive-codes','POST',{incentive_id,label:'Test'},member.token,403);
       const code=await request('/incentive-codes','POST',{incentive_id,label:'Test'},admin.token,201);
       await request('/incentives/claim','POST',{code:code.code},undefined,401);
@@ -195,7 +195,7 @@ test('free rewards and content edits', async () => {
     await request('/incentive-codes','POST',{incentive_id:'registration',label:'Invalid'},admin.token,400);
     const beforeAttendance=(await request('/auth/me','GET',undefined,member.token)).user.points;
     await request(`/events/${event.id}/attendance`,'POST',{code:'TEST'},member.token);
-    assert.equal((await request('/auth/me','GET',undefined,member.token)).user.points,beforeAttendance+100);
+    assert.equal((await request('/auth/me','GET',undefined,member.token)).user.points,beforeAttendance+50);
     await request(`/events/${event.id}/attendance`,'POST',{code:'TEST'},member.token,409);
     // Video upload is admin-only; completion is checked by the server and paid once per profile.
     assert.equal((await request('/reward-video')).video,null);

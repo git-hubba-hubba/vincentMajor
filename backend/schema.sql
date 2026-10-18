@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS events (
   ends_at TEXT,
   capacity INTEGER,
   attendance_code TEXT UNIQUE,
-  points_awarded INTEGER NOT NULL DEFAULT 100,
+  points_awarded INTEGER NOT NULL DEFAULT 50,
   status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('draft','pending','approved','denied','cancelled')),
   featured INTEGER NOT NULL DEFAULT 0,
   admin_feedback TEXT DEFAULT '',
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS rewards (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS event_registrations (user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, event_id INTEGER REFERENCES events(id) ON DELETE CASCADE, attended INTEGER NOT NULL DEFAULT 0, registered_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id,event_id));
+CREATE TABLE IF NOT EXISTS event_registrations (user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, event_id INTEGER REFERENCES events(id) ON DELETE CASCADE, attended INTEGER NOT NULL DEFAULT 0, points_earned INTEGER, registered_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id,event_id));
 CREATE TABLE IF NOT EXISTS saved_events (user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, event_id INTEGER REFERENCES events(id) ON DELETE CASCADE, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id,event_id));
 CREATE TABLE IF NOT EXISTS member_connections (user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, member_ref TEXT NOT NULL, member_name TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id,member_ref));
 CREATE TABLE IF NOT EXISTS event_invitations (id INTEGER PRIMARY KEY AUTOINCREMENT, sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, recipient_id INTEGER REFERENCES users(id) ON DELETE CASCADE, member_ref TEXT NOT NULL, member_name TEXT NOT NULL, event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(sender_id,member_ref,event_id));
@@ -176,3 +176,35 @@ CREATE TABLE IF NOT EXISTS auth_rate_limits (
   window_start INTEGER NOT NULL,
   attempts INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS store_products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  image_url TEXT NOT NULL DEFAULT '',
+  price_cents INTEGER NOT NULL CHECK(price_cents>=50),
+  active INTEGER NOT NULL DEFAULT 1,
+  requires_shipping INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS store_orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  product_id INTEGER NOT NULL REFERENCES store_products(id),
+  product_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  unit_price INTEGER NOT NULL,
+  total_cents INTEGER NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'usd',
+  requires_shipping INTEGER NOT NULL,
+  request_id TEXT NOT NULL,
+  stripe_session_id TEXT UNIQUE,
+  checkout_url TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  customer_email TEXT,
+  shipping_details TEXT,
+  fulfilled_at TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id,request_id)
+);
+CREATE TABLE IF NOT EXISTS store_webhook_events (id TEXT PRIMARY KEY,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);

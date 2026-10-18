@@ -7,6 +7,7 @@ import AdminDash from './pages/AdminDash'
 import Directory from './pages/Directory'
 import EventMain from './pages/EventMain'
 import Members from './pages/Members'
+import Store from "./pages/Store";
 import Homepage from "./pages/Homepage";
 import ProfileModal from "./components/ProfileModal";
 import RewardsModal from "./components/RewardsModal";
@@ -22,7 +23,7 @@ function App() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", darkMode ? "#1e293b" : "#ffffff");
     try { localStorage.setItem("impact_darkMode", String(darkMode)); } catch { /* Theme works when storage is unavailable. */ }
   }, [darkMode]);
-  const [currentComponent, setCurrentComponent] = useState("Homepage")
+  const [currentComponent, setCurrentComponent] = useState(()=>new URLSearchParams(window.location.search).get("page")==="Store"?"Store":"Homepage")
   const [profileOpen, setProfileOpen] = useState(()=>new URLSearchParams(window.location.hash.slice(1)).has("reset-password"));
   useEffect(()=>{const followResetLink=()=>{if(new URLSearchParams(window.location.hash.slice(1)).has("reset-password"))setProfileOpen(true);};window.addEventListener("hashchange",followResetLink);return()=>window.removeEventListener("hashchange",followResetLink);},[]);
   const [rewardsOpen, setRewardsOpen] = useState(()=>new URLSearchParams(window.location.search).has("incentive"));
@@ -44,6 +45,7 @@ function App() {
       { currentComponent === "Admin" ? <AdminDash user={user} /> :null}
       { currentComponent === "Directory" ? <Directory /> :null}
       { currentComponent === "Events" ? <EventMain user={user} onAuthChange={setUser} onProfileClick={() => setProfileOpen(true)} /> :null}
+      { currentComponent === "Store" && <Store user={user} onProfileClick={()=>setProfileOpen(true)}/> }
       { currentComponent === "Members" ? <Members user={user} onProfileClick={() => setProfileOpen(true)} /> :null}
       {["Community", "Vision", "Rules", "Highlights"].includes(currentComponent) && <JoinUs currentObj={{contentTitle: {Community: "Community Hub", Vision: "Vision", Rules: "Community Rules", Highlights: "Make An Impact"}[currentComponent]}} user={user} onProfileClick={() => setProfileOpen(true)} />}
       </div>

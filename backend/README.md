@@ -99,7 +99,11 @@ stores its original award so historical points and badges remain accurate.
 
 ### Coming Soon collection
 
-Run `npm run seed-store-demos` to add three IMPACT shirt concepts: The Original,
+Render runs `npm run seed-store-demos` before starting the API so the collection
+is added to its persistent database as well as local development databases.
+For an existing Render service, set its Start Command to
+`npm run seed-store-demos && npm start` and redeploy if it does not sync Blueprint changes.
+Run `npm run seed-store-demos` locally to add three IMPACT shirt concepts: The Original,
 After Hours, and Good Neighbors. The script is safe to run again and preserves
 existing products. All three are published with `coming_soon=1`, preview prices,
 and matching generated mockups in `frontend/cms-arlington/cms-admin-arl/public/images/store/`.

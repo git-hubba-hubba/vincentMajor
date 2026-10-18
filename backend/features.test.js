@@ -99,6 +99,8 @@ test('free rewards and content edits', async () => {
     await request(`/members/user-${member.user.id}/message`,'POST',{body:'Can you help?',member_name:'Test Member'},admin.token,201);
     const inbox = await request('/profile/social','GET',undefined,member.token);
     const original = inbox.messages[0];
+    assert.equal(original.sender_id,admin.user.id);
+    assert.ok(Object.hasOwn(original,"avatar_url"));
     await request(`/messages/${original.id}/reply`,'POST',{body:'Happy to help!'},undefined,401);
     await request(`/messages/${original.id}/reply`,'POST',{body:'Not my inbox'},admin.token,404);
     for (const body of ['', '   ', 'x'.repeat(1001), null, 123]) {
@@ -112,6 +114,12 @@ test('free rewards and content edits', async () => {
     await request(`/messages/${senderInbox.messages[0].id}/reply`,'POST',{body:'Thank you!'},admin.token,201);
     const continued = await request('/profile/social','GET',undefined,member.token);
     assert.equal(continued.messages[0].body,'Thank you!');
+    assert.ok(continued.messages.every(item=>item.sender_id===admin.user.id));
+    for(let index=0;index<10;index++)await request(`/members/user-${member.user.id}/message`,'POST',{body:`Follow-up ${index}`,member_name:'Test Member'},admin.token,201);
+    const history=(await request('/profile/social','GET',undefined,member.token)).messages;
+    assert.equal(history.length,12);
+    assert.ok(history.every(item=>item.sender_id===admin.user.id));
+    assert.equal(history.at(-1).id,original.id);
     // Notifications include published events and messages; clearing is scoped to the signed-in user.
     await request('/notifications','GET',undefined,undefined,401);
     const notices=await request('/notifications','GET',undefined,member.token);

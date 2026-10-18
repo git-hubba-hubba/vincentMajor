@@ -6,7 +6,7 @@ import LinkedText from "./LinkedText";
 import EditorModal from "./EditorModal";
 import ImageLightbox from "./ImageLightbox";
 
-const categories=["All","Community","Health","Finances","Entertainment","Business","Youth","Local News"];
+const categories=["All","Community","Health","Finances","Entertainment","Business","Deals/Discounts","Youth","Local News"];
 const emptyPost={title:"",body:"",category:"Community",image_url:""};
 
 function CommunityFeed({ user, onProfileClick }) {

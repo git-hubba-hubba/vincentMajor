@@ -3,7 +3,7 @@ import { useState } from "react";
 import { api } from "../lib/api";
 import LinkedText from "./LinkedText";
 
-export default function InboxMessage({ item, onClear }) {
+export default function InboxMessage({ item, onClear, showSender = true, canReply = true }) {
   const [replying, setReplying] = useState(false);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -21,11 +21,12 @@ export default function InboxMessage({ item, onClear }) {
   };
   return <article className="socialInboxItem">
     <span aria-hidden="true">✉</span>
-    <div className="inboxMessageContent"><p><strong>{name}</strong>
+    <div className="inboxMessageContent"><p>{showSender && <strong>{name}</strong>}
       <small className="inboxMessageBody"><LinkedText>{item.body}</LinkedText></small></p>
-      {!replying && <button type="button" className="secondaryButton inboxReplyButton"
+      {canReply && !replying && <button type="button" className="secondaryButton inboxReplyButton"
         aria-expanded={false} aria-controls={`inbox-reply-${item.id}`}
         onClick={() => {setReplying(true);setNotice("");}}><SiteText contentKey="InboxMessage.c253f451bdd5">{"Reply"}</SiteText></button>}
+      <time className="inboxMessageTime" dateTime={item.created_at.replace(" ","T")+ (/[Z+]/.test(item.created_at)?"":"Z")}>{new Date(item.created_at.replace(" ","T")+ (/[Z+]/.test(item.created_at)?"":"Z")).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</time>
       <button type="button" className="textButton" onClick={onClear}>Clear message</button>
       {replying && <form id={`inbox-reply-${item.id}`} className="inboxReplyForm" onSubmit={submit}>
         <label htmlFor={`inbox-draft-${item.id}`}><SiteText contentKey="InboxMessage.ec06f3d2590e">{"Reply to "}</SiteText>{name}</label>

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import businessCategories from "../data/businessCategories";
 import PasswordRecovery from "./PasswordRecovery";
-import InboxMessage from "./InboxMessage";
+import InboxConversations from "./InboxConversations";
 import ProfileShowcase, { ProfileIcon } from "./ProfileShowcase";
 import { profileThemes, profileGallery } from "../lib/profile";
 
@@ -208,7 +208,7 @@ function ProfileModal({ open, onClose, user, onAuthChange }) {
             </>}
             {activePanel === "inbox" && <section className="profileEventSection socialInbox"><div className="profileSectionHeading"><div><p className="eyebrow">STAY IN THE CONVERSATION</p><h3><ProfileIcon name="mail"/> Your inbox</h3></div><button type="button" className="secondaryButton" onClick={()=>setActivePanel("network")}>New message</button></div>
               {!socialInbox.messages.length&&<p className="profileEmptyState">Your next conversation starts here. Choose someone from your network to send a message.</p>}
-              {socialInbox.messages.length>0&&<button type="button" className="textButton" onClick={()=>clearMessages()}>Clear all messages</button>}{socialInbox.messages.map(item=><InboxMessage key={`${user.id}-${item.id}`} item={item} onClear={()=>clearMessages(item.id)}/>)}
+              {socialInbox.messages.length>0&&<button type="button" className="textButton" onClick={()=>clearMessages()}>Clear all messages</button>}<InboxConversations key={user.id} messages={socialInbox.messages} onClear={clearMessages}/>
               {socialInbox.invitations.map(item=><div className="socialInboxItem" key={item.id}><ProfileIcon name="people"/><p><strong>{item.first_name} {item.last_name} invited you</strong><small>{item.title} · {new Date(item.starts_at).toLocaleDateString()}</small></p></div>)}
             </section>}
             {activePanel === "network" && <section className="profileEventSection"><div className="profileSectionHeading"><div><p className="eyebrow">GROW TOGETHER</p><h3><ProfileIcon name="people"/> Your community circle</h3></div></div><div className="authTabs">{["connections","followers"].map(view=><button type="button" key={view} className={networkView===view?"active":""} onClick={()=>setNetworkView(view)}>{view} · {socialInbox[view].length}</button>)}</div><p className="fieldHint">Connections are members you follow. Followers are members who follow you.</p>

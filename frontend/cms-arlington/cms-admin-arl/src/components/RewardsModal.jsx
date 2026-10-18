@@ -4,6 +4,17 @@ import EarnPoints from "./EarnPoints";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api";
 
+const rewardsGuidelines = [
+  "Must be a resident of the city in which the rewards are given.",
+  "Must be 18 years old or older to collect and redeem bonus points.",
+  "Earn point in the Community. If you see our QR code at events, business locations or anywhere else in the community sign in, do a quick scan, confirm your attendance with its attendance code and start earning your points. You can also earn points by engaging on our site. Points are awarded once per event.",
+  "Choose your reward. Check My balance, then browse the available rewards. Each card shows the point cost (or Free) and how many are left.",
+  "Redeem your points. Select Redeem reward and confirm. Free rewards require no points. Other rewards require enough points; all rewards require available stock. The point cost is deducted from your balance, and each reward can be redeemed once per member.",
+  "Find your claimed rewards. Open your profile to see your redeemed rewards. Claimed items are also marked in my rewards in this dashboard.",
+  "Must redeem your gift at and on the day and place appointed on the calendar as a redemption day(s).",
+  "Reward points will only be deducted upon the receipt of gift. If gift isn’t redeemed after 30 days gift will be forfeited without the loss of point."
+];
+
 const emptyDonation = { name:"", description:"", points_cost:500, inventory:1, sponsor_name:"", image_url:"" };
 
 function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick, onEvents }) {
@@ -36,13 +47,8 @@ function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick, onEve
       <div className="rewardsToolbar"><div><strong>{rewards.filter(item=>item.inventory>0).length}</strong><span><SiteText contentKey="RewardsModal.12e0c58afe4b">{"rewards ready to claim"}</SiteText></span></div><div className="rewardsToolbarActions"><button type="button" className="donateRewardButton" aria-expanded={showHowItWorks} aria-controls="rewards-how-it-works" onClick={()=>setShowHowItWorks(!showHowItWorks)}><SiteText contentKey="RewardsModal.9c870aa6e5e9">{"How it works"}</SiteText></button><button className="donateRewardButton" onClick={()=>{if(!user){onClose();onProfileClick();}else setDonating(!donating);}}><SiteText contentKey="RewardsModal.93b3607edcc0">{"♡ Donate a reward"}</SiteText></button></div></div>
       <section id="rewards-how-it-works" className="rewardsGuide" aria-labelledby="rewards-guide-title" hidden={!showHowItWorks}>
         <h3 id="rewards-guide-title"><SiteText contentKey="RewardsModal.7c67e79735ce">{"Turn participation into rewards"}</SiteText></h3>
-        <ol>
-          <li><strong><SiteText contentKey="RewardsModal.aebe24fd9cfa">{"Earn points at events."}</SiteText></strong><SiteText contentKey="RewardsModal.7d4382523dbf">{" Sign in, attend a community event, and confirm your attendance with its attendance code. Each event lists how many points you can earn. Points are awarded once per event."}</SiteText></li>
-          <li><strong><SiteText contentKey="RewardsModal.9d120318d0d2">{"Choose your reward."}</SiteText></strong><SiteText contentKey="RewardsModal.e820fcff3cc9">{" Check My balance, then browse the available rewards. Each card shows the point cost (or Free) and how many are left."}</SiteText></li>
-          <li><strong><SiteText contentKey="RewardsModal.af6b7896cdea">{"Redeem your points."}</SiteText></strong><SiteText contentKey="RewardsModal.b5f261c40059">{" Select Redeem reward and confirm. Free rewards require no points. Other rewards require enough points; all rewards require available stock. The point cost is deducted from your balance, and each reward can be redeemed once per member."}</SiteText></li>
-          <li><strong><SiteText contentKey="RewardsModal.029b7f269798">{"Find your claimed rewards."}</SiteText></strong><SiteText contentKey="RewardsModal.ffa6648883a4">{" Open your profile to see your redeemed rewards. Claimed items are also marked In my rewards in this dashboard."}</SiteText></li>
-        </ol>
-        <p><strong><SiteText contentKey="RewardsModal.54d4ef974631">{"Give back, too."}</SiteText></strong><SiteText contentKey="RewardsModal.fbf90ac96974">{" Use Donate a reward to offer a perk to the community. Donations are reviewed before appearing here; approved donors receive a Sponsor badge."}</SiteText></p>
+        <ol>{rewardsGuidelines.map(rule=><li key={rule}><SiteText section="RewardsModal">{rule}</SiteText></li>)}</ol>
+        <p className="rewardsGuideClosing"><strong><SiteText section="RewardsModal">{"This is only the beginning! Look for bigger and more prizes as we grow."}</SiteText></strong></p>
       </section>
       {donating&&<form className="donationForm" onSubmit={submitDonation}>
         <div className="donationIntro"><div><p className="rewardsKicker"><SiteText contentKey="RewardsModal.58060ce5ad52">{"Member sponsorship"}</SiteText></p><h3><SiteText contentKey="RewardsModal.2eb591670ea0">{"Offer something memorable"}</SiteText></h3><p><SiteText contentKey="RewardsModal.867704c4c56a">{"Approved donors receive a Sponsor badge on their member profile."}</SiteText></p></div><span><SiteText contentKey="RewardsModal.712a9c6973e0">{"SPONSOR"}</SiteText></span></div>

@@ -3,9 +3,31 @@ import { useState } from "react";
 
 const panels = {
   About: { title: "A community within the community.", body: "Impact is more than a social platform. It’s a community hub where people come together to improve their lives and their community, with a focus on health, finances, entertainment, and the positive things in life." },
-  FAQ: { title: "Participate in community events.", body: "Explore community events, connect with members, and discover ways to take part in Impact Arlington.", page: "Events", action: "Explore events" },
+  FAQ: { title: "A few things to know." },
   Contact: { title: "Let’s make an impact.", body: "Want to advertise with us, launch Impact in your city, or have your corporation walk with us? Contact Vincent Jenkins, CEO / Founder." },
 };
+const faqs = [
+  {
+    "topic": "Membership",
+    "question": "Is there a membership fee to join?",
+    "answer": "No. It’s totally free at this time."
+  },
+  {
+    "topic": "For businesses",
+    "question": "Is there a cost to list my business on Impact?",
+    "answer": "Yes, there is a cost for your business to join the Impact community and enjoy everything we have to offer your business for its growth. But our cost is more than fair. Contact your City Director for details."
+  },
+  {
+    "topic": "Our cities",
+    "question": "Will Impact come to my city?",
+    "answer": "At this time Impact is operating in the city of Dallas and its surrounding cities, with a goal of launching in cities across the country."
+  },
+  {
+    "topic": "Here to help",
+    "question": "Who do I contact if I have a problem with Impact?",
+    "answer": "Contact your City Director."
+  }
+];
 const paths = [
   { number: "01", title: "Find your people.", text: "Meet neighbors, share ideas, and build connections close to home.", page: "Members", action: "Meet the members", icon: "◎" },
   { number: "02", title: "Show up for local.", text: "Discover businesses, services, and partners in our community.", page: "Directory", action: "Explore the directory", icon: "⌂" },
@@ -21,7 +43,7 @@ function Homepage({ onNavigate, onProfileClick }) {
     </section>
     <div className="valuesStrip"><span><SiteText contentKey="Homepage.eb557d40355d">{"A little connection. A lot of possibility."}</SiteText></span><p><SiteText contentKey="Homepage.104f790fb7dd">{"Health "}</SiteText><b>✳</b><SiteText contentKey="Homepage.a9aa705f1bb6">{" Finances "}</SiteText><b>✳</b><SiteText contentKey="Homepage.02a7a6bdd3bd">{" Entertainment "}</SiteText><b>✳</b><SiteText contentKey="Homepage.cb210d8bdcc0">{" Positive living"}</SiteText></p></div>
     <section className="homePaths"><div className="sectionHeading"><div><p className="sectionKicker"><SiteText contentKey="Homepage.d1286065beb7">{"YOUR COMMUNITY STARTS HERE"}</SiteText></p><h2><SiteText contentKey="Homepage.66c702a56d1d">{"Small steps. "}</SiteText><em><SiteText contentKey="Homepage.502238d2e313">{"Real impact."}</SiteText></em></h2></div><p><SiteText contentKey="Homepage.bcf0d27e419e">{"There’s more than one way to belong."}</SiteText><br /><SiteText contentKey="Homepage.65d24ab78398">{"Find the one that feels like you."}</SiteText></p></div><div className="pathGrid">{paths.map(path => <button className="pathCard" key={path.page} onClick={() => onNavigate(path.page)}><div className="pathCardTop"><span>{path.icon}</span><small>{path.number}<SiteText contentKey="Homepage.9b885d7aa786">{" / GET INVOLVED"}</SiteText></small></div><h3><SiteText section="Homepage">{path.title}</SiteText></h3><p><SiteText section="Homepage">{path.text}</SiteText></p><div className="pathLink"><SiteText section="Homepage">{path.action}</SiteText><span>↗</span></div></button>)}</div></section>
-    <section className="homeStory"><div className="storyIntro"><p className="sectionKicker"><SiteText contentKey="Homepage.48df9596d623">{"THIS IS IMPACT ARLINGTON"}</SiteText></p><span className="storyStar" aria-hidden="true">✳</span><p><SiteText contentKey="Homepage.d07244ebd582">{"Better lives."}</SiteText><br /><SiteText contentKey="Homepage.4fb33ef47481">{"Stronger communities."}</SiteText></p><button onClick={() => onNavigate("Vision")}><SiteText contentKey="Homepage.b85a87faa67f">{"Discover our vision ↗"}</SiteText></button></div><div className="storyContent"><div className="storyTabs" role="tablist" aria-label="About Impact">{Object.keys(panels).map(label => <button role="tab" id={`tab-${label}`} aria-controls="story-panel" aria-selected={tab === label} key={label} onClick={() => setTab(label)}><SiteText section="Homepage">{label}</SiteText></button>)}</div><div id="story-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}><h2><SiteText section="Homepage">{panel.title}</SiteText></h2><p><SiteText section="Homepage">{panel.body}</SiteText></p>{panel.page && <button className="textButton" onClick={() => onNavigate(panel.page)}><SiteText section="Homepage">{panel.action}</SiteText> →</button>}{tab === "Contact" && <div className="contactLinks"><a href="tel:6823051503">682-305-1503 ↗</a><a href="mailto:impactingcities101@gmail.com"><SiteText contentKey="Homepage.fdf7100bf8b1">{"impactingcities101@gmail.com ↗"}</SiteText></a></div>}</div></div></section>
+    <section className="homeStory"><div className="storyIntro"><p className="sectionKicker"><SiteText contentKey="Homepage.48df9596d623">{"THIS IS IMPACT ARLINGTON"}</SiteText></p><span className="storyStar" aria-hidden="true">✳</span><p><SiteText contentKey="Homepage.d07244ebd582">{"Better lives."}</SiteText><br /><SiteText contentKey="Homepage.4fb33ef47481">{"Stronger communities."}</SiteText></p><button onClick={() => onNavigate("Vision")}><SiteText contentKey="Homepage.b85a87faa67f">{"Discover our vision ↗"}</SiteText></button></div><div className="storyContent"><div className="storyTabs" role="tablist" aria-label="About Impact">{Object.keys(panels).map(label => <button role="tab" id={`tab-${label}`} aria-controls="story-panel" aria-selected={tab === label} key={label} onClick={() => setTab(label)}><SiteText section="Homepage">{label}</SiteText></button>)}</div><div id="story-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}><h2><SiteText section="Homepage">{panel.title}</SiteText></h2>{tab === "FAQ" ? <div className="storyFaqList">{faqs.map((faq,index)=><details className="storyFaqItem" key={faq.question} open={index===0}><summary><span className="storyFaqNumber" aria-hidden="true">0{index+1}</span><span className="storyFaqQuestion"><small><SiteText section="Homepage">{faq.topic}</SiteText></small><span><SiteText section="Homepage">{faq.question}</SiteText></span></span><span className="storyFaqToggle" aria-hidden="true">+</span></summary><p><SiteText section="Homepage">{faq.answer}</SiteText></p></details>)}</div> : <p><SiteText section="Homepage">{panel.body}</SiteText></p>}{panel.page && <button className="textButton" onClick={() => onNavigate(panel.page)}><SiteText section="Homepage">{panel.action}</SiteText> →</button>}{tab === "Contact" && <div className="contactLinks"><a href="tel:6823051503">682-305-1503 ↗</a><a href="mailto:impactingcities101@gmail.com"><SiteText contentKey="Homepage.fdf7100bf8b1">{"impactingcities101@gmail.com ↗"}</SiteText></a></div>}</div></div></section>
     <section className="homeClosing"><div><p className="sectionKicker"><SiteText contentKey="Homepage.0e9ac55ff218">{"YOU HAVE A PLACE HERE"}</SiteText></p><h2><SiteText contentKey="Homepage.4cb03767ddc6">{"Let’s build something "}</SiteText><em><SiteText contentKey="Homepage.f5ff9b4a9f49">{"good."}</SiteText></em></h2></div><button className="primaryButton" onClick={onProfileClick}><SiteText contentKey="Homepage.12b8c75ebe88">{"Join the community ↗"}</SiteText></button></section>
   </main>;
 }

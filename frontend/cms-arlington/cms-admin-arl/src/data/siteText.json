@@ -1045,6 +1045,11 @@
     "text": " Entertainment "
   },
   {
+    "key": "Homepage.08aef1ce9850",
+    "section": "Homepage",
+    "text": "At this time Impact is operating in the city of Dallas and its surrounding cities, with a goal of launching in cities across the country."
+  },
+  {
     "key": "Homepage.0e9ac55ff218",
     "section": "Homepage",
     "text": "YOU HAVE A PLACE HERE"
@@ -1090,6 +1095,11 @@
     "text": "Find an event"
   },
   {
+    "key": "Homepage.420519816f85",
+    "section": "Homepage",
+    "text": "No. It’s totally free at this time."
+  },
+  {
     "key": "Homepage.471e88cea8b6",
     "section": "Homepage",
     "text": "A community within the community."
@@ -1120,6 +1130,16 @@
     "text": "Real impact."
   },
   {
+    "key": "Homepage.51afbce6c259",
+    "section": "Homepage",
+    "text": "For businesses"
+  },
+  {
+    "key": "Homepage.55760a26fef8",
+    "section": "Homepage",
+    "text": "Is there a cost to list my business on Impact?"
+  },
+  {
     "key": "Homepage.56a2fa896847",
     "section": "Homepage",
     "text": "Come together at community events and earn points for participating."
@@ -1145,9 +1165,19 @@
     "text": "Small steps. "
   },
   {
+    "key": "Homepage.68656588144f",
+    "section": "Homepage",
+    "text": "Contact your City Director."
+  },
+  {
     "key": "Homepage.6898b536ef95",
     "section": "Homepage",
     "text": "Explore events"
+  },
+  {
+    "key": "Homepage.829f62dd1e44",
+    "section": "Homepage",
+    "text": "Is there a membership fee to join?"
   },
   {
     "key": "Homepage.878de437598e",
@@ -1155,9 +1185,19 @@
     "text": "Lasting impact."
   },
   {
+    "key": "Homepage.87f3605138ff",
+    "section": "Homepage",
+    "text": "Will Impact come to my city?"
+  },
+  {
     "key": "Homepage.899e466efb01",
     "section": "Homepage",
     "text": "Participate in community events."
+  },
+  {
+    "key": "Homepage.8af1346e0208",
+    "section": "Homepage",
+    "text": "Our cities"
   },
   {
     "key": "Homepage.95c24f74d0e6",
@@ -1180,9 +1220,19 @@
     "text": "Meet neighbors, share ideas, and build connections close to home."
   },
   {
+    "key": "Homepage.9feceb9333b5",
+    "section": "Homepage",
+    "text": "Membership"
+  },
+  {
     "key": "Homepage.a21ecea3c0e9",
     "section": "Homepage",
     "text": "LIVE LIFE DIFFERENT."
+  },
+  {
+    "key": "Homepage.a884ad708858",
+    "section": "Homepage",
+    "text": "Here to help"
   },
   {
     "key": "Homepage.a9aa705f1bb6",
@@ -1203,6 +1253,16 @@
     "key": "Homepage.b3150b9ccdf5",
     "section": "Homepage",
     "text": "Find your people."
+  },
+  {
+    "key": "Homepage.b41cf95bc94e",
+    "section": "Homepage",
+    "text": "A few things to know."
+  },
+  {
+    "key": "Homepage.b582be8fb974",
+    "section": "Homepage",
+    "text": "Who do I contact if I have a problem with Impact?"
   },
   {
     "key": "Homepage.b7479b3ce3ab",
@@ -1278,6 +1338,11 @@
     "key": "Homepage.eb557d40355d",
     "section": "Homepage",
     "text": "A little connection. A lot of possibility."
+  },
+  {
+    "key": "Homepage.f5af56eb2704",
+    "section": "Homepage",
+    "text": "Yes, there is a cost for your business to join the Impact community and enjoy everything we have to offer your business for its growth. But our cost is more than fair. Contact your City Director for details."
   },
   {
     "key": "Homepage.f5ff9b4a9f49",
@@ -1890,6 +1955,11 @@
     "text": "Cancel"
   },
   {
+    "key": "RewardsModal.1c267f2d858e",
+    "section": "RewardsModal",
+    "text": "Find your claimed rewards. Open your profile to see your redeemed rewards. Claimed items are also marked in my rewards in this dashboard."
+  },
+  {
     "key": "RewardsModal.2289c1529912",
     "section": "RewardsModal",
     "text": "Point cost (0 = free)"
@@ -1925,6 +1995,11 @@
     "text": "My balance"
   },
   {
+    "key": "RewardsModal.38c999f749f5",
+    "section": "RewardsModal",
+    "text": "Redeem your points. Select Redeem reward and confirm. Free rewards require no points. Other rewards require enough points; all rewards require available stock. The point cost is deducted from your balance, and each reward can be redeemed once per member."
+  },
+  {
     "key": "RewardsModal.4761a83dade2",
     "section": "RewardsModal",
     "text": "New rewards are on the way"
@@ -1938,6 +2013,11 @@
     "key": "RewardsModal.4bc7f76d36ad",
     "section": "RewardsModal",
     "text": "No longer available"
+  },
+  {
+    "key": "RewardsModal.4bf02ac4cda4",
+    "section": "RewardsModal",
+    "text": "Reward points will only be deducted upon the receipt of gift. If gift isn’t redeemed after 30 days gift will be forfeited without the loss of point."
   },
   {
     "key": "RewardsModal.526e0087cc3f",
@@ -1955,6 +2035,11 @@
     "text": "Member sponsorship"
   },
   {
+    "key": "RewardsModal.5f7b33823957",
+    "section": "RewardsModal",
+    "text": "Must redeem your gift at and on the day and place appointed on the calendar as a redemption day(s)."
+  },
+  {
     "key": "RewardsModal.702f4ab2f2de",
     "section": "RewardsModal",
     "text": "Claiming…"
@@ -1965,6 +2050,11 @@
     "text": "SPONSOR"
   },
   {
+    "key": "RewardsModal.7565833b55d9",
+    "section": "RewardsModal",
+    "text": "Must be 18 years old or older to collect and redeem bonus points."
+  },
+  {
     "key": "RewardsModal.777b96095f3b",
     "section": "RewardsModal",
     "text": "Image selected"
@@ -1973,6 +2063,11 @@
     "key": "RewardsModal.781e6be8a0dc",
     "section": "RewardsModal",
     "text": "Apply to donate"
+  },
+  {
+    "key": "RewardsModal.79d0c460a3b4",
+    "section": "RewardsModal",
+    "text": "Earn point in the Community. If you see our QR code at events, business locations or anywhere else in the community sign in, do a quick scan, confirm your attendance with its attendance code and start earning your points. You can also earn points by engaging on our site. Points are awarded once per event."
   },
   {
     "key": "RewardsModal.7c67e79735ce",
@@ -2010,9 +2105,19 @@
     "text": "Approved donors receive a Sponsor badge on their member profile."
   },
   {
+    "key": "RewardsModal.8a5120827e58",
+    "section": "RewardsModal",
+    "text": "Choose your reward. Check My balance, then browse the available rewards. Each card shows the point cost (or Free) and how many are left."
+  },
+  {
     "key": "RewardsModal.93b3607edcc0",
     "section": "RewardsModal",
     "text": "♡ Donate a reward"
+  },
+  {
+    "key": "RewardsModal.93ccbfa2c0ae",
+    "section": "RewardsModal",
+    "text": "Must be a resident of the city in which the rewards are given."
   },
   {
     "key": "RewardsModal.9c870aa6e5e9",
@@ -2103,6 +2208,11 @@
     "key": "RewardsModal.f55716eeca26",
     "section": "RewardsModal",
     "text": "Sign in to view"
+  },
+  {
+    "key": "RewardsModal.f7c9f83b98ac",
+    "section": "RewardsModal",
+    "text": "This is only the beginning! Look for bigger and more prizes as we grow."
   },
   {
     "key": "RewardsModal.fabf3c884861",

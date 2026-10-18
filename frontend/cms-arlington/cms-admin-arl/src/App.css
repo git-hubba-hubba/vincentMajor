@@ -439,7 +439,7 @@ body{
 .formMessage,.pendingNote { margin:.6rem 0; padding:.65rem .8rem; border-left:3px solid #76b9d8; background:#edf8fc; color:#345; font-size:.8rem; }
 .profileHeading { display:flex; align-items:center; gap:1rem; padding-bottom:1.1rem; border-bottom:1px solid #dce9ef; }
 .profileHeading h2 { margin:0; }
-.profileAvatar { display:grid; place-items:center; flex:0 0 62px; height:62px; border-radius:50%; background:lightblue; color:#173d52; font-weight:800; font-size:1.25rem; }
+.profileAvatar { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr); place-items:center; flex:0 0 62px; width:62px; height:62px; aspect-ratio:1; overflow:hidden; border-radius:50%; background:lightblue; color:#173d52; font-weight:800; font-size:1.25rem; }
 .editProfileButton { margin-top:1rem; }
 .editProfileForm { margin:1rem 0; padding:1rem; border:1px solid #dce9ef; background:#fbfdfe; }
 .avatarEditor { display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; }
@@ -1826,3 +1826,6 @@ body{
 .inboxConversations{display:grid;gap:14px;margin-top:16px}.inboxConversation{border:1px solid var(--profile-border,#d4e1e7);border-radius:12px;background:var(--profile-surface,#fff);overflow:hidden}.inboxConversation>summary{display:flex;align-items:center;gap:12px;padding:15px;cursor:pointer;list-style:none;color:var(--profile-ink,#244657)}.inboxConversation>summary::-webkit-details-marker{display:none}.inboxConversationHeading{flex:1;min-width:0}.inboxConversationHeading strong{display:block;font-size:13px}.inboxConversationHeading>span{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;font-size:12px;color:var(--profile-muted,#607785);margin-top:5px}.inboxConversationCount{font-size:10px;padding:5px 8px;border-radius:8px;background:var(--profile-soft,#edf4f7);white-space:nowrap}.inboxConversationChevron{transition:transform .2s}.inboxConversation[open] .inboxConversationChevron{transform:rotate(180deg)}.inboxConversationMessages{padding:0 15px 12px;border-top:1px solid var(--profile-border,#d4e1e7)}.inboxConversationMessages .socialInboxItem{margin:12px 0 0;border-radius:10px}.inboxMessageTime{display:inline-block;font-size:10px;color:var(--profile-muted,#607785);margin:5px 12px 0 0}.inboxConversation>summary:focus-visible{outline:3px solid var(--profile-accent,#448da5);outline-offset:-3px}@media(max-width:500px){.inboxConversation>summary{gap:8px;padding:12px}.inboxConversationCount{font-size:9px;padding:4px}.inboxConversationMessages{padding:0 9px 9px}}@media(prefers-reduced-motion:reduce){.inboxConversationChevron{transition:none}}
 
 .profileHeader.profileCover{background-size:cover;background-position:center;background-repeat:no-repeat}
+
+/* Keep every uploaded avatar centered and fitted to its circular frame. */
+.profileAvatar img,.profileButtonAvatar img,.profileNetworkAvatar img{display:block;width:100%;height:100%;min-width:0;min-height:0;object-fit:cover;object-position:center;border-radius:inherit}

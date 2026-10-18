@@ -15,8 +15,7 @@ export default function ProfileShowcase({user,social,onEdit,onPersonalize,onInbo
   const earned=social.earnedPoints || 0;
   const gallery=profileGallery(user);
   return <>
-    <header className={`profileHeader profileCover theme-${user.profile_theme || 'ocean'}`}>
-      {user.cover_url&&<img className="profileCoverImage" src={user.cover_url} alt="Your profile cover"/>}
+    <header className={`profileHeader profileCover theme-${user.profile_theme || 'ocean'}`} style={user.cover_url ? {backgroundImage:`url(${JSON.stringify(user.cover_url)})`} : undefined}>
       <div className="profileCoverCaption"><span>YOUR COMMUNITY. YOUR STORY.</span><strong>A little more you.</strong></div>
       <button type="button" onClick={onPersonalize}><ProfileIcon name="photo"/> Personalize</button>
     </header>

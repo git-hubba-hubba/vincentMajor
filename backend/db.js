@@ -12,6 +12,11 @@ export const db = new DatabaseSync(databasePath);
 db.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');
 db.exec(readFileSync(join(here, 'schema.sql'), 'utf8'));
 
+const storeColumns=new Set(db.prepare('PRAGMA table_info(store_products)').all().map(column=>column.name));
+if(!storeColumns.has('coming_soon'))db.exec('ALTER TABLE store_products ADD COLUMN coming_soon INTEGER NOT NULL DEFAULT 0');
+if(!storeColumns.has('demo_key'))db.exec('ALTER TABLE store_products ADD COLUMN demo_key TEXT');
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_store_demo_key ON store_products(demo_key) WHERE demo_key IS NOT NULL');
+
 const eventColumns = new Set(db.prepare('PRAGMA table_info(events)').all().map((column) => column.name));
 if (!eventColumns.has('category')) db.exec("ALTER TABLE events ADD COLUMN category TEXT NOT NULL DEFAULT 'Community'");
 if (!eventColumns.has('image_url')) db.exec('ALTER TABLE events ADD COLUMN image_url TEXT');

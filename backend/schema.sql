@@ -179,6 +179,8 @@ CREATE TABLE IF NOT EXISTS auth_rate_limits (
 
 CREATE TABLE IF NOT EXISTS store_products (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  demo_key TEXT UNIQUE,
+  coming_soon INTEGER NOT NULL DEFAULT 0,
   name TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
   image_url TEXT NOT NULL DEFAULT '',

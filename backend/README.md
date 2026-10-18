@@ -96,3 +96,14 @@ video configured for 1 point remains at the 1-point minimum. Administrators can
 still set custom event and video awards. Existing account balances, incentive
 claims, reward costs, and badge thresholds are preserved. Past event attendance
 stores its original award so historical points and badges remain accurate.
+
+### Coming Soon collection
+
+Run `npm run seed-store-demos` to add three IMPACT shirt concepts: The Original,
+After Hours, and Good Neighbors. The script is safe to run again and preserves
+existing products. All three are published with `coming_soon=1`, preview prices,
+and matching generated mockups in `frontend/cms-arlington/cms-admin-arl/public/images/store/`.
+The Coming Soon badge is displayed on every demo, quantity and purchase buttons
+are disabled, and the backend rejects checkout requests for these products.
+Admins can toggle Coming Soon from the product editor when an item is ready.
+Existing products keep their current availability.

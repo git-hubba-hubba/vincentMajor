@@ -58,13 +58,14 @@ export async function handleStore(req,res,path,user,{send,body}) {
       const name=typeof data.name==='string'?data.name.trim():'';
       const description=typeof data.description==='string'?data.description.trim():'';
       if(!name || name.length>120 || description.length>1500 || !Number.isInteger(data.price_cents) || data.price_cents<50 || data.price_cents>99999999)return reply(400,{error:'Enter a name, description up to 1,500 characters, and a USD price from $0.50 to $999,999.99.'});
+      if(data.coming_soon!==undefined && ![true,false,0,1].includes(data.coming_soon))return reply(400,{error:"Choose a valid Coming Soon setting."});
       if(data.active!==undefined && ![true,false,0,1].includes(data.active) || data.requires_shipping!==undefined && ![true,false,0,1].includes(data.requires_shipping))return reply(400,{error:'Choose valid product availability and delivery options.'});
       let image=data.image_url || '';
-      if(typeof image!=='string' || image.length>3e6 || (image && !/^https:\/\//.test(image) && !/^data:image\/(png|jpeg|webp|gif);base64,/.test(image)))return reply(400,{error:'Use an HTTPS image URL or upload an image smaller than 2 MB.'});
+      if(typeof image!=='string' || image.length>3e6 || (image && image!==previous?.image_url && !/^\/images\/store\/[a-z0-9-]+\.(png|webp|jpg)$/i.test(image) && !/^https:\/\//.test(image) && !/^data:image\/(png|jpeg|webp|gif);base64,/.test(image)))return reply(400,{error:'Use an HTTPS image URL or upload an image smaller than 2 MB.'});
       image=await persistImage(image,'impact-arlington/store');
-      const values=[name,description,image,data.price_cents,data.active===undefined?1:Number(Boolean(data.active)),Number(Boolean(data.requires_shipping))];
-      if(previous)db.prepare('UPDATE store_products SET name=?,description=?,image_url=?,price_cents=?,active=?,requires_shipping=? WHERE id=?').run(...values,id);
-      else {const result=db.prepare('INSERT INTO store_products(name,description,image_url,price_cents,active,requires_shipping) VALUES(?,?,?,?,?,?)').run(...values);return reply(201,{id:Number(result.lastInsertRowid)});}
+      const values=[name,description,image,data.price_cents,data.active===undefined?1:Number(Boolean(data.active)),Number(Boolean(data.requires_shipping)),Number(Boolean(data.coming_soon))];
+      if(previous)db.prepare('UPDATE store_products SET name=?,description=?,image_url=?,price_cents=?,active=?,requires_shipping=?,coming_soon=? WHERE id=?').run(...values,id);
+      else {const result=db.prepare('INSERT INTO store_products(name,description,image_url,price_cents,active,requires_shipping,coming_soon) VALUES(?,?,?,?,?,?,?)').run(...values);return reply(201,{id:Number(result.lastInsertRowid)});}
       return reply(200,{message:'Product saved.'});
     }
   }
@@ -73,6 +74,9 @@ export async function handleStore(req,res,path,user,{send,body}) {
     if(!ready())return reply(503,{error:'Checkout is not available yet. Please check back soon.'});
     const data=await body(req,10000);
     if(!Number.isInteger(data.product_id)||!Number.isInteger(data.quantity)||data.quantity<1||data.quantity>10||typeof data.request_id!=='string'||!/^[\w-]{16,80}$/.test(data.request_id))return reply(400,{error:'Choose a product and a quantity between 1 and 10.'});
+    const availableProduct=db.prepare('SELECT active,coming_soon FROM store_products WHERE id=?').get(data.product_id);
+    if(!availableProduct?.active)return reply(404,{error:'This item is no longer available.'});
+    if(availableProduct.coming_soon)return reply(409,{error:'This item is coming soon and is not available to purchase yet.'});
     let order=db.prepare('SELECT * FROM store_orders WHERE user_id=? AND request_id=?').get(user.id,data.request_id);
     if(order && (order.product_id!==data.product_id || order.quantity!==data.quantity))return reply(409,{error:'This checkout request belongs to another selection.'});
     if(order && order.status!=='pending')return reply(409,{error:'This checkout is no longer pending. Start a new checkout.'});

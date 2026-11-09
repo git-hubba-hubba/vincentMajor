@@ -1,3 +1,4 @@
+import { IconText } from "./Icon";
 import SiteText from "./SiteText";
 import { useState } from "react";
 import { api } from "../lib/api";
@@ -20,7 +21,7 @@ export default function InboxMessage({ item, onClear, showSender = true, canRepl
     } catch (err) { setError(err.message); } finally { setSending(false); }
   };
   return <article className="socialInboxItem">
-    <span aria-hidden="true">✉</span>
+    <span aria-hidden="true"><IconText>✉</IconText></span>
     <div className="inboxMessageContent"><p>{showSender && <strong>{name}</strong>}
       <small className="inboxMessageBody"><LinkedText>{item.body}</LinkedText></small></p>
       {canReply && !replying && <button type="button" className="secondaryButton inboxReplyButton"

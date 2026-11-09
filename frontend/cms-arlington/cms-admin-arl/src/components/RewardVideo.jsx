@@ -1,3 +1,4 @@
+import { IconText } from "./Icon";
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../lib/api';
 
@@ -45,7 +46,7 @@ export default function RewardVideo({user,onAuthChange,onSignIn,onEarned}) {
       onSeeking={event=>{if(session&&Math.abs(event.currentTarget.currentTime-validPosition.current)>1)event.currentTarget.currentTime=validPosition.current;}}
       onRateChange={event=>{if(session&&event.currentTarget.playbackRate!==1)event.currentTarget.playbackRate=1;}}
       onError={()=>setError('This video could not be loaded. Please try again later.')} aria-label={state.video.title}/>
-      {state.claimed?<p className="videoEarned" role="status">✓ Video bonus earned</p>:<button type="button" className="primaryButton" disabled={busy} onClick={start}>{busy?'Preparing…':session?'Restart video':user?'Start watching':'Sign in to watch & earn'}</button>}
+      {state.claimed?<p className="videoEarned" role="status"><IconText>✓ Video bonus earned</IconText></p>:<button type="button" className="primaryButton" disabled={busy} onClick={start}>{busy?'Preparing…':session?'Restart video':user?'Start watching':'Sign in to watch & earn'}</button>}
       {session&&<p role="status">Ready! Press play and watch the full video. Points are added automatically when it ends.</p>}
     </>:<p>{state?'The next reward video is coming soon.':'Loading video…'}</p>}
     {notice&&<p className="formMessage" role="status">{notice}</p>}{error&&<p className="formMessage" role="alert">{error}</p>}

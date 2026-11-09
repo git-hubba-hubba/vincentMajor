@@ -1,9 +1,11 @@
+import Icon from "./Icon";
+import { IconText } from "./Icon";
 import SiteText from "./SiteText";
 import BusinessQuad from '../components/BusinessQuad'
 function Vision() {
   const focusAreas = [
-    { icon: "+", title: "Health", note: "Stronger bodies and minds" },
-    { icon: "$", title: "Finances", note: "Tools for a secure future" },
+    { icon: "health", title: "Health", note: "Stronger bodies and minds" },
+    { icon: "money", title: "Finances", note: "Tools for a secure future" },
     { icon: "♪", title: "Entertainment", note: "More reasons to come together" },
     { icon: "☀", title: "Positive living", note: "Celebrating the good in life" },
   ];
@@ -49,13 +51,13 @@ function Vision() {
             <span></span><span></span><span></span>
           </div>
           <div className="impactCenter">
-            <span className="impactStar" aria-hidden="true">★</span>
+            <span className="impactStar" aria-hidden="true"><IconText>★</IconText></span>
             <strong><SiteText contentKey="Vision.f1cb587545a0">{"Arlington"}</SiteText></strong>
             <small><SiteText contentKey="Vision.4b95ce627201">{"Texas"}</SiteText></small>
           </div>
           {focusAreas.map((area, index) => (
             <div className={`focusPoint focusPoint${index + 1}`} key={area.title}>
-              <span aria-hidden="true">{area.icon}</span>
+              <span aria-hidden="true"><Icon name={area.icon === "health" ? "plus" : area.icon === "money" ? "money" : area.icon === "♪" ? "music" : "sun"}/></span>
               <div><strong><SiteText section="Vision">{area.title}</SiteText></strong><small><SiteText section="Vision">{area.note}</SiteText></small></div>
             </div>
           ))}

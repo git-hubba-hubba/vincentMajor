@@ -1,3 +1,4 @@
+import { IconText, IconSymbol } from "./Icon";
 import SiteText from "./SiteText";
 function Rules() {
   const communityRules = [
@@ -10,7 +11,7 @@ function Rules() {
     },
     {
       number: "02",
-      symbol: "◇",
+      symbol: "shield",
       title: "Keep everyone safe",
       description:
         "No hate speech or bullying. Bullying of any kind will not be allowed. Degrading comments about religion, race, sexual orientation, or culture will not be tolerated.",
@@ -33,7 +34,7 @@ function Rules() {
           </h2>
           <p><SiteText contentKey="Rules.c124d841e709">{"Take the time to read our rules for making the world a better place—one neighbor, conversation, and act of kindness at a time."}</SiteText></p>
           <div className="rulesSignature">
-            <span aria-hidden="true">✦</span>
+            <span aria-hidden="true"><IconText>✦</IconText></span>
             <p><strong><SiteText contentKey="Rules.8b28c004587f">{"Belong. Respect. Uplift."}</SiteText></strong><small><SiteText contentKey="Rules.14226d39d980">{"That’s how Arlington makes an impact."}</SiteText></small></p>
           </div>
         </div>
@@ -48,7 +49,7 @@ function Rules() {
         {communityRules.map((rule) => (
           <article className="ruleCard" key={rule.number}>
             <div className="ruleCardTop">
-              <span className="ruleSymbol" aria-hidden="true">{rule.symbol}</span>
+              <span className="ruleSymbol" aria-hidden="true"><IconSymbol value={rule.symbol}/></span>
               <span className="ruleNumber">{rule.number}</span>
             </div>
             <h3><SiteText section="Rules">{rule.title}</SiteText></h3>

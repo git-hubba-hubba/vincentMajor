@@ -1,3 +1,4 @@
+import { IconText } from "./Icon";
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import EditorModal from './EditorModal';
@@ -22,7 +23,7 @@ export default function StoreAdmin() {
   const archive=async product=>{setBusy(true);setError('');try{await api(`/store/products/${product.id}`,{method:'DELETE'});await load();}catch(err){setError(err.message);}finally{setBusy(false);}};
   const fulfill=async order=>{setBusy(true);setError('');try{await api(`/store/orders/${order.id}/fulfill`,{method:'POST'});await load();}catch(err){setError(err.message);}finally{setBusy(false);}};
   const shipping=order=>{try{return JSON.parse(order.shipping_details || 'null');}catch{return null;}};
-  return <section className="siteTextAdmin storeAdmin"><div className="storeSectionHeading"><div><p className="eyebrow">STORE MANAGEMENT</p><h2>Products & orders</h2></div><button type="button" className="primaryButton" onClick={()=>{setEditorError('');setForm({...emptyProduct});}}>＋ Add item</button></div><p>{ready?'Stripe checkout is configured.':'Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to the backend environment to enable checkout.'}</p>
+  return <section className="siteTextAdmin storeAdmin"><div className="storeSectionHeading"><div><p className="eyebrow">STORE MANAGEMENT</p><h2>Products & orders</h2></div><button type="button" className="primaryButton" onClick={()=>{setEditorError('');setForm({...emptyProduct});}}><IconText>＋ Add item</IconText></button></div><p>{ready?'Stripe checkout is configured.':'Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to the backend environment to enable checkout.'}</p>
     {error&&<p className="formMessage" role="alert">{error}</p>}
     <div className="storeAdminProducts">{products.map(product=><article key={product.id}><img src={product.image_url || '/images/banner.png'} alt=""/><div><strong>{product.name}</strong><small>{price(product.price_cents)} · {product.active?'Published':'Archived'}{product.coming_soon?' · Coming Soon':''}</small></div><button className="secondaryButton" disabled={busy} onClick={()=>{setEditorError('');setForm({...product,price:(product.price_cents/100).toFixed(2),active:Boolean(product.active),requires_shipping:Boolean(product.requires_shipping),coming_soon:Boolean(product.coming_soon)});}}>Edit</button>{Boolean(product.active)&&<button className="textButton" disabled={busy} onClick={()=>archive(product)}>Archive</button>}</article>)}</div>{!products.length&&<p>Add your first product to start building the collection.</p>}
     <div className="storeSectionHeading"><h3>Recent orders</h3><button className="textButton" disabled={busy} onClick={()=>load().catch(err=>setError(err.message))}>Refresh orders</button></div>

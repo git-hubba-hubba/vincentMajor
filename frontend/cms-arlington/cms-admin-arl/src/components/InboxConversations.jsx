@@ -1,3 +1,4 @@
+import { IconText } from "./Icon";
 import InboxMessage from './InboxMessage';
 
 export default function InboxConversations({messages,onClear}) {
@@ -12,7 +13,7 @@ export default function InboxConversations({messages,onClear}) {
     const latest=items[0];
     const name=`${latest.first_name} ${latest.last_name}`;
     return <details className="inboxConversation" key={senderId} open={index===0}>
-      <summary><span className="profileNetworkAvatar" aria-hidden="true">{latest.avatar_url?<img src={latest.avatar_url} alt=""/>:<>{latest.first_name?.[0]}{latest.last_name?.[0]}</>}</span><span className="inboxConversationHeading"><strong>{name}</strong><span>{latest.body}</span></span><span className="inboxConversationCount">{items.length} {items.length===1?'message':'messages'}</span><span className="inboxConversationChevron" aria-hidden="true">⌄</span></summary>
+      <summary><span className="profileNetworkAvatar" aria-hidden="true">{latest.avatar_url?<img src={latest.avatar_url} alt=""/>:<>{latest.first_name?.[0]}{latest.last_name?.[0]}</>}</span><span className="inboxConversationHeading"><strong>{name}</strong><span>{latest.body}</span></span><span className="inboxConversationCount">{items.length} {items.length===1?'message':'messages'}</span><span className="inboxConversationChevron" aria-hidden="true"><IconText>⌄</IconText></span></summary>
       <div className="inboxConversationMessages" aria-label={`Messages from ${name}`}>{[...items].reverse().map(item=><InboxMessage key={item.id} item={item} showSender={false} canReply={item.id===latest.id} onClear={()=>onClear(item.id)}/>)}</div>
     </details>;
   })}</div>;

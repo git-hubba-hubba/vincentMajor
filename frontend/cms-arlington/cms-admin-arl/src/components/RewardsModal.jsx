@@ -1,3 +1,4 @@
+import { IconText } from "./Icon";
 import SiteText from "./SiteText";
 import ImageLightbox from "./ImageLightbox";
 import EarnPoints from "./EarnPoints";
@@ -38,7 +39,7 @@ function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick, onEve
 
   return <div className="modalBackdrop rewardsBackdrop" onMouseDown={onClose} role="presentation">
     <section className="rewardsModal" role="dialog" aria-modal="true" aria-labelledby="rewards-title" onMouseDown={event=>event.stopPropagation()}>
-      <button className="modalClose rewardsClose" onClick={onClose} aria-label="Close rewards">×</button>
+      <button className="modalClose rewardsClose" onClick={onClose} aria-label="Close rewards"><IconText>×</IconText></button>
       <header className="rewardsHero">
         <div><p className="rewardsKicker"><SiteText contentKey="RewardsModal.2bf1347bb03f">{"Impact Rewards"}</SiteText></p><h2 id="rewards-title"><SiteText contentKey="RewardsModal.b5df1f18b1ad">{"Your points can make today "}</SiteText><em><SiteText contentKey="RewardsModal.7e586e4bdce4">{"better."}</SiteText></em></h2><p><SiteText contentKey="RewardsModal.2b4ad38cc1ca">{"Show up, support the community, and exchange the points you earn for local experiences and member perks."}</SiteText></p></div>
         <div className="pointsWallet"><span><SiteText contentKey="RewardsModal.2ed08c41069a">{"My balance"}</SiteText></span><strong><SiteText section="RewardsModal">{user?user.points.toLocaleString():"—"}</SiteText></strong><small><SiteText section="RewardsModal">{user?"available points":"Sign in to view"}</SiteText></small></div>
@@ -58,10 +59,10 @@ function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick, onEve
       </form>}
       {message&&<p className="rewardMessage" role="status">{message}</p>}
       {loading?<div className="rewardsLoading"><SiteText contentKey="RewardsModal.48c576db2910">{"Opening the reward vault…"}</SiteText></div>:<div className="rewardGrid">{rewards.map(reward=>{const soldOut=reward.inventory<=0;const short=user&&user.points<reward.points_cost;return <article className={`rewardCard ${soldOut||reward.redeemed?"rewardLocked":""}`} key={reward.id}>
-        <div className="rewardImage" style={{backgroundImage:`linear-gradient(180deg,transparent 35%,rgba(13,42,56,.78)),url(${reward.image_url||'/images/banner.png'})`}}><button type="button" className="rewardImageEnlarge" onClick={()=>setEnlargedReward(reward)} aria-label={`Enlarge image of ${reward.name}`}><span>View image ⤢</span></button><span className="rewardCost"><SiteText section="RewardsModal">{reward.points_cost===0?"Free":`${reward.points_cost.toLocaleString()} pts`}</SiteText></span>{reward.redeemed&&<span className="claimedStamp"><SiteText contentKey="RewardsModal.ddcd2779294a">{"Claimed"}</SiteText></span>}</div>
+        <div className="rewardImage" style={{backgroundImage:`linear-gradient(180deg,transparent 35%,rgba(13,42,56,.78)),url(${reward.image_url||'/images/banner.png'})`}}><button type="button" className="rewardImageEnlarge" onClick={()=>setEnlargedReward(reward)} aria-label={`Enlarge image of ${reward.name}`}><span><IconText>View image ⤢</IconText></span></button><span className="rewardCost"><SiteText section="RewardsModal">{reward.points_cost===0?"Free":`${reward.points_cost.toLocaleString()} pts`}</SiteText></span>{reward.redeemed&&<span className="claimedStamp"><SiteText contentKey="RewardsModal.ddcd2779294a">{"Claimed"}</SiteText></span>}</div>
         <div className="rewardBody"><p className="rewardSponsor"><SiteText contentKey="RewardsModal.d3965f8691a5">{"Gifted by "}</SiteText><SiteText section="RewardsModal">{reward.sponsor_name||"Impact Arlington"}</SiteText></p><h3>{reward.name}</h3><p>{reward.description}</p><div className="rewardAvailability"><span><i style={{width:`${Math.min(100,Math.max(0,reward.inventory)*12)}%`}}></i></span><strong><SiteText section="RewardsModal">{soldOut?"Fully claimed":`${reward.inventory} available`}</SiteText></strong></div><button disabled={soldOut||reward.redeemed||busyId===reward.id} onClick={()=>redeem(reward)}><SiteText section="RewardsModal">{busyId===reward.id?"Claiming…":reward.redeemed?"In my rewards":soldOut?"No longer available":!user?"Sign in to redeem":short?`Need ${(reward.points_cost-user.points).toLocaleString()} more points`:reward.points_cost===0?"Claim free reward":"Redeem reward"}</SiteText></button></div>
       </article>;})}</div>}
-      {!loading&&!rewards.length&&<div className="rewardsEmpty"><span>◇</span><h3><SiteText contentKey="RewardsModal.4761a83dade2">{"New rewards are on the way"}</SiteText></h3><p><SiteText contentKey="RewardsModal.a125e12f7c02">{"Keep earning points while our community sponsors prepare the next collection."}</SiteText></p></div>}
+      {!loading&&!rewards.length&&<div className="rewardsEmpty"><span><IconText>◇</IconText></span><h3><SiteText contentKey="RewardsModal.4761a83dade2">{"New rewards are on the way"}</SiteText></h3><p><SiteText contentKey="RewardsModal.a125e12f7c02">{"Keep earning points while our community sponsors prepare the next collection."}</SiteText></p></div>}
     {enlargedReward&&<ImageLightbox src={enlargedReward.image_url||"/images/banner.png"} title={enlargedReward.name} onClose={()=>setEnlargedReward(null)}/>}
     </section>
   </div>;

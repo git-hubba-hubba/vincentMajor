@@ -1,3 +1,4 @@
+import { IconText, IconSymbol } from "./Icon";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 
@@ -7,7 +8,7 @@ const steps = [
   { page: "Directory", title: "Find local businesses", icon: "⌕", text: "Browse the directory to discover businesses and services in your community and find your next local favorite." },
   { page: "Events", title: "Show up and make an impact", icon: "◷", text: "Explore upcoming events, register for activities, and check in when you attend to earn event points." },
   { page: "Members", title: "Meet your neighbors", icon: "☺", text: "Find members, explore profiles, and sign in to send messages or invite someone to an event." },
-  { page: "Store", title: "Shop the Impact store", icon: "◇", text: "Explore available Impact products. Your profile also keeps your account details and community activity in one place." },
+  { page: "Store", title: "Shop the Impact store", icon: "bag", text: "Explore available Impact products. Your profile also keeps your account details and community activity in one place." },
   { page: "Homepage", title: "Turn your points into rewards", icon: "✧", text: "Use Rewards in the header to see your balance, discover ways to earn points, and redeem available perks. Finish this tour to claim your 25-point bonus!" },
 ];
 
@@ -36,10 +37,10 @@ export default function SiteTutorial({ user, onAuthChange, onClose, onNavigate, 
     finally { setBusy(false); }
   }
   return <dialog ref={dialog} className="siteTutorial" aria-labelledby="tutorial-title" onCancel={event=>{event.preventDefault();if(!busy)onClose();}}>
-    <button type="button" className="tutorialClose" aria-label="Close tutorial" disabled={busy} onClick={onClose}>×</button>
+    <button type="button" className="tutorialClose" aria-label="Close tutorial" disabled={busy} onClick={onClose}><IconText>×</IconText></button>
     <p className="tutorialProgress">SITE TOUR · {step + 1} OF {steps.length}</p>
     <progress value={step + 1} max={steps.length} aria-label="Tutorial progress" />
-    <div aria-live="polite"><span className="tutorialIcon" aria-hidden="true">{result ? "✓" : item.icon}</span>
+    <div aria-live="polite"><span className="tutorialIcon" aria-hidden="true"><IconSymbol value={result ? "✓" : item.icon}/></span>
     <h2 id="tutorial-title">{result || item.title}</h2>
     <p>{result ? "Your balance is up to date. Click the Impact logo any time to take another tour." : item.text}</p></div>
     {error && <p role="alert">{error}</p>}
@@ -47,7 +48,7 @@ export default function SiteTutorial({ user, onAuthChange, onClose, onNavigate, 
     <div className="tutorialActions">
       {result ? <button className="primaryButton" onClick={onClose}>Explore the site</button> : <>
         <button className="secondaryButton" disabled={step===0 || busy} onClick={()=>setStep(value=>value-1)}>Back</button>
-        {step < steps.length-1 ? <button className="primaryButton" onClick={()=>setStep(value=>value+1)}>Next →</button> : <button className="primaryButton" disabled={busy} onClick={finish}>{busy ? "Claiming…" : user ? "Finish & claim 25 points" : "Sign in to claim 25 points"}</button>}
+        {step < steps.length-1 ? <button className="primaryButton" onClick={()=>setStep(value=>value+1)}><IconText>Next →</IconText></button> : <button className="primaryButton" disabled={busy} onClick={finish}>{busy ? "Claiming…" : user ? "Finish & claim 25 points" : "Sign in to claim 25 points"}</button>}
       </>}
     </div>
   </dialog>;

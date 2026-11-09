@@ -1837,7 +1837,15 @@ body{
 .siteTutorial{position:fixed;inset:auto 20px 20px auto;margin:0;width:min(440px,calc(100vw - 40px));max-height:calc(100dvh - 40px);overflow:auto;padding:28px;border:1px solid var(--border);border-radius:20px;background:var(--bg);color:var(--text);box-shadow:0 18px 70px #173d5140}.siteTutorial::backdrop{background:rgba(20,45,60,.18);pointer-events:none}.tutorialClose{position:absolute;right:14px;top:10px;border:0;background:transparent;font-size:26px;cursor:pointer;color:var(--text)}.tutorialProgress{font-size:11px;letter-spacing:.14em;margin-bottom:12px}.siteTutorial progress{width:100%;height:6px;accent-color:var(--brand-blue-dark)}.tutorialIcon{display:block;font-size:32px;margin:14px 0;color:var(--brand-blue-dark)}.siteTutorial h2{font-size:24px;color:var(--text-h);margin-bottom:12px}.siteTutorial p{line-height:1.65;font-size:14px}.tutorialActions{display:flex;justify-content:space-between;gap:12px;margin-top:22px}.tutorialActions button{font-size:13px}.tutorialActions button:disabled{opacity:.6;cursor:default}@media(max-width:600px){.siteTutorial{padding:22px;inset:auto 12px 12px;width:calc(100vw - 24px)}}
 
 /* The Latest keeps the established blue hero card and feed styling. */
-.heroLatest { cursor:pointer; text-align:left; font:inherit; }
+.heroLatest { cursor:pointer; text-align:left; font:inherit; transform-origin:center; animation:latestHeartbeat 2.8s ease-in-out infinite; }
+.heroLatest:hover,.heroLatest:focus-visible { animation-play-state:paused; }
+@keyframes latestHeartbeat {
+  0%,28%,100% { transform:scale(1); }
+  10% { transform:scale(1.035); }
+  17% { transform:scale(1); }
+  23% { transform:scale(1.025); }
+}
+@media (prefers-reduced-motion:reduce) { .heroLatest { animation:none; } }
 .heroLatest:hover { filter:brightness(.97); }
 .heroLatest:focus-visible { outline:3px solid var(--brand-blue-dark,#236d98); outline-offset:4px; }
 .heroLatest .heroLatestCaption { font-family:var(--sans,Arial,sans-serif); font-size:12px; font-weight:400; }

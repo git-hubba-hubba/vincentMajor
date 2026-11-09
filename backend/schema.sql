@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS posts (
   author_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   body TEXT NOT NULL,
+  video_url TEXT NOT NULL DEFAULT '',
   category TEXT NOT NULL DEFAULT 'Community',
   image_url TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('draft','pending','approved','denied')),

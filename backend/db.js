@@ -1,3 +1,4 @@
+import { videoFromPost } from './post-video.js';
 import { applyReducedPointAwards } from './points-policy.js';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, readFileSync } from 'node:fs';
@@ -11,6 +12,21 @@ mkdirSync(dirname(databasePath), { recursive: true });
 export const db = new DatabaseSync(databasePath);
 db.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');
 db.exec(readFileSync(join(here, 'schema.sql'), 'utf8'));
+
+// Existing admin video posts belong in The Latest. Run once when upgrading the posts schema.
+const postColumns = new Set(db.prepare('PRAGMA table_info(posts)').all().map(column => column.name));
+if (!postColumns.has('video_url')) {
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    db.exec("ALTER TABLE posts ADD COLUMN video_url TEXT NOT NULL DEFAULT ''");
+    const move = db.prepare("UPDATE posts SET category='The Latest',video_url=? WHERE id=?");
+    for (const post of db.prepare("SELECT posts.* FROM posts JOIN users ON users.id=posts.author_id WHERE posts.category='Community' AND users.role='admin'").all()) {
+      const video = videoFromPost(post);
+      if (video) move.run(video, post.id);
+    }
+    db.exec('COMMIT');
+  } catch (error) { db.exec('ROLLBACK'); throw error; }
+}
 
 const storeColumns=new Set(db.prepare('PRAGMA table_info(store_products)').all().map(column=>column.name));
 if(!storeColumns.has('coming_soon'))db.exec('ALTER TABLE store_products ADD COLUMN coming_soon INTEGER NOT NULL DEFAULT 0');

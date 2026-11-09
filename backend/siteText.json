@@ -2468,5 +2468,15 @@
     "key": "Vision.f8cf83a76a98",
     "section": "Vision",
     "text": "What"
+  },
+  {
+    "key": "Homepage.theLatest",
+    "section": "Homepage",
+    "text": "The Latest"
+  },
+  {
+    "key": "Homepage.latestCaption",
+    "section": "Homepage",
+    "text": "Watch community updates →"
   }
 ]

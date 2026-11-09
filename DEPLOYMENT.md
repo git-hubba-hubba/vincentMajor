@@ -16,7 +16,7 @@ Backend values:
 ```text
 ADMIN_EMAIL=your-private-admin-email
 ADMIN_PASSWORD=a-unique-password-of-at-least-12-characters
-CLIENT_ORIGIN=https://impact-arlington-web.onrender.com
+CLIENT_ORIGIN=https://www.impactingcities.com,https://impactingcities.com,https://impact-arlington-web.onrender.com
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_UPLOAD_PRESET=your-restricted-upload-preset
 ```

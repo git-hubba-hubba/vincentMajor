@@ -26,7 +26,7 @@ services:
       - key: SEED_DIRECTORY_DATA
         value: true
       - key: CLIENT_ORIGIN
-        value: https://impact-arlington-web.onrender.com
+        value: https://www.impactingcities.com,https://impactingcities.com,https://impact-arlington-web.onrender.com
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD

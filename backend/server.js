@@ -1,8 +1,9 @@
+import { postVideoSource } from './post-video.js';
 import http from 'node:http';
 import { readFileSync } from 'node:fs';
 import { randomBytes, scryptSync, timingSafeEqual, createHash } from 'node:crypto';
 import { db, hashPassword } from './db.js';
-import { persistImage } from './storage.js';
+import { persistImage, persistVideo } from './storage.js';
 import { scheduleBackups } from './backup.js';
 import { parseAllowedOrigins } from './cors.js';
 import { incentives } from './incentives.js';
@@ -16,7 +17,7 @@ const allowedOrigins = parseAllowedOrigins(process.env.CLIENT_ORIGIN || 'http://
 const allowedTables = new Set(['events','posts','rewards','companies','users','employees']);
 const editable = {
   events: ['creator_id','title','description','category','image_url','location','starts_at','ends_at','capacity','attendance_code','points_awarded','status','featured','admin_feedback'],
-  posts: ['author_id','title','body','category','image_url','status','featured','admin_feedback'],
+  posts: ['author_id','title','body','category','image_url','video_url','status','featured','admin_feedback'],
   rewards: ['name','description','points_cost','inventory','image_url','sponsor_name','sponsor_id','status','admin_feedback','active','expires_at'],
   companies: ['owner_id','name','category','description','image_url','website','phone','address','status','featured','verified','spotlight_position','admin_feedback'],
   users: ['first_name','last_name','email','role','status','avatar_url','bio','occupation','points','business_tier'],
@@ -45,6 +46,14 @@ async function body(req, limit=20e6) {
   return raw ? JSON.parse(raw) : {};
 }
 function fields(table, payload) { return Object.fromEntries(Object.entries(payload).filter(([key,value]) => editable[table].includes(key) && value !== undefined)); }
+
+function postVideoError(data) {
+  if (data.video_url === undefined || data.video_url === '') return null;
+  if (typeof data.video_url !== 'string') return 'Post video URL must be text.';
+  if (postVideoSource(data.video_url)) return null;
+  if (process.env.NODE_ENV !== 'production' && /^data:video\/(mp4|webm);base64,[A-Za-z0-9+/=]+$/.test(data.video_url) && data.video_url.length <= 28e6) return null;
+  return 'Use a YouTube, Vimeo, or direct MP4, WebM, or MOV video link.';
+}
 
 const server = http.createServer(async (req,res) => {
   const origin=req.headers.origin;
@@ -124,6 +133,21 @@ const server = http.createServer(async (req,res) => {
       const claims=user?db.prepare('SELECT incentive_id,points_awarded,created_at FROM incentive_claims WHERE user_id=?').all(user.id):[];
       const attended=user?db.prepare('SELECT 1 FROM event_registrations WHERE user_id=? AND attended=1 LIMIT 1').get(user.id):null;
       return send(res,200,incentives.map(item=>({...item,...(item.id==='video'?{points:db.prepare('SELECT points FROM reward_video WHERE id=1').get()?.points || item.points}:{}),claimed:item.id==='event'?Boolean(attended):claims.some(claim=>claim.incentive_id===item.id)})));
+    }
+    if(path==='/api/tutorial/complete' && req.method==='POST') {
+      if(!user) return send(res,401,{error:'Sign in to claim your tutorial points.'});
+      db.exec('BEGIN IMMEDIATE');
+      let awarded=false;
+      try {
+        awarded=Boolean(db.prepare("INSERT OR IGNORE INTO incentive_claims(user_id,incentive_id,points_awarded) VALUES(?,'tutorial',25)").run(user.id).changes);
+        if(awarded) {
+          db.prepare('UPDATE users SET points=points+25,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(user.id);
+          db.prepare('INSERT INTO notifications(user_id,type,message) VALUES(?,?,?)').run(user.id,'reward','You earned 25 points for completing the site tutorial.');
+          log(user.id,'earned incentive','tutorial',null,'25 points');
+        }
+        db.exec('COMMIT');
+      } catch(error) { db.exec('ROLLBACK'); throw error; }
+      return send(res,200,{awarded,user:db.prepare(`SELECT ${publicUser} FROM users WHERE id=?`).get(user.id)});
     }
     if(path==='/api/incentives/website' && req.method==='POST') {
       if(!user) return send(res,401,{error:'Sign in to earn website visit points.'});
@@ -332,8 +356,16 @@ const server = http.createServer(async (req,res) => {
         FROM rewards WHERE status='approved' AND active=1 AND (expires_at IS NULL OR expires_at='' OR expires_at>datetime('now')) ORDER BY inventory>0 DESC,points_cost,rewards.id DESC`).all(viewer);
       return send(res,200,rewards);
     }
+    if(path==='/api/post-video' && req.method==='POST') {
+      if(user?.role!=='admin') return send(res,403,{error:'Administrator access required to upload a post video.'});
+      const data=await body(req,30e6);
+      if(typeof data.video!=='string' || !/^data:video\/(mp4|webm);base64,[A-Za-z0-9+/=]+$/.test(data.video) || data.video.length>28e6 || !Number.isFinite(data.duration) || data.duration<=0 || data.duration>3600) return send(res,400,{error:'Choose an MP4 or WebM video up to 20 MB and one hour long.'});
+      const stored=await persistVideo(data.video,data.duration,'impact-arlington/posts');
+      if(stored.duration>3600) return send(res,400,{error:'Videos must be one hour or shorter.'});
+      return send(res,201,{video_url:stored.url});
+    }
     if(path==='/api/community-posts'&&req.method==='GET'){
-      const viewer=user?.id||0;const posts=db.prepare(`SELECT posts.id,posts.title,posts.body,posts.category,posts.image_url,posts.featured,posts.created_at,users.first_name,users.last_name,users.avatar_url,
+      const viewer=user?.id||0;const posts=db.prepare(`SELECT posts.id,posts.title,posts.body,posts.category,posts.image_url,posts.video_url,posts.featured,posts.created_at,users.first_name,users.last_name,users.avatar_url,
         (SELECT COUNT(*) FROM post_likes WHERE post_id=posts.id) like_count,(SELECT COUNT(*) FROM post_shares WHERE post_id=posts.id) share_count,
         EXISTS(SELECT 1 FROM post_likes WHERE post_id=posts.id AND user_id=?) liked
         FROM posts JOIN users ON users.id=posts.author_id WHERE posts.status='approved' ORDER BY posts.featured DESC,posts.id DESC`).all(viewer);
@@ -454,7 +486,7 @@ const server = http.createServer(async (req,res) => {
         const result=id?db.prepare(query).get(Number(id)):db.prepare(query).all(); return result ? send(res,200,result) : send(res,404,{error:'Not found.'});
       }
       if (!user || !['admin','board'].includes(user.role)) return send(res,403,{error:'Admin access required.'});
-      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='events' && data.points_awarded===undefined)data.points_awarded=50; if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'}); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'}); if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); if(table==='events')notifyEvent(Number(result.lastInsertRowid)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
+      if (req.method === 'POST') { if(table==='posts'&&user.role!=='admin')return send(res,403,{error:'Only administrators can create posts.'}); const payload=await body(req); const data=fields(table,payload); if(table==='events' && data.points_awarded===undefined)data.points_awarded=50; if(table==='users' && data.occupation!==undefined && (typeof data.occupation!=='string' || data.occupation.trim().length>100)) return send(res,400,{error:'Occupation must be text of 100 characters or fewer.'}); if(table==='users') data.password_hash=hashPassword(String(payload.password||randomBytes(18).toString('base64url'))); if(table==='companies'&&data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/businesses'); if(table==='rewards'){ if(data.points_cost!==undefined && (data.points_cost===null || String(data.points_cost).trim()==='' || !Number.isInteger(Number(data.points_cost)) || Number(data.points_cost)<0)) return send(res,400,{error:'Reward point cost must be a whole number of 0 or more.'}); if(data.image_url) data.image_url=await persistImage(data.image_url,'impact-arlington/rewards'); data.sponsor_id=data.sponsor_id||user.id; data.sponsor_name=data.sponsor_name||'Impact Arlington'; data.status='approved'; } if(table==='posts'){const videoError=postVideoError(data);if(videoError)return send(res,400,{error:videoError});data.author_id=user.id;data.status='approved';if(data.image_url?.startsWith('data:'))data.image_url=await persistImage(data.image_url,'impact-arlington/posts');} const keys=Object.keys(data); if(!keys.length) return send(res,400,{error:'No valid fields.'}); const result=db.prepare(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(()=>'?').join(',')})`).run(...Object.values(data)); if(table==='events')notifyEvent(Number(result.lastInsertRowid)); log(user.id,'created',table,Number(result.lastInsertRowid)); return send(res,201,{id:Number(result.lastInsertRowid)}); }
       if (req.method === 'PATCH' && id) {
         if (table === 'posts' && !db.prepare('SELECT id FROM posts WHERE id=?').get(Number(id))) return send(res,404,{error:'Post not found.'});
         const previousEvent=table==='events'?db.prepare('SELECT status FROM events WHERE id=?').get(Number(id)):null;
@@ -466,6 +498,7 @@ const server = http.createServer(async (req,res) => {
           if(data.image_url?.startsWith('data:')) data.image_url=await persistImage(data.image_url,'impact-arlington/events');
         }
         if (table === 'posts') {
+          const videoError=postVideoError(data);if(videoError)return send(res,400,{error:videoError});
           for (const field of ['title', 'body', 'category']) {
             if (data[field] !== undefined && (typeof data[field] !== 'string' || !data[field].trim())) return send(res,400,{error:'Post title, message, and category cannot be empty.'});
           }

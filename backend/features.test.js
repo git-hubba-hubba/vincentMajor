@@ -35,6 +35,14 @@ test('free rewards and content edits', async () => {
       return result;
     };
     const admin = await request('/auth/login','POST',{email:'test@example.com',password:'TestPassword123!'});
+    await request('/tutorial/complete','POST',{},undefined,401);
+    const learner = await request('/auth/register','POST',{firstName:'Tour',lastName:'Member',email:'tour@example.com',password:'TestPassword123!'});
+    const completions = await Promise.all(Array.from({length:3},()=>request('/tutorial/complete','POST',{},learner.token)));
+    assert.equal(completions.filter(result=>result.awarded).length,1);
+    assert.equal((await request('/auth/me','GET',undefined,learner.token)).user.points,75);
+    const replay = await request('/tutorial/complete','POST',{},learner.token);
+    assert.equal(replay.awarded,false);
+    assert.equal(replay.user.points,75);
     const member = await request('/auth/register','POST',{firstName:'Test',lastName:'Member',email:'member@example.com',password:'TestPassword123!'},undefined,200);
     assert.equal(member.user.points,50);
     assert.equal((await request('/auth/login','POST',{email:'member@example.com',password:'TestPassword123!'})).user.points,50);
@@ -67,6 +75,27 @@ test('free rewards and content edits', async () => {
     assert.equal(updated.image_url,'data:image/png;base64,test');
     await request(`/events/${event.id}`,'PATCH',{description:'Unauthorized'},member.token,403);
     await request(`/events/${event.id}`,'PATCH',{title:''},admin.token,400);
+    // Video updates remain publicly watchable, editable, and archived as separate posts.
+    const videoUrl='https://youtu.be/abcdefghijk';
+    const latest=await request('/posts','POST',{title:'Daily update',body:'Community news',category:'The Latest',video_url:videoUrl},admin.token,201);
+    const nextLatest=await request('/posts','POST',{title:'Next update',body:'More community news',category:'The Latest',video_url:'https://example.com/next.mp4'},admin.token,201);
+    const latestFeed=(await request('/community-posts')).filter(item=>item.category==='The Latest');
+    assert.deepEqual(latestFeed.map(item=>item.id),[nextLatest.id,latest.id]);
+    assert.equal(latestFeed.find(item=>item.id===latest.id).video_url,videoUrl);
+    await request(`/posts/${post.id}`,'PATCH',{category:'The Latest',video_url:videoUrl},admin.token);
+    assert.equal((await request('/community-posts')).find(item=>item.id===post.id).category,'The Latest');
+    for(const video_url of ['javascript:alert(1)','https://example.com/page',123]) {
+      await request('/posts','POST',{title:'Invalid',body:'Test',category:'The Latest',video_url},admin.token,400);
+      await request(`/posts/${latest.id}`,'PATCH',{video_url},admin.token,400);
+    }
+    await request('/posts','POST',{title:'Unauthorized',body:'Test',category:'The Latest',video_url:videoUrl},member.token,403);
+    await request('/post-video','POST',{},undefined,403);
+    await request('/post-video','POST',{},member.token,403);
+    await request('/post-video','POST',{video:'data:text/html;base64,dGVzdA==',duration:10},admin.token,400);
+    const uploaded=await request('/post-video','POST',{video:'data:video/mp4;base64,dGVzdA==',duration:10},admin.token,201);
+    assert.equal(uploaded.video_url,'data:video/mp4;base64,dGVzdA==');
+    await request(`/posts/${latest.id}`,'PATCH',{video_url:''},admin.token);
+    assert.equal((await request('/community-posts')).find(item=>item.id===latest.id).video_url,'');
     // Both conversation types enforce comment ownership and preserve other comments.
     for(const [kind,parent,feed] of [['posts',post.id,'/community-posts'],['events',event.id,'/community-events']]) {
       const own=await request(`/${kind}/${parent}/comment`,'POST',{body:'My original comment'},member.token,201);

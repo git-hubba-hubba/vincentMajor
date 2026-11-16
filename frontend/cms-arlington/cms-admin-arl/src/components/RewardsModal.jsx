@@ -1,6 +1,7 @@
 import { IconText } from "./Icon";
 import SiteText from "./SiteText";
 import ImageLightbox from "./ImageLightbox";
+import EventAttendanceClaim from "./EventAttendanceClaim";
 import EarnPoints from "./EarnPoints";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api";
@@ -44,6 +45,7 @@ function RewardsModal({ open, onClose, user, onAuthChange, onProfileClick, onEve
         <div><p className="rewardsKicker"><SiteText contentKey="RewardsModal.2bf1347bb03f">{"Impact Rewards"}</SiteText></p><h2 id="rewards-title"><SiteText contentKey="RewardsModal.b5df1f18b1ad">{"Your points can make today "}</SiteText><em><SiteText contentKey="RewardsModal.7e586e4bdce4">{"better."}</SiteText></em></h2><p><SiteText contentKey="RewardsModal.2b4ad38cc1ca">{"Show up, support the community, and exchange the points you earn for local experiences and member perks."}</SiteText></p></div>
         <div className="pointsWallet"><span><SiteText contentKey="RewardsModal.2ed08c41069a">{"My balance"}</SiteText></span><strong><SiteText section="RewardsModal">{user?user.points.toLocaleString():"—"}</SiteText></strong><small><SiteText section="RewardsModal">{user?"available points":"Sign in to view"}</SiteText></small></div>
       </header>
+      <EventAttendanceClaim user={user} onAuthChange={onAuthChange} onSignIn={()=>{onClose();onProfileClick();}} />
       <EarnPoints user={user} onAuthChange={onAuthChange} onSignIn={()=>{onClose();onProfileClick();}} onEvents={()=>{onClose();onEvents();}} />
       <div className="rewardsToolbar"><div><strong>{rewards.filter(item=>item.inventory>0).length}</strong><span><SiteText contentKey="RewardsModal.12e0c58afe4b">{"rewards ready to claim"}</SiteText></span></div><div className="rewardsToolbarActions"><button type="button" className="donateRewardButton" aria-expanded={showHowItWorks} aria-controls="rewards-how-it-works" onClick={()=>setShowHowItWorks(!showHowItWorks)}><SiteText contentKey="RewardsModal.9c870aa6e5e9">{"How it works"}</SiteText></button><button className="donateRewardButton" onClick={()=>{if(!user){onClose();onProfileClick();}else setDonating(!donating);}}><SiteText contentKey="RewardsModal.93b3607edcc0">{"♡ Donate a reward"}</SiteText></button></div></div>
       <section id="rewards-how-it-works" className="rewardsGuide" aria-labelledby="rewards-guide-title" hidden={!showHowItWorks}>

@@ -1,3 +1,4 @@
+import EventAttendanceAdmin from '../components/EventAttendanceAdmin'
 import StoreAdmin from '../components/StoreAdmin'
 import Namespace from '../components/Namespace'
 import AdminCMS from '../components/AdminCMS'
@@ -11,6 +12,7 @@ function AdminDash({ user }) {
     <Namespace title={"Admin Dashboard"}/>
     <AdminCMS user={user} />
     {user?.role==="admin"&&<StoreAdmin />}
+    {["admin","board"].includes(user?.role)&&<EventAttendanceAdmin />}
     {user?.role==="admin"&&<IncentiveAdmin />}
     {user?.role==="admin"&&<SiteTextAdmin user={user} />}
     

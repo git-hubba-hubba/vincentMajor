@@ -25,7 +25,7 @@ function App() {
   const [currentComponent, setCurrentComponent] = useState(()=>new URLSearchParams(window.location.search).get("page")==="Store"?"Store":"Homepage")
   const [profileOpen, setProfileOpen] = useState(()=>new URLSearchParams(window.location.hash.slice(1)).has("reset-password"));
   useEffect(()=>{const followResetLink=()=>{if(new URLSearchParams(window.location.hash.slice(1)).has("reset-password"))setProfileOpen(true);};window.addEventListener("hashchange",followResetLink);return()=>window.removeEventListener("hashchange",followResetLink);},[]);
-  const [rewardsOpen, setRewardsOpen] = useState(()=>new URLSearchParams(window.location.search).has("incentive"));
+  const [rewardsOpen, setRewardsOpen] = useState(()=>["incentive","attendance"].some(key=>new URLSearchParams(window.location.search).has(key)));
   const [user, setUser] = useState(null);
   useEffect(() => {
     if (!localStorage.getItem("impact_token")) return;
@@ -50,7 +50,7 @@ function App() {
       </div>
       <footer className="siteFooter"><div><strong><SiteText contentKey="App.86dc93dee38c">{"impact / Arlington"}</SiteText></strong><p><SiteText contentKey="App.471e88cea8b6">{"A community within the community."}</SiteText></p></div><nav aria-label="More about Impact">{[["Vision", "Our vision"], ["Rules", "Community rules"], ["Highlights", "Highlights"], ["Admin", "Admin"]].map(([page, label]) => <button key={page} onClick={() => setCurrentComponent(page)} aria-current={currentComponent === page ? "page" : undefined}><SiteText section="App">{label}</SiteText></button>)}</nav><span><SiteText contentKey="App.6584e3b201f3">{"Better together. Right here."}</SiteText></span></footer>
       {tutorialOpen && <SiteTutorial user={user} onAuthChange={setUser} onClose={()=>setTutorialOpen(false)} onNavigate={setCurrentComponent} onProfileClick={()=>setProfileOpen(true)} paused={profileOpen} />}
-      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} user={user} onAuthChange={updated=>{setUser(updated);if(updated&&new URLSearchParams(window.location.search).has("incentive")){setProfileOpen(false);setRewardsOpen(true);}}} />
+      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} user={user} onAuthChange={updated=>{setUser(updated);if(updated&&["incentive","attendance"].some(key=>new URLSearchParams(window.location.search).has(key))){setProfileOpen(false);setRewardsOpen(true);}}} />
       <RewardsModal onEvents={()=>setCurrentComponent("Events")} open={rewardsOpen} onClose={() => setRewardsOpen(false)} user={user} onAuthChange={setUser} onProfileClick={() => setProfileOpen(true)} />
     </>
   );
